@@ -1,0 +1,36 @@
+{
+    "name": "nonetallt/php-helpers",
+    "description": "The things you always need but never feel like coding again.",
+    "keywords": ["helpers"],
+    "type": "library",
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6",
+        "consolidation/robo": "~1",
+        "henrikbjorn/lurker": "^1.2"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jyri Mikkola",
+            "email": "jyri.mikkola@pp.inet.fi"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": { 
+            "Nonetallt\\Helpers\\": "src/Classes/"
+        },
+        "files": [
+            "src/strings.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\": "test/"
+        }
+    }
+}
