@@ -36,4 +36,15 @@ class StringsTest extends TestCase
     {
         $this->assertFalse(starts_with_whitespace('asd'));
     }
+
+    public function testExplodeMultiple()
+    {
+        $expected = [
+            'test1',
+            'test2',
+            'test3',
+            'test4'
+        ];
+        $this->assertEquals($expected, explode_multiple('test1,test2 test3|test4', ' ', ',', '|'));
+    }
 }

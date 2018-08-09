@@ -22,3 +22,18 @@ if(! function_exists('starts_with_whitespace')) {
         return preg_match('|^\s+|', $subject) === 1;
     }
 }
+
+if(! function_exists('explode_multiple')) {
+    function explode_multiple(string $subject, ...$delimiters) 
+    {
+        /* Get first delimiter */
+        $first = $delimiters[0];
+
+        /* Replace all delimiters on the subject with the first one */
+        foreach($delimiters as $delimiter) {
+            $subject = str_replace($delimiter, $first, $subject);
+        }
+
+        return explode($first, $subject);
+    }
+}
