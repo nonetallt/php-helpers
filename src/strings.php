@@ -15,3 +15,10 @@ if(! function_exists('ends_with')) {
         return $subjectEnd === $end;
     }
 }
+
+if(! function_exists('starts_with_whitespace')) {
+    function starts_with_whitespace(string $subject) 
+    {
+        return preg_match('|^\s+|', $subject) === 1;
+    }
+}

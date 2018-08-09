@@ -26,4 +26,14 @@ class StringsTest extends TestCase
     {
         $this->assertFalse(ends_with('test123', '13'));
     }
+
+    public function testStartsWIthWhitespaceTrue()
+    {
+        $this->assertTrue(starts_with_whitespace('  asd'));
+    }
+
+    public function testStartsWIthWhitespaceFalse()
+    {
+        $this->assertFalse(starts_with_whitespace('asd'));
+    }
 }
