@@ -43,3 +43,31 @@ if(! function_exists('explode_multiple')) {
         return explode($first, $subject);
     }
 }
+
+if(! function_exists('str_remove_recurring')) {
+    function str_remove_recurring(string $subject, string $character) 
+    {
+        if(strlen($character) !== 1) {
+            $message = "Given character must be a string with a lenght of 1 character. '$character' given.";
+            throw new \InvalidArgumentException($message) ;
+        } 
+
+        $indexesToRemove = [];
+        $lastChar = '';
+
+        for($n = 0; $n < strlen($subject); $n++) {
+            $currentChar = substr($subject, $n, 1);
+            if($currentChar === $lastChar && $currentChar === $character) $indexesToRemove[] = $n -1;
+            $lastChar = $currentChar;
+        }
+
+        foreach($indexesToRemove as $index => $pos) {
+            /* Index equals the number of indexes removed, 
+                adjust position by the amount of characters that were removed 
+             */
+            $subject = substr_replace($subject, '', $pos - $index, 1);
+        }
+
+        return $subject;
+    }
+}

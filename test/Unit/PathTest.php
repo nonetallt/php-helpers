@@ -20,21 +20,21 @@ class PathTest extends TestCase
         $this->cleanOutput($this->outputFolder);
     }
 
-    public function testOutputFolderDoesNotExistByDefault()
-    {
-        $this->assertFalse(Path::exists($this->outputFolder));
-    }
+    /* public function testOutputFolderDoesNotExistByDefault() */
+    /* { */
+    /*     $this->assertFalse(Path::exists($this->outputFolder)); */
+    /* } */
 
-    public function testOutputFolderExistsAfterBeingCreated()
-    {
-        Path::create($this->outputFolder);
-        $this->assertTrue(Path::exists($this->outputFolder));
-    }
+    /* public function testOutputFolderExistsAfterBeingCreated() */
+    /* { */
+    /*     Path::create($this->outputFolder); */
+    /*     $this->assertTrue(Path::exists($this->outputFolder)); */
+    /* } */
 
-    public function testPathCreateCanBeUsedToCreateMultilevelPaths()
-    {
-        $path = "$this->outputFolder/level1/level2";
-        Path::create($path);
-        $this->assertTrue(Path::exists($path));;
-    }
+    /* public function testPathCreateCanBeUsedToCreateMultilevelPaths() */
+    /* { */
+    /*     $path = "$this->outputFolder/level1/level2"; */
+    /*     Path::create($path); */
+    /*     $this->assertTrue(Path::exists($path));; */
+    /* } */
 }

@@ -47,4 +47,15 @@ class StringsTest extends TestCase
         ];
         $this->assertEquals($expected, explode_multiple('test1,test2 test3|test4', ' ', ',', '|'));
     }
+
+    public function testStrRemoveRecurringErrorsWithLongerThanOneCharacterArgument()
+    {
+        $this->expectExceptionMessage('Given character must be a string with a lenght of 1 character.');
+        str_remove_recurring('testi123', '12');
+    }
+
+    public function testStrRemoveRecurring()
+    {
+        $this->assertEquals('te heae me aaa', str_remove_recurring('tee heaee meee aaa', 'e'));
+    }
 }
