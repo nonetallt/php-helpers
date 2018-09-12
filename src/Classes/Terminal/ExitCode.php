@@ -22,6 +22,11 @@ class ExitCode
         $this->code = $code;
     }
 
+    public function __toString()
+    {
+        return $this->getCode().' : '.$this->getMessage();
+    }
+
     public function getCode()
     {
         return $this->code;
