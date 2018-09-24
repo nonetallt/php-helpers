@@ -60,8 +60,8 @@ class Command
         return implode(PHP_EOL, $this->output);
     }
 
-    public function getStatus()
+    public function getExitCode()
     {
-        return new StatusCode($this->status);
+        return new ExitCode($this->status);
     }
 }

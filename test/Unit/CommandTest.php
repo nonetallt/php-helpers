@@ -38,4 +38,12 @@ class CommandTest extends TestCase
 
         $this->assertFalse($result);
     }
+
+    public function testEchoReturnsSuccessfulStatusCode()
+    {
+        $command = new Command('echo test');
+        $command->execute();
+
+        $this->assertTrue($command->getExitCode()->isSuccess());
+    }
 }
