@@ -22,9 +22,9 @@ class ExitCodeTest extends TestCase
         $this->assertEquals('general error', $this->code(1)->getMessage());
     }
 
-    public function testMessageIsOutOfRangeWhenCodeIsLessThanZero()
+    public function testMessageIsNotExecutedWhenCodeIsLessThanZero()
     {
-        $this->assertContains('out of range', $this->code(-1)->getMessage());
+        $this->assertContains('not executed', $this->code(-1)->getMessage());
     }
 
     public function testMessageIsOutOfRangeWhenCodeIsGreaterThan255()

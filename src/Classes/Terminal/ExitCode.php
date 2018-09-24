@@ -43,6 +43,9 @@ class ExitCode
             return self::STATUS_MESSAGES[$this->code];
         }
 
+        /* Custom status to be used as placeholder */
+        if($this->code === -1) return 'not executed';
+
         if($this->code > 255 || $this->code < 0) return 'exit status out of range';
         if($this->code > 128 && $this->code < 166) return $this->fatalError();
 
