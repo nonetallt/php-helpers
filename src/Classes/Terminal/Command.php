@@ -8,13 +8,15 @@ class Command
     private $output;
     private $status;
     private $expects;
+    private $appends;
 
-    public function __construct(string $command)
+    public function __construct(string $command, bool $appends = true)
     {
         $this->command = $command;
         $this->output = [];
         $this->status = -1;
         $this->expects = null;
+        $this->appends = $appends;
     }
 
     public function expects(string $expected)
@@ -31,7 +33,7 @@ class Command
         $outputRedirect = "2>&1";
 
         /* Make sure that output contains possible errors */
-        if(strpos($this->command, $outputRedirect) === false) {
+        if($this->appends && strpos($this->command, $outputRedirect) === false) {
             $this->command .= " $outputRedirect";
         }
 
