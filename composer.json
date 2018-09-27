@@ -26,7 +26,8 @@
         },
         "files": [
             "src/strings.php",
-            "src/generic.php"
+            "src/generic.php",
+            "src/arrays.php"
         ]
     },
     "autoload-dev": {
