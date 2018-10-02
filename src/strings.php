@@ -71,3 +71,13 @@ if(! function_exists('str_remove_recurring')) {
         return $subject;
     }
 }
+
+if(! function_exists('str_splice')) {
+    function str_splice(string &$subject, int $start, int $length)
+    {
+        $result = substr($subject, $start, $length);
+        $subject =  substr($subject, 0, $start) . substr($subject, $length +1);
+
+        return $result;
+    }
+}

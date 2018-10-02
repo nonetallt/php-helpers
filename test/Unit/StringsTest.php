@@ -58,4 +58,17 @@ class StringsTest extends TestCase
     {
         $this->assertEquals('te heae me aaa', str_remove_recurring('tee heaee meee aaa', 'e'));
     }
+
+    public function testStrSpliceReturnsRemoveString()
+    {
+        $str = '0123456';
+        $this->assertEquals('1234', str_splice($str, 1, 4));
+    }
+
+    public function testStrSpliceRemovesSplicedPartFromString()
+    {
+        $str = '0123456';
+        str_splice($str, 1, 4);
+        $this->assertEquals('056', $str);
+    }
 }
