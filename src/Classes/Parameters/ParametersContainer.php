@@ -12,7 +12,7 @@ class ParametersContainer
     public function __construct(array $data)
     {
         $this->data = $data;
-        $this->placeholderFormat = '{{$}}';
+        $this->placeholderFormat = new PlaceholderFormat('{{$}}');
         $this->accessorFormat = '->';
     }
 
@@ -40,7 +40,7 @@ class ParametersContainer
 
         /* Find and replace placeholders with their respective values */
         foreach($this->placeholdersFor($key) as $placeholder) {
-            $placeholderKey = $this->placeholderString($placeholder);
+            $placeholderKey = $this->placeholderFormat->getPlaceholderFor($placeholder);
             $value = $this->getNestedValue($placeholder, $this->placeholderValues);
             $placeholderValues[$placeholderKey] = $value;
         }
@@ -61,8 +61,8 @@ class ParametersContainer
 
         $placeholders = [];
 
-        $startFormat = '{{';
-        $endFormat = '}}';
+        $startFormat = $this->placeholderFormat->getStart();
+        $endFormat = $this->placeholderFormat->getEnd();
 
         $startLen = strlen($startFormat);
         $endLen = strlen($endFormat);
@@ -111,10 +111,14 @@ class ParametersContainer
         return $this->placeholderValues;
     }
 
-    public function placeholderString(string $key)
+    public function getPlaceholders()
     {
-        $placeholder = str_replace('$', $key, $this->placeholderFormat);
-        return $placeholder;
+        $placeholders = [];
+        foreach($this->data as $key => $value) {
+            $placeholders[] = $this->format->getPlaceholdersInString($value);
+        }
+
+        return $placeholders;
     }
 
     public function setPlaceholderValues(array $values)
@@ -124,10 +128,7 @@ class ParametersContainer
 
     public function setPlaceholderFormat(string $format)
     {
-        if(strpos($format, '$') === false) {
-            throw new \Exception("Placeholder format must contain the $ character to represent values");
-        }
-        $this->format = $format;
+        $this->placeholderFormat = new PlaceholderFormat($format);
     }
 
     public function toArray()

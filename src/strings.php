@@ -73,10 +73,12 @@ if(! function_exists('str_remove_recurring')) {
 }
 
 if(! function_exists('str_splice')) {
-    function str_splice(string &$subject, int $start, int $length)
+    function str_splice(string &$subject, int $start, int $length = null)
     {
+        if(is_null($length)) $length = strlen($subject);
+
         $result = substr($subject, $start, $length);
-        $subject =  substr($subject, 0, $start) . substr($subject, $length +1);
+        $subject =  substr($subject, 0, $start) . substr($subject, $start + $length);
 
         return $result;
     }

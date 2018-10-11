@@ -71,4 +71,30 @@ class StringsTest extends TestCase
         str_splice($str, 1, 4);
         $this->assertEquals('056', $str);
     }
+
+    public function testStrSpliceCanBeUsedWithoutThirdArgument()
+    {
+        $str = '0123456';
+        $this->assertEquals('123456', str_splice($str, 1));
+    }
+
+    public function testStrSpliceModifiesSubjectCorrectlyWithoutThridArgument()
+    {
+        $str = '0123456';
+        str_splice($str, 2);
+        $this->assertEquals('01', $str);
+    }
+
+    public function testStrSliceReturnsCorrectStringOnComplexString()
+    {
+        $str = '123456789Kappa123456789';
+        $this->assertEquals('Kappa', str_splice($str, 9, 5));
+    }
+
+    public function testStrSliceModifiesSubjectCorrectlyOnComplexString()
+    {
+        $str = '123456789Kappa123456789';
+        str_splice($str, 9, 5);
+        $this->assertEquals('123456789123456789', $str);
+    }
 }

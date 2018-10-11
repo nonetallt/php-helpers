@@ -1,3 +1,4 @@
 # Parameters
+* use accessor
 * getNestedValue error handling
 * error when specified placeholder path is not found

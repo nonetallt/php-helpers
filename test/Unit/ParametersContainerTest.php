@@ -37,12 +37,6 @@ class ParametersContainerTest extends TestCase
         $this->container->value123;
     }
 
-    public function testPlaceholderStringReturnsGivenPlaceholdersKey()
-    {
-        $this->container->setPlaceholderValues(['placeholder2' => 123]);
-        $this->assertEquals('{{placeholder2}}', $this->container->placeholderString('placeholder2'));
-    }
-
     public function testPlaceholderValuesAreReplacedByGet()
     {
         $this->container->setPlaceholderValues(['placeholder2' => 2]);
@@ -151,5 +145,10 @@ class ParametersContainerTest extends TestCase
 
         $container->setPlaceholderValues($placeholders);
         $this->assertEquals($expected, $container->toArray());
+    }
+
+    public function testGetPlaceholdersFindsAllPlaceholders()
+    {
+
     }
 }
