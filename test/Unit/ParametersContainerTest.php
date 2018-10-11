@@ -110,4 +110,46 @@ class ParametersContainerTest extends TestCase
         $this->container->setPlaceholderValues($placeholders);
         $this->assertEquals($expected, $this->container->toArray());
     }
+
+    public function testGetNestedValueThrowsExceptionWhenPathIsEmpty()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->container->getNestedValue('', ['value' => 1]);
+    }
+
+    public function testGetNestedValueThrowsExceptionWhenPathDoesNotExist()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->container->getNestedValue('undefined', ['value' => 1]);
+    }
+
+    public function testToArrayWorksWithMultilevelNesting()
+    {
+        $placeholders = [
+            'event' => [
+                'model' => [
+                    'hostname' => 'example.com',
+                    'entries' => [
+                        'example1' => 3,
+                        'example2' => 4
+                    ]
+                ]
+            ]
+        ];
+
+        $expected = [
+            'value1' => 1,
+            'value2' => 2,
+            'value3' => 3,
+        ];
+
+        $container = new ParametersContainer([
+            'value1' => 1,
+            'value2' => 2,
+            'value3' => '{{event->model->entries->example1}}'
+        ]);
+
+        $container->setPlaceholderValues($placeholders);
+        $this->assertEquals($expected, $container->toArray());
+    }
 }
