@@ -121,4 +121,39 @@ class ParametersContainerTest extends TestCase
         $placeholders = $this->container->getPlaceholders();
         $this->assertEquals($expected, $placeholders);
     }
+
+    public function testGetMissingPlaceholderValuesReturnsAllPlaceholdersWhenNoValuesAreDefined()
+    {
+        $expected = ['placeholder2', 'placeholder3->key1', 'placeholder4-1', 'placeholder4-2'];
+        $this->assertEquals($expected, $this->container->getMissingPlaceholderValues());
+    }
+
+    public function testGetMissingPlaceholderValuesReturnsAnEmptyArrayWhenAllPlaceholdersAreDefined()
+    {
+        $data = [
+            'placeholder2' => 2, 
+            'placeholder3' => ['key1' => 3],
+            'placeholder4-1' => 41,
+            'placeholder4-2' => 42
+        ];
+
+        $this->container->setPlaceholderValues($data);
+        $this->assertEmpty($this->container->getMissingPlaceholderValues());
+    }
+
+    public function testGetMissingPlaceholderValuesReturnsTheMissingValues()
+    {
+        $data = [
+            'placeholder2' => 2, 
+            'placeholder3' => ['key1' => 3]
+        ];
+
+        $expected = [
+            'placeholder4-1',
+            'placeholder4-2'
+        ];
+
+        $this->container->setPlaceholderValues($data);
+        $this->assertEquals($expected, $this->container->getMissingPlaceholderValues());
+    }
 }

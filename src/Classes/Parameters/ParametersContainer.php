@@ -14,6 +14,7 @@ class ParametersContainer
         $this->data = $data;
         $this->placeholderFormat = new PlaceholderFormat('{{$}}');
         $this->accessor = new RecursiveAccessor('->');
+        $this->placeholderValues = [];
     }
 
     public function __get($key)
@@ -88,6 +89,18 @@ class ParametersContainer
     public function getPlaceholderFormat()
     {
         return $this->placeholderFormat;
+    }
+
+    public function getMissingPlaceholderValues()
+    {
+        $missing = [];
+
+        foreach($this->getPlaceholders() as $placeholder) {
+            if($this->accessor->isset($placeholder, $this->placeholderValues)) continue;
+            $missing[] = $placeholder;
+        }
+
+        return $missing;
     }
 
     public function toArray()

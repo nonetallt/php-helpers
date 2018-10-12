@@ -23,6 +23,8 @@ class RecursiveAccessor
 
     public function isset(string $path, $values)
     {
+        if(is_null($values)) return false;
+
         if(! is_array($values)) return true;
 
         /* If path does not have accessor */
