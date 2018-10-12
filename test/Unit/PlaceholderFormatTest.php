@@ -63,4 +63,16 @@ class PlaceholderFormatTest extends TestCase
         $this->assertEquals($expected, $this->format->getPlaceholdersInString($str));
     }
 
+    public function testFindPlaceholdersInStringSecondParameterRemovesStartAndEndParenthesis()
+    {
+        $expected = [
+            'placeholder1',
+            'placeholder2'
+        ];
+
+        $str = 'Kappa23123{{placeholder1}}asdasd345235uih3g3{a}{ { {{placeholder2}}sdasd';
+
+        $this->assertEquals($expected, $this->format->getPlaceholdersInString($str, true));
+    }
+
 }

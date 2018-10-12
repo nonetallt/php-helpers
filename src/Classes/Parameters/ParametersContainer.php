@@ -114,8 +114,11 @@ class ParametersContainer
     public function getPlaceholders()
     {
         $placeholders = [];
+        $format = $this->placeholderFormat;
+
         foreach($this->data as $key => $value) {
-            $placeholders[] = $this->format->getPlaceholdersInString($value);
+            $placeholder = $format->getPlaceholdersInString($value, true);
+            $placeholders = array_merge($placeholders, $placeholder);
         }
 
         return $placeholders;
@@ -129,6 +132,11 @@ class ParametersContainer
     public function setPlaceholderFormat(string $format)
     {
         $this->placeholderFormat = new PlaceholderFormat($format);
+    }
+
+    public function getPlaceholderFormat()
+    {
+        return $this->placeholderFormat;
     }
 
     public function toArray()

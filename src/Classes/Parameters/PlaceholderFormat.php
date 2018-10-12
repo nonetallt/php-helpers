@@ -49,14 +49,27 @@ class PlaceholderFormat
         return $placeholder;
     }
 
-    public function getPlaceholdersInString(string $str)
+    public function trimPlaceholderString(string $subject)
+    {
+        str_splice($subject, 0, strlen($this->getStart()));
+        str_splice($subject, strlen($subject) - strlen($this->getStart()));
+        return $subject;
+    }
+
+    public function getPlaceholdersInString(string $str, bool $trimPlaceholders = false)
     {
         $placeholders = [];
         $start = strpos($str, $this->start);
         $end = strpos($str, $this->end) + strlen($this->end) - $start;
 
         while($start !== false && $end !== false) {
-            $placeholders[] = str_splice($str, $start, $end);
+
+            $placeholder = str_splice($str, $start, $end);
+            if($trimPlaceholders) $placeholder = $this->trimPlaceholderString($placeholder);
+            
+            $placeholders[] = $placeholder;
+
+            /* Calculate next placeholder */
             $start = strpos($str, $this->start);
             $end = strpos($str, $this->end) + strlen($this->end) - $start;
         }

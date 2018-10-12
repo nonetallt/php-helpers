@@ -149,6 +149,8 @@ class ParametersContainerTest extends TestCase
 
     public function testGetPlaceholdersFindsAllPlaceholders()
     {
-
+        $expected = ['placeholder2', 'placeholder3->key1', 'placeholder4-1', 'placeholder4-2'];
+        $placeholders = $this->container->getPlaceholders();
+        $this->assertEquals($expected, $placeholders);
     }
 }
