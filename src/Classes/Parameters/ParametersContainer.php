@@ -7,13 +7,13 @@ class ParametersContainer
     private $data;
     private $placeholderFormat;
     private $placeholderValues;
-    private $accessorFormat;
+    private $accessor;
 
     public function __construct(array $data)
     {
         $this->data = $data;
         $this->placeholderFormat = new PlaceholderFormat('{{$}}');
-        $this->accessorFormat = '->';
+        $this->accessor = new RecursiveAccessor('->');
     }
 
     public function __get($key)
@@ -22,11 +22,6 @@ class ParametersContainer
             throw new \Exception("Undefined parameter '$key'");
         }
         return $this->replacePlaceholderValue($key);
-    }
-
-    public function containsAccessor(string $value)
-    {
-        return strpos($value, $this->accessorFormat) !== false;
     }
 
     private function replacePlaceholderValue(string $key)
@@ -93,7 +88,7 @@ class ParametersContainer
         if(! is_array($values)) return $values;
         if($path === '') throw new \InvalidArgumentException("Path cannot be an empty string");
 
-        $pathParts = explode($this->accessorFormat, $path);
+        $pathParts = explode($this->accessor->getFormat(), $path);
 
         /* Remove first part from path */
         $current = array_splice($pathParts, 0, 1)[0];
@@ -103,7 +98,7 @@ class ParametersContainer
 
         $value = $values[$current];
 
-        return $this->getNestedValue(implode($this->accessorFormat, $pathParts), $value);
+        return $this->getNestedValue(implode($this->accessor->getFormat(), $pathParts), $value);
     }
 
     public function getPlaceholderValues()

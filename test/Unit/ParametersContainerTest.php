@@ -43,15 +43,7 @@ class ParametersContainerTest extends TestCase
         $this->assertEquals(2, $this->container->value2);
     }
 
-    public function testValueContainsDefaultAccessor()
-    {
-        $this->assertTrue($this->container->containsAccessor('test->123'));
-    }
-
-    public function testValueDoesNotContainDefaultAccessor()
-    {
-        $this->assertFalse($this->container->containsAccessor('test.123'));
-    }
+    
 
     /**
      * Used to test that getNestedValues can be used when replacingPlaceholders

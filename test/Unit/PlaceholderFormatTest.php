@@ -75,4 +75,12 @@ class PlaceholderFormatTest extends TestCase
         $this->assertEquals($expected, $this->format->getPlaceholdersInString($str, true));
     }
 
+    public function testFindPlaceholderInStringFindsASinglePlaceholder()
+    {
+        $expected = ['placeholder'];
+        $str = '{{placeholder}}';
+
+        $this->assertEquals($expected, $this->format->getPlaceholdersInString($str, true));
+    }
+
 }
