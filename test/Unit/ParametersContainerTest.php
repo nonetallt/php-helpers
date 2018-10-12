@@ -8,16 +8,18 @@ use Nonetallt\Helpers\Parameters\ParametersContainer;
 class ParametersContainerTest extends TestCase
 {
     private $container;
+    private $originalValues;
 
     public function setUp()
     {
-        $this->container = new ParametersContainer([
+        $this->originalValues = [
             'value1' => 1,
             'value2' => '{{placeholder2}}',
             'value3' => '{{placeholder3->key1}}',
             'value4' => '{{placeholder4-1}} {{placeholder4-2}}',
-        ]);
-        parent::setUp();
+        ];
+
+        $this->container = new ParametersContainer($this->originalValues);
     }
 
     public function testObjectCanBeCreated()
@@ -155,5 +157,32 @@ class ParametersContainerTest extends TestCase
 
         $this->container->setPlaceholderValues($data);
         $this->assertEquals($expected, $this->container->getMissingPlaceholderValues());
+    }
+
+    public function testValuesWithMissingPlaceholdersCanBeAccesedWhenStrictModeIsOff()
+    {
+        $this->assertEquals($this->originalValues, $this->container->toArray());
+    }
+
+    public function testExceptionIsThrownWhenTryingToAccessValuesWithMissingPlaceholderInStrictMode()
+    {
+        $this->container->setStrictValidation(true);
+        $this->expectExceptionMessage('Path placeholder2 does not exist in supplied values');
+        $this->container->toArray();
+    }
+
+    public function testToArrayShowsWarningsForMissingPlaceholders()
+    {
+        $expected = [
+            'value2' => ['Path placeholder2 does not exist in supplied values'],
+            'value3' => ['Path placeholder3->key1 does not exist in supplied values'],
+            'value4' => [
+                'Path placeholder4-1 does not exist in supplied values',
+                'Path placeholder4-2 does not exist in supplied values'
+            ]
+        ];
+
+        $this->container->toArray();
+        $this->assertEquals($expected, $this->container->getWarnings());
     }
 }

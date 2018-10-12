@@ -1,0 +1,7 @@
+# Parameters
+* Validate values when they are set
+* Are all values scalar?
+
+# HTTP
+* status codes
+* base url parser

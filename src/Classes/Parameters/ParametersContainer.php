@@ -8,13 +8,17 @@ class ParametersContainer
     private $placeholderFormat;
     private $placeholderValues;
     private $accessor;
+    private $warnings;
+    private $strictValidation;
 
-    public function __construct(array $data)
+    public function __construct(array $data, bool $strictValidation = false)
     {
         $this->data = $data;
         $this->placeholderFormat = new PlaceholderFormat('{{$}}');
         $this->accessor = new RecursiveAccessor('->');
         $this->placeholderValues = [];
+        $this->warnings = [];
+        $this->strictValidation = $strictValidation;
     }
 
     public function __get($key)
@@ -23,6 +27,15 @@ class ParametersContainer
             throw new \Exception("Undefined parameter '$key'");
         }
         return $this->replacePlaceholderValue($key);
+    }
+
+    private function saveWarning(string $key, \InvalidArgumentException $e)
+    {
+        $warningsForKey = $this->warnings[$key] ?? [];
+
+        /* Only save unique error messages for each key */
+        if(! in_array($e->getMessage(), $warningsForKey)) $this->warnings[$key][] = $e->getMessage();
+
     }
 
     private function replacePlaceholderValue(string $valueKey)
@@ -37,8 +50,14 @@ class ParametersContainer
         /* Find and replace placeholders with their respective values */
         foreach($this->placeholdersFor($valueKey) as $placeholder) {
             $placeholderKey = $this->placeholderFormat->getPlaceholderFor($placeholder);
-            $value = $this->accessor->getNestedValue($placeholder, $this->placeholderValues);
-            $placeholderValues[$placeholderKey] = $value;
+            try {
+                $value = $this->accessor->getNestedValue($placeholder, $this->placeholderValues);
+                $placeholderValues[$placeholderKey] = $value;
+            }
+            catch(\InvalidArgumentException $e) {
+                if($this->strictValidation) throw $e;
+                $this->saveWarning($valueKey, $e);
+            }
         }
 
         foreach($placeholderValues as $key => $value) {
@@ -86,6 +105,16 @@ class ParametersContainer
         }
 
         return $placeholders;
+    }
+
+    public function getWarnings()
+    {
+        return $this->warnings;
+    }
+
+    public function setStrictValidation(bool $strictValidation)
+    {
+        $this->strictValidation = $strictValidation;
     }
 
     public function setPlaceholderValues(array $values)
