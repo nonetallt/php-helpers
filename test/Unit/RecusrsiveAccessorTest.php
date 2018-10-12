@@ -28,4 +28,24 @@ class RecursiveAccessorTest extends TestCase
     {
         $this->assertFalse($this->accessor->isContainedInString('test.123'));
     }
+
+    public function testGetNestedValueReturnsValueAtDepth()
+    {
+        $data = ['level1' => ['level2' => ['level3' => 'level3-value']]];
+        $value = $this->accessor->getNestedValue('level1->level2->level3', $data);
+
+        $this->assertEquals('level3-value', $value);
+    }
+
+    public function testGetNestedValueThrowsExceptionWhenPathIsEmpty()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->accessor->getNestedValue('', ['value' => 1]);
+    }
+
+    public function testGetNestedValueThrowsExceptionWhenPathDoesNotExist()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->accessor->getNestedValue('undefined', ['value' => 1]);
+    }
 }

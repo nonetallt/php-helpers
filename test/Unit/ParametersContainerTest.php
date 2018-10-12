@@ -43,18 +43,6 @@ class ParametersContainerTest extends TestCase
         $this->assertEquals(2, $this->container->value2);
     }
 
-    
-
-    /**
-     * Used to test that getNestedValues can be used when replacingPlaceholders
-     */
-    public function testGetNestedValueReturnsValueAtDepth()
-    {
-        $this->container->setPlaceholderValues(['value4' => ['nested1' => ['nested2' => 4]]]);
-        $data = $this->container->getPlaceholderValues();
-        $this->assertEquals(4, $this->container->getNestedValue('value4->nested1->nested2', $data));
-    }
-
     public function testAllPlaceholdersAreParsedFromString() 
     {
         $expected = ['placeholder4-1', 'placeholder4-2'];
@@ -95,18 +83,6 @@ class ParametersContainerTest extends TestCase
 
         $this->container->setPlaceholderValues($placeholders);
         $this->assertEquals($expected, $this->container->toArray());
-    }
-
-    public function testGetNestedValueThrowsExceptionWhenPathIsEmpty()
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->container->getNestedValue('', ['value' => 1]);
-    }
-
-    public function testGetNestedValueThrowsExceptionWhenPathDoesNotExist()
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->container->getNestedValue('undefined', ['value' => 1]);
     }
 
     public function testToArrayWorksWithMultilevelNesting()

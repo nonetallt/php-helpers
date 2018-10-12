@@ -36,7 +36,7 @@ class ParametersContainer
         /* Find and replace placeholders with their respective values */
         foreach($this->placeholdersFor($key) as $placeholder) {
             $placeholderKey = $this->placeholderFormat->getPlaceholderFor($placeholder);
-            $value = $this->getNestedValue($placeholder, $this->placeholderValues);
+            $value = $this->accessor->getNestedValue($placeholder, $this->placeholderValues);
             $placeholderValues[$placeholderKey] = $value;
         }
 
@@ -54,51 +54,7 @@ class ParametersContainer
         /* Non-strings don't have placeholders */
         if(! is_string($value)) return []; 
 
-        $placeholders = [];
-
-        $startFormat = $this->placeholderFormat->getStart();
-        $endFormat = $this->placeholderFormat->getEnd();
-
-        $startLen = strlen($startFormat);
-        $endLen = strlen($endFormat);
-
-        $start = strpos($value, $startFormat);
-        $end = strpos($value, $endFormat);
-        
-        while($start !== false && $end !== false) {
-            
-            if($end < $start) break;
-
-            $placeholderLength = $end - $start;
-            $placeholder = str_splice($value, $start, $placeholderLength + $endLen);
-
-            /* Remove surrounding */ 
-            $placeholder = substr($placeholder, $startLen, strlen($placeholder) - $startLen - $endLen);
-            $placeholders[] = $placeholder;
-
-            $start = strpos($value, $startFormat);
-            $end = strpos($value, $endFormat);
-        }
-
-        return $placeholders;
-    }
-
-    public function getNestedValue(string $path, $values)
-    {
-        if(! is_array($values)) return $values;
-        if($path === '') throw new \InvalidArgumentException("Path cannot be an empty string");
-
-        $pathParts = explode($this->accessor->getFormat(), $path);
-
-        /* Remove first part from path */
-        $current = array_splice($pathParts, 0, 1)[0];
-
-        /* Check for non-existent path (undefined index) */
-        if(! isset($values[$current])) throw new \InvalidArgumentException("Path '$current' is not set");
-
-        $value = $values[$current];
-
-        return $this->getNestedValue(implode($this->accessor->getFormat(), $pathParts), $value);
+        return $this->placeholderFormat->getPlaceholdersInString($value, true);
     }
 
     public function getPlaceholderValues()
