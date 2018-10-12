@@ -21,10 +21,15 @@ class RecursiveAccessor
         return $this->format;
     }
 
-    public function getNestedValue(string $path, $values)
+    public function isset(string $path, $values)
     {
-        if(! is_array($values)) return $values;
-        if($path === '') throw new \InvalidArgumentException("Path cannot be an empty string");
+        if(! is_array($values)) return true;
+
+        /* If path does not have accessor */
+        if(! $this->isContainedInString($path)) {
+            if(! isset($values[$path])) return false;
+            return true;
+        }
 
         $pathParts = explode($this->format, $path);
 
@@ -32,10 +37,23 @@ class RecursiveAccessor
         $current = array_splice($pathParts, 0, 1)[0];
 
         /* Check for non-existent path (undefined index) */
-        if(! isset($values[$current])) throw new \InvalidArgumentException("Path '$current' is not set");
+        if(! isset($values[$current])) return false;
 
-        $value = $values[$current];
+        return $this->isset(implode($this->format, $pathParts), $values[$current]);
+    }
 
-        return $this->getNestedValue(implode($this->format, $pathParts), $value);
+    public function getNestedValue(string $path, $values)
+    {
+        if(! $this->isset($path, $values)) {
+            $msg = "Path $path does not exist in supplied values";
+            throw new \InvalidArgumentException($msg);
+        } 
+
+        $currentValue = $values;
+        foreach(explode($this->format, $path) as $pathPart) {
+            $currentValue = $currentValue[$pathPart];
+        }
+
+        return $currentValue;
     }
 }

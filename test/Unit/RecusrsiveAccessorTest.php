@@ -48,4 +48,16 @@ class RecursiveAccessorTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->accessor->getNestedValue('undefined', ['value' => 1]);
     }
+
+    public function testIssetReturnsTrueWhenPathIsDefined()
+    {
+        $data = ['level1' => ['level2' => ['level3' => 'level3-value']]];
+        $this->assertTrue($this->accessor->isset('level1->level2->level3', $data));
+    }
+
+    public function testIssetReturnsFalseWhenPathIsUndefined()
+    {
+        $data = ['level1' => ['level2' => ['level3' => 'level3-value']]];
+        $this->assertFalse($this->accessor->isset('level1->level2->level4', $data));
+    }
 }
