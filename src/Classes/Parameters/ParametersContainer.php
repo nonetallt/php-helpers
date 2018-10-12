@@ -25,9 +25,9 @@ class ParametersContainer
         return $this->replacePlaceholderValue($key);
     }
 
-    private function replacePlaceholderValue(string $key)
+    private function replacePlaceholderValue(string $valueKey)
     {
-        $originalValue = $this->data[$key];
+        $originalValue = $this->data[$valueKey];
         $placeholderValues = [];
         $replacedValue = $originalValue;
 
@@ -35,13 +35,25 @@ class ParametersContainer
         if(! is_string($originalValue)) return $originalValue;
 
         /* Find and replace placeholders with their respective values */
-        foreach($this->placeholdersFor($key) as $placeholder) {
+        foreach($this->placeholdersFor($valueKey) as $placeholder) {
             $placeholderKey = $this->placeholderFormat->getPlaceholderFor($placeholder);
             $value = $this->accessor->getNestedValue($placeholder, $this->placeholderValues);
             $placeholderValues[$placeholderKey] = $value;
         }
 
         foreach($placeholderValues as $key => $value) {
+            
+            /* If the original value is exactly one placeholder, return the placeholder value */
+            if($originalValue === $key) return $value;
+
+            /* Convert object to string if possible */
+             if(is_str_convertable($value)) $value = (string)$value;
+
+            if(! is_string($value)) {
+                $given = gettype($value);
+                $msg = "Cannot replace placeholders for value '$valueKey', value '$originalValue' consist of more than a single placeholder and therefore requires a placeholder that can be converted to a string, $given was given for placeholder $key";
+                throw new \Exception($msg);
+            } 
             $replacedValue = str_replace($key, $value, $replacedValue);
         }
 

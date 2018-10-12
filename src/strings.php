@@ -83,3 +83,13 @@ if(! function_exists('str_splice')) {
         return $result;
     }
 }
+
+if(! function_exists('is_str_convertable')) {
+    function is_str_convertable($value)
+    {
+        if(is_array($value) || is_resource($value)) return false;
+        if(is_object($value) && method_exists($value, '__toString')) return true;
+
+        return settype($value, 'string') !== false;
+    }
+}
