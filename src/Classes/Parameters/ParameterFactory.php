@@ -2,8 +2,6 @@
 
 namespace Nonetallt\Helpers\Parameters;
 
-use App\Domain\Parameters\Parameters;
-
 class ParameterFactory
 {
     const VALID_TYPES =  [
