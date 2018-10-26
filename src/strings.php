@@ -93,3 +93,27 @@ if(! function_exists('is_str_convertable')) {
         return settype($value, 'string') !== false;
     }
 }
+
+if(! function_exists('str_after')) {
+    function str_after(string $subject, string $after)
+    {
+        $pos = strpos($subject, $after);
+
+        /* Return subject string if after is not found */
+        if($pos === false) return $subject;
+
+        return substr($subject, $pos + strlen($after));
+    }
+}
+
+if(! function_exists('str_before')) {
+    function str_before(string $subject, string $before)
+    {
+        $pos = strpos($subject, $before);
+
+        /* Return subject string if after is not found */
+        if($pos === false) return $subject;
+
+        return substr($subject, 0, $pos);
+    }
+}

@@ -1,7 +1,13 @@
 # Parameters
 * Validate values when they are set
 * Are all values scalar?
+* remove get from method names where its unneccesary
 
 # HTTP
 * status codes
 * base url parser
+
+# SetsAttributesTrait
+* define validation / processing rules
+* "array|size:2|->serialize"
+* define __set, use parent __set after processing

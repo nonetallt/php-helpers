@@ -97,4 +97,21 @@ class StringsTest extends TestCase
         str_splice($str, 9, 5);
         $this->assertEquals('123456789123456789', $str);
     }
+
+    public function testStrAfterReturnStringAfterSpecifiedString()
+    {
+        $delimiter = "[something]";
+        $subject = "before{$delimiter}after";
+
+        $this->assertEquals('after', str_after($subject, $delimiter));
+    }
+
+    public function testStrBeforeReturnStringBeforeSpecifiedString()
+    {
+        $delimiter = "[something]";
+        $subject = "before{$delimiter}after";
+
+        $this->assertEquals('before', str_before($subject, $delimiter));
+    }
+
 }
