@@ -100,6 +100,7 @@ class ParametersContainer
         $format = $this->placeholderFormat;
 
         foreach($this->data as $key => $value) {
+            if(! is_string($value)) continue;
             $placeholder = $format->getPlaceholdersInString($value, true);
             $placeholders = array_merge($placeholders, $placeholder);
         }
