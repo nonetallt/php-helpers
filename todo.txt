@@ -1,4 +1,6 @@
 # Parameters
+* rename parameter and parameters to ParameterDefinition for clarity
+* add get by name method for parameters
 * Validate values when they are set
 * Are all values scalar?
 * remove get from method names where its unneccesary
