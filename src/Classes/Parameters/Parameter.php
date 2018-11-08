@@ -48,6 +48,15 @@ abstract class Parameter
         return $pieces[0];
     }
 
+    public function toArray()
+    {
+        return [
+            'name' => $this->getName(),
+            'type' => $this->getType(),
+            'options' => $this->getOptions()->toArray()
+        ];
+    }
+
     public abstract function validateValue($value);
 
     public static abstract function getAvailableOptions();

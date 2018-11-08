@@ -17,7 +17,12 @@ class Parameters
 
     public function toArray()
     {
-        return $this->parameters;
+        $params = [];
+        foreach($this->parameters as $parameter) {
+            $params[] = $parameter->toArray();
+        }
+
+        return $params;
     }
 
     public function ofType(string $type)
