@@ -79,14 +79,14 @@ class ParametersContainer
         return $replacedValue;
     }
 
-    public function placeholdersFor(string $key)
+    public function placeholdersFor(string $key, bool $trimEnclosure = true)
     {
         $value = $this->data[$key];
 
         /* Non-strings don't have placeholders */
         if(! is_string($value)) return []; 
 
-        return $this->placeholderFormat->getPlaceholdersInString($value, true);
+        return $this->placeholderFormat->getPlaceholdersInString($value, $trimEnclosure);
     }
 
     public function getPlaceholderValues()
@@ -94,14 +94,14 @@ class ParametersContainer
         return $this->placeholderValues;
     }
 
-    public function getPlaceholders()
+    public function getPlaceholders(bool $trimEnclosure = true)
     {
         $placeholders = [];
         $format = $this->placeholderFormat;
 
         foreach($this->data as $key => $value) {
             if(! is_string($value)) continue;
-            $placeholder = $format->getPlaceholdersInString($value, true);
+            $placeholder = $format->getPlaceholdersInString($value, $trimEnclosure);
             $placeholders = array_merge($placeholders, $placeholder);
         }
 
