@@ -6,18 +6,16 @@ use Nonetallt\Helpers\Arrays\TypedArray;
 
 class Validator
 {
-    private $data;
     private $rules;
     private $errors;
 
-    public function __construct(array $data, array $rules)
+    public function __construct(array $rules)
     {
-        $this->data = $data;
         $this->rules = TypedArray::create('string', $rules);
         $this->errors = [];
     }
 
-    public function validate()
+    public function validate(array $data)
     {
         $ruleDelimiter      = '|';
         $ruleParamDelimiter = ':';
@@ -26,7 +24,7 @@ class Validator
         $this->errors = [];
         $factory = new ValidationRuleFactory($ruleDelimiter, $ruleParamDelimiter, $paramDelimiter);
 
-        foreach($this->data as $key => $value) {
+        foreach($data as $key => $value) {
             $ruleList = $this->rules[$key] ?? [];
             $rules = $factory->makeRules($ruleList);
 
@@ -41,14 +39,14 @@ class Validator
         return false;
     }
 
-    public function passes()
+    public function passes(array $data)
     {
-        return $this->validate() === true;
+        return $this->validate($data) === true;
     }
 
-    public function fails()
+    public function fails(array $data)
     {
-        return $this->validate() === false;
+        return $this->validate($data) === false;
     }
 
     public function getErrors()
