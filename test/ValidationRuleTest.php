@@ -9,6 +9,7 @@ abstract class ValidationRuleTest extends TestCase
 {
     protected abstract function ruleClass();
 
+    /* TODO generate name from class */
     protected abstract function ruleName();
 
     protected abstract function parameters();
