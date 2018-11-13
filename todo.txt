@@ -1,9 +1,5 @@
-# Parameters
-* rename parameter and parameters to ParameterDefinition for clarity
-* add get by name method for parameters
-* Validate values when they are set
-* Are all values scalar?
-* remove get from method names where its unneccesary
+# Validation
+* rules can defined number of required parameters and param names for error dislay purposes
 
 # HTTP
 * status codes
@@ -13,3 +9,6 @@
 * define validation / processing rules
 * "array|size:2|->serialize"
 * define __set, use parent __set after processing
+
+# Other / ideas
+* return value validation

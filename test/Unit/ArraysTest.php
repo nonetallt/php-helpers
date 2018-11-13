@@ -4,7 +4,7 @@ namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
 
-class ArraysTEst extends TestCase
+class ArraysTest extends TestCase
 {
 
     public function testRequiredInArray()
