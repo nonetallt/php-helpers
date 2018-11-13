@@ -6,13 +6,16 @@ use Nonetallt\Helpers\Validation\ValidationRule;
 
 class ValidationRuleMin extends ValidationRule
 {
-    public function validateValue($value)
+    public function validateValue($value, string $name)
     {
         $min = $this->getParameter(0);
 
-        if(is_string($value)) return strlen($value) >= $min;
-        if(is_array($value)) return count($value) >= $min;
+        /* Default to true if value is not a string or array */
+        $result = true;
 
-        return true;
+        if(is_string($value)) $result = strlen($value) >= $min;
+        if(is_array($value)) $result =  count($value) >= $min;
+
+        return $this->createResult($this, $result, "Value $name must be more than $min in size");
     }
 }

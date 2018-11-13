@@ -6,8 +6,8 @@ use Nonetallt\Helpers\Validation\ValidationRule;
 
 class ValidationRuleRequired extends ValidationRule
 {
-    public function validateValue($value)
+    public function validateValue($value, string $name)
     {
-        return ! is_null($value);
+        return $this->createResult($this, ! is_null($value), "Value $name is required");
     }
 }

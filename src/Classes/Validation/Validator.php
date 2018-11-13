@@ -31,15 +31,13 @@ class Validator
             $rules = $factory->makeRules($ruleList);
 
             foreach($rules as $rule) {
-                $result = $rule->validate($value);
+                $result = $rule->validate($value, $key);
                 if($result->passed()) continue;
-                $errors[$key][] = $result->getMessage();
+                $this->errors[$key][] = $result->getMessage();
             }
         }
 
-        $this->errors = $errors;
-
-        if(empty($errors)) return true;
+        if(empty($this->errors)) return true;
         return false;
     }
 
@@ -55,7 +53,7 @@ class Validator
 
     public function getErrors()
     {
-        return $this->errors();
+        return $this->errors;
     }
 
     public function getRules()

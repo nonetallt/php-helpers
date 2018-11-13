@@ -18,6 +18,7 @@ class ValidatorTest extends TestCase
         ];
 
         $validator = new Validator($data, $rules);
-        $this->assertTrue($validator->validate()->passed());
+        $validator->validate();
+        $this->assertTrue($validator->validate());
     }
 }

@@ -18,14 +18,15 @@ abstract class ValidationRule
      * will be thrown.
      * 
      * @param mixed $value Value to validate
+     * @param string $name Name of the value to validate
      *
      * @return ValidationResult $result Validation result
      */
-    protected abstract function validateValue($value);
+    protected abstract function validateValue($value, string $name);
 
-    public function validate($value)
+    public function validate($value, string $name)
     {
-        $result = $this->validateValue($value);
+        $result = $this->validateValue($value, $name);
         if(is_a($result, ValidationResult::class)) return $result;
 
         $actual = gettype($result);
@@ -34,6 +35,13 @@ abstract class ValidationRule
 
         throw new \Exception("Validation returned $actual instead of expected $expected");
     }  
+
+    protected function createResult(ValidationRule $rule, bool $success, string $message)
+    {
+        if($success) $message = null;
+        $result = new ValidationResult($rule, $message);
+        return $result;
+    }
 
     public function getParameter(int $index)
     {
