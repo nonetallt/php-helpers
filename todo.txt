@@ -1,4 +1,10 @@
 # Validation
+* use reflection in testing class and have required stuff in variables instead of methods
+* is object
+* is array
+* is numeric
+* is boolean
+* is scalar
 * rules can defined number of required parameters and param names for error dislay purposes
 
 # HTTP
