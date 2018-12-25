@@ -6,9 +6,20 @@ use Nonetallt\Helpers\Validation\ValidationRule;
 
 class ValidationRuleMin extends ValidationRule
 {
+    public function defineParameters()
+    {
+        return [
+            [
+                'name' => 'min',
+                'type' => 'numeric',
+                'is_required' => true
+            ]
+        ];
+    }
+
     public function validateValue($value, string $name)
     {
-        $min = $this->getParameter(0);
+        $min = $this->parameters['min'];
 
         /* Default to true if value is not a string or array */
         $result = true;

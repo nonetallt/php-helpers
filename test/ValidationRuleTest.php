@@ -28,7 +28,7 @@ abstract class ValidationRuleTest extends TestCase
         $this->assertInstanceOf($this->ruleClass(), $this->rule);
     }
 
-    public function testValidationShouldFailForAGivenValues()
+    public function testValidationShouldFailForGivenValues()
     {
         $expectations = $this->expectations();
         $fail = $expectations['fail'] ?? [];
@@ -42,8 +42,9 @@ abstract class ValidationRuleTest extends TestCase
         }
     }
 
-    public function testValidationShouldSucceedForAGivenValues()
+    public function testValidationShouldSucceedForGivenValues()
     {
+        /* echo $this->ruleName() . PHP_EOL; */
         $expectations = $this->expectations();
         $pass = $expectations['pass'] ?? [];
 

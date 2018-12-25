@@ -26,7 +26,7 @@ class ValidationRuleMinTest extends ValidationRuleTest
     {
         return [
             'pass' => [null, 'aaa', [1, 2, 3]],
-            'fail' => ['aa', []]
+            'fail' => ['aa', [], [1, 2]]
         ];
     }
 }

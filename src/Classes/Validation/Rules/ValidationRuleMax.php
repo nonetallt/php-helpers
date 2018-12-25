@@ -6,9 +6,20 @@ use Nonetallt\Helpers\Validation\ValidationRule;
 
 class ValidationRuleMax extends ValidationRule
 {
+    public function defineParameters()
+    {
+        return [
+            [
+                'name' => 'max',
+                'type' => 'numeric',
+                'is_required' => true
+            ]
+        ];
+    }
+
     public function validateValue($value, string $name)
     {
-        $max = $this->getParameter(0);
+        $max = $this->parameters['max'];
 
         /* Default to true if value is not a string or array */
         $result = true;

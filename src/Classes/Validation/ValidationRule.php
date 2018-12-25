@@ -2,15 +2,32 @@
 
 namespace Nonetallt\Helpers\Validation;
 
+use Nonetallt\Helpers\Validation\Parameters\ValidationRuleParametersDefinition;
+use Nonetallt\Helpers\Validation\Parameters\SimpleContainer;
+
 abstract class ValidationRule
 {
-    private $name;
-    private $params;
+    protected $name;
+    protected $parameters;
 
-    public function __construct(string $name, array $params)
+    public function __construct(string $name, array $parameters)
     {
         $this->name = $name;
-        $this->params = $params;
+
+        $definition = new ValidationRuleParametersDefinition([]);
+
+        if(method_exists($this, 'defineParameters')) {
+            $definition = ValidationRuleParametersDefinition::fromArray($this->defineParameters());
+        }
+
+        /* Maps values from array to parameter definition, given parameters can
+           be keyed by index order or associative array where key name is
+           the parameter name 
+         */
+        $parameters = $definition->mapValues($parameters);
+
+        $definition->validateValues($parameters, $name);
+        $this->parameters = new SimpleContainer('validation rule parameters', $parameters);
     }
 
     /**
@@ -43,19 +60,13 @@ abstract class ValidationRule
         return $result;
     }
 
-    public function getParameter(int $index)
-    {
-        $value = $this->params[$index] ?? null;
-        return $value;
-    }
-
     public function getName()
     {
         return $this->name;
     }
 
-    public function getParams()
+    public function getParameters()
     {
-        return $this->params;
+        return $this->parameters;
     }
 }
