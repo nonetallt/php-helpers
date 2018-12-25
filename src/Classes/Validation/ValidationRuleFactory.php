@@ -28,6 +28,13 @@ class ValidationRuleFactory
         }, $classes);
     }
 
+    public function validatorsAvailable()
+    {
+        return array_map(function($reflection) {
+            return (string)$reflection;
+        }, $this->validatorClasses);
+    }
+
     public function makeRules(string $ruleList)
     {
         if(trim($ruleList) === '') return [];

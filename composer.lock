@@ -4,9 +4,56 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "00b0afd6432d32d9db2e2eca1a9b2a95",
-    "content-hash": "3ff416294a50941bd43063cf711b4370",
-    "packages": [],
+    "hash": "33031d751b36460b5343665944c0c98b",
+    "content-hash": "4270261329a509c00e71bb76e1928247",
+    "packages": [
+        {
+            "name": "elleyeayeme/case-converter",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/elleyeayeme/case-converter.git",
+                "reference": "90246837888d30b30abf61fafb6bc4513c15fb58"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/elleyeayeme/case-converter/zipball/90246837888d30b30abf61fafb6bc4513c15fb58",
+                "reference": "90246837888d30b30abf61fafb6bc4513c15fb58",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "CaseConverter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Liam McElroy",
+                    "email": "hello@liammcelroy.co.uk"
+                }
+            ],
+            "description": "A converter for strings in most popular cases",
+            "keywords": [
+                "camel",
+                "conversion",
+                "kebab",
+                "snake",
+                "studly"
+            ],
+            "time": "2017-09-16 21:46:36"
+        }
+    ],
     "packages-dev": [
         {
             "name": "consolidation/annotated-command",

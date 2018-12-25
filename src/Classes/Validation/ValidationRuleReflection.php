@@ -3,6 +3,7 @@
 namespace Nonetallt\Helpers\Validation;
 
 use Nonetallt\Helpers\Filesystem\Traits\FindsReflectionClasses;
+use CaseConverter\CaseConverter;
 
 class ValidationRuleReflection
 {
@@ -23,12 +24,12 @@ class ValidationRuleReflection
 
     public function setAlias(string $alias)
     {
-        /* TODO convert from snake to camel case */
-        $alias = strtolower($alias);
-
         /* Strip class name prefix from alias */
-        $prefix = 'validationrule';
+        $prefix = 'ValidationRule';
         if(starts_with($alias, $prefix)) $alias = substr($alias, strlen($prefix));
+
+        $converter = new CaseConverter();
+        $alias = $converter->convert($alias)->from('camel')->to('snake');
 
         $this->alias = $alias;
     }

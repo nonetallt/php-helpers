@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Unit;
+namespace Test\Unit\Validation;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Validation\Validator;
