@@ -30,6 +30,8 @@ class ValidationRuleFactory
 
     public function makeRules(string $ruleList)
     {
+        if(trim($ruleList) === '') return [];
+
         $ruleStrings = explode($this->ruleDelimiter, $ruleList);
 
         /* if there is no splitter, consider string as a single rule */

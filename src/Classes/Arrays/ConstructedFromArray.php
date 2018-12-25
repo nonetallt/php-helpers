@@ -2,7 +2,7 @@
 
 namespace Nonetallt\Helpers\Arrays;
 
-use Illuminate\Support\Facades\Validator;
+use Nonetallt\Helpers\Validation\Validator;
 
 trait ConstructedFromArray
 {
@@ -45,14 +45,20 @@ trait ConstructedFromArray
             throw new \InvalidArgumentException($msg);
         }
 
-        $validator = Validator::make($array, self::arrayValidationRules());
+        $validator = new Validator(self::arrayValidationRules());
 
-        if(! $validator->fails()) return;
+        if(! $validator->fails($array)) return;
 
         $msg = "";
-        $errors = $validator->errors()->toArray();
+        $errors = $validator->getErrors();
         foreach($errors as $key => $messages) {
-            $msg .= "Validation for $key failed: " . PHP_EOL . implode(PHP_EOL, $messages);
+
+            $paramErrors = array_map(function($message) {
+                return "- $message";
+            }, $messages);
+            $paramErrors = implode(PHP_EOL, $paramErrors);
+
+            $msg .= PHP_EOL . "Validation for $key failed:" . PHP_EOL . $paramErrors;
         }
 
         throw new \InvalidArgumentException($msg);
@@ -61,7 +67,7 @@ trait ConstructedFromArray
     /**
      * This method is ment to be overridden by implementing class
      *
-     * @return array $rules
+     * @return string $rules
      */
     private static function arrayValidationRules()
     {

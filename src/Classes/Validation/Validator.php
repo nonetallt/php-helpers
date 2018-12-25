@@ -25,7 +25,7 @@ class Validator
         $factory = new ValidationRuleFactory($ruleDelimiter, $ruleParamDelimiter, $paramDelimiter);
 
         foreach($data as $key => $value) {
-            $ruleList = $this->rules[$key] ?? [];
+            $ruleList = $this->rules[$key] ?? '';
             $rules = $factory->makeRules($ruleList);
 
             foreach($rules as $rule) {
