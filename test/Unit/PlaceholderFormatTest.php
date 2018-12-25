@@ -3,7 +3,7 @@
 namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Parameters\PlaceholderFormat;
+use Nonetallt\Helpers\Templating\PlaceholderFormat;
 
 class PlaceholderFormatTest extends TestCase
 {

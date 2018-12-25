@@ -3,7 +3,7 @@
 namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Parameters\RecursiveAccessor;
+use Nonetallt\Helpers\Templating\RecursiveAccessor;
 
 class RecursiveAccessorTest extends TestCase
 {

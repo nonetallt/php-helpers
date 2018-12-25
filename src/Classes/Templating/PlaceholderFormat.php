@@ -1,6 +1,6 @@
 <?php
 
-namespace Nonetallt\Helpers\Parameters;
+namespace Nonetallt\Helpers\Templating;
 
 class PlaceholderFormat
 {
