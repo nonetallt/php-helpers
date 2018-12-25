@@ -2,7 +2,7 @@
 
 namespace Test\Mock;
 
-use Nonetallt\Helpers\Arrays\ConstructedFromArray;
+use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
 
 class FromArrayMock
 {

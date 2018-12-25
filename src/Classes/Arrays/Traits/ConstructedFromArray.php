@@ -1,6 +1,6 @@
 <?php
 
-namespace Nonetallt\Helpers\Arrays;
+namespace Nonetallt\Helpers\Arrays\Traits;
 
 use Nonetallt\Helpers\Validation\Validator;
 
