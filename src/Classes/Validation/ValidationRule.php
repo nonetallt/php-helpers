@@ -50,7 +50,7 @@ abstract class ValidationRule
         if($actual === 'object') $actual = get_class($actual);
         $expected = ValidationResult::class;
 
-        throw new \Exception("Validation returned $actual instead of expected $expected");
+        throw new \Exception("Method ValidateValue() of child class returned $actual instead of expected $expected");
     }  
 
     protected function createResult(ValidationRule $rule, bool $success, string $message)

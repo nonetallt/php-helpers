@@ -29,4 +29,12 @@ class ValidationRuleStringTest extends ValidationRuleTest
             'fail' => [1, null, -1, []]
         ];
     }
+
+    public function testOptionalParameterDisallowNumericWorks()
+    {
+        $rule = new ValidationRuleString('string', ['disallow_numeric' => true]);
+        $result = $rule->validate('1234', 'number');
+
+        $this->assertTrue($result->failed());
+    }
 }

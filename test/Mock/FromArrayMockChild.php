@@ -4,12 +4,18 @@ namespace Test\Mock;
 
 class FromArrayMockChild extends FromArrayMockParent
 {
-    private static function arrayValidationRules()
+    private $test;
+
+    public function __construct(string $test)
+    {
+        $this->test = $test;
+        parent::__construct(3, 2, 1);
+    }
+
+    protected static function arrayValidationRules()
     {
         return [
-            'value1' => 'required|integer',
-            'value2' => 'required|integer',
-            'value3' => 'required|integer',
+            'test' => 'required|string'
         ];
     }
 }

@@ -9,21 +9,21 @@ trait ConstructedFromArray
 
     public static function fromArray(array $array, string $class = null)
     {
-        $mapping = self::constructorMapping();
-        self::validateArrayValues($array, $mapping);
+        $class = $class ?? self::class;
+        $mapping = self::constructorMapping($class);
+        self::validateArrayValues($array, $mapping, $class);
 
         $mapped = [];
         foreach($mapping as $key => $index) {
             $mapped[$index] = $array[$key];
         }
 
-        $class = $class ?? self::class;
         return new $class(...$mapped);
     }
 
-    private static function constructorMapping()
+    private static function constructorMapping(string $class)
     {
-        $reflection = new \ReflectionClass(self::class);
+        $reflection = new \ReflectionClass($class);
         $constructor = $reflection->getConstructor();
 
         $mapping = [];
@@ -34,19 +34,19 @@ trait ConstructedFromArray
         return $mapping;
     }
 
-    private static function validateArrayValues(array $array, array $mapping)
+    private static function validateArrayValues(array $array, array $mapping, string $class)
     {
         $required = array_keys($mapping);
         $missing = array_keys_missing($required, $array);
 
         if(! empty($missing)) {
-            $class = get_class(self);
+            $class = self::class;
             $keys = implode(', ', $missing);
-            $msg = "Cannot create $class from array ,missing required keys: $keys";
+            $msg = "Cannot create $class from array, missing required keys: $keys";
             throw new \InvalidArgumentException($msg);
         }
 
-        $validator = new Validator(self::arrayValidationRules());
+        $validator = new Validator($class::arrayValidationRules());
 
         if(! $validator->fails($array)) return;
 
@@ -70,7 +70,7 @@ trait ConstructedFromArray
      *
      * @return string $rules
      */
-    private static function arrayValidationRules()
+    protected static function arrayValidationRules()
     {
         return [];
     }

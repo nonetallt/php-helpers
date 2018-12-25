@@ -5,7 +5,6 @@ namespace Test\Unit;
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Validation\Validator;
 use Test\Mock\FromArrayMock;
-use Test\Mock\FromArrayMockParent;
 use Test\Mock\FromArrayMockChild;
 
 class ConstructedFromArrayTest extends TestCase
@@ -49,9 +48,7 @@ class ConstructedFromArrayTest extends TestCase
     public function testMockCanBeCreatedFromSubclassOfAbstracClass()
     {
         $data = [
-            'value1' => 1,
-            'value2' => 2,
-            'value3' => 3,
+            'test' => 'test',
         ];
 
         $mock = FromArrayMockChild::fromArray($data, FromArrayMockChild::class);

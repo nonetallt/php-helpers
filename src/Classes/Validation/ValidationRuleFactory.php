@@ -57,9 +57,9 @@ class ValidationRuleFactory
     {
         $parts = explode($this->ruleParamDelimiter, $ruleString);
         $name = strtolower($parts[0]);
+        $params = [];
 
-        $params = $parts[1] ?? '';
-        $params = explode($this->paramDelimiter, $params);
+        if(isset($parts[1])) $params = explode($this->paramDelimiter, $parts[1]);
 
         foreach($this->validatorClasses as $class) {
             if($name === $class->getAlias()) {
