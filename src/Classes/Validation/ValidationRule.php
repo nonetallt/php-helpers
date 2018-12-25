@@ -2,7 +2,7 @@
 
 namespace Nonetallt\Helpers\Validation;
 
-use Nonetallt\Helpers\Validation\Parameters\ValidationRuleParametersDefinition;
+use Nonetallt\Helpers\Validation\Parameters\ValidationRuleParameterDefinitions;
 use Nonetallt\Helpers\Validation\Parameters\SimpleContainer;
 
 abstract class ValidationRule
@@ -14,10 +14,10 @@ abstract class ValidationRule
     {
         $this->name = $name;
 
-        $definition = new ValidationRuleParametersDefinition([]);
+        $definition = new ValidationRuleParameterDefinitions([]);
 
         if(method_exists($this, 'defineParameters')) {
-            $definition = ValidationRuleParametersDefinition::fromArray($this->defineParameters());
+            $definition = ValidationRuleParameterDefinitions::fromArray($this->defineParameters());
         }
 
         /* Maps values from array to parameter definition, given parameters can

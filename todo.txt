@@ -1,5 +1,8 @@
 # Validation
-* Custom validation using callable methods from class
+
+# Describe
+* Describe string, describesCharacters method that lists all characters example: a, space, tab
+* Describe difference, string difference can be useful for debugging tests
 
 # HTTP
 * status codes

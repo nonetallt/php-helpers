@@ -8,7 +8,7 @@ use Nonetallt\Helpers\Arrays\TypedArray;
  * Simple validation for parameters given for validation rules.  
  * 
  */
-class ValidationRuleParametersDefinition
+class ValidationRuleParameterDefinitions
 {
     private $parameters;
 
@@ -39,10 +39,12 @@ class ValidationRuleParametersDefinition
     public function validateValues(array $values, string $ruleName)
     {
         $validator = new ParameterValidator();
-        $currentParameter = 1;
+        $currentParameter = 0;
         $errors = [];
 
         foreach($this->parameters as $parameter) {
+
+            $currentParameter++;
             $name = $parameter->getName();
 
             /* Parameter missing */
@@ -59,8 +61,6 @@ class ValidationRuleParametersDefinition
                 $given = gettype($value);
                 $errors[$name] = "Parameter $currentParameter ($name) for rule $ruleName is of incorrect type $given, expected $type";
             }
-
-            $currentParameter++;
         }
 
         if(! empty($errors)) {
