@@ -19,13 +19,13 @@ class ValidationRuleSubclassOfTest extends ValidationRuleTest
 
     protected function parameters()
     {
-        return [\LogicException::class];
+        return [\Exception::class];
     }
 
     protected function expectations()
     {
         return [
-            'pass' => [new \InvalidArgumentException('test')],
+            'pass' => [new \InvalidArgumentException('test'), new \LogicException('test')],
             'fail' => [
                 1, 
                 null, 
