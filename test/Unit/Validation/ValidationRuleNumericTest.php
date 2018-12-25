@@ -3,13 +3,12 @@
 namespace Test\Unit\Validation;
 
 use Test\ValidationRuleTest;
-use Nonetallt\Helpers\Validation\Rules\ValidationRuleInteger;
 
-class ValidationRuleIntegerTest extends ValidationRuleTest
+class ValidationRuleNumericTest extends ValidationRuleTest
 {
     protected function ruleName()
     {
-        return 'integer';
+        return 'numeric';
     }
 
     protected function parameters()
@@ -20,8 +19,8 @@ class ValidationRuleIntegerTest extends ValidationRuleTest
     protected function expectations()
     {
         return [
-            'pass' => [1, -1, 1234],
-            'fail' => ['string', null, [], new \Exception('test'), 1.234]
+            'pass' => [1, -1, '1234', 1.234],
+            'fail' => [[], null, 'string', new \Exception('asd')]
         ];
     }
 }

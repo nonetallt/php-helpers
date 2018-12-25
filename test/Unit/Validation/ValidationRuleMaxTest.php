@@ -3,15 +3,9 @@
 namespace Test\Unit\Validation;
 
 use Test\ValidationRuleTest;
-use Nonetallt\Helpers\Validation\Rules\ValidationRuleMax;
 
 class ValidationRuleMaxTest extends ValidationRuleTest
 {
-    protected function ruleClass()
-    {
-        return ValidationRuleMax::class;
-    }
-
     protected function ruleName()
     {
         return 'max';

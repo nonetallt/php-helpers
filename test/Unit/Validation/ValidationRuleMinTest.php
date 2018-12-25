@@ -3,15 +3,9 @@
 namespace Test\Unit\Validation;
 
 use Test\ValidationRuleTest;
-use Nonetallt\Helpers\Validation\Rules\ValidationRuleMin;
 
 class ValidationRuleMinTest extends ValidationRuleTest
 {
-    protected function ruleClass()
-    {
-        return ValidationRuleMin::class;
-    }
-
     protected function ruleName()
     {
         return 'min';

@@ -4,12 +4,13 @@ namespace Test;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Validation\Validator;
+use Nonetallt\Helpers\Validation\ValidationRuleFactory;
 
 abstract class ValidationRuleTest extends TestCase
 {
-    protected abstract function ruleClass();
+    private $rule;
+    private $class;
 
-    /* TODO generate name from class */
     protected abstract function ruleName();
 
     protected abstract function parameters();
@@ -19,13 +20,17 @@ abstract class ValidationRuleTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $class = $this->ruleClass();
-        $this->rule = new $class($this->ruleName(), $this->parameters());
+        $factory = new ValidationRuleFactory();
+        $mapping = $factory->validationRuleMapping();
+        $name = $this->ruleName();
+        $this->class = $mapping[$name];
+
+        $this->rule = new $this->class($name, $this->parameters());
     }
 
     public function testValidatorCanBeCreated()
     {
-        $this->assertInstanceOf($this->ruleClass(), $this->rule);
+        $this->assertInstanceOf($this->class, $this->rule);
     }
 
     public function testValidationShouldFailForGivenValues()

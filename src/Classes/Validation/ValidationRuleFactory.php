@@ -13,7 +13,7 @@ class ValidationRuleFactory
     private $paramDelimiter;
     private $validatorClasses;
 
-    public function __construct(string $ruleDelimiter, string $ruleParamDelimiter, string $paramDelimiter)
+    public function __construct(string $ruleDelimiter = '|', string $ruleParamDelimiter = ':', string $paramDelimiter = ',')
     {
         $this->ruleDelimiter  = $ruleDelimiter;
         $this->ruleParamDelimiter  = $ruleParamDelimiter;
@@ -26,6 +26,22 @@ class ValidationRuleFactory
         $this->validatorClasses = array_map(function($reflectionClass) {
             return new ValidationRuleReflection($reflectionClass);
         }, $classes);
+    }
+
+    /**
+     * Returns an array with rule aliases as keys and fully qualified class
+     * names as values.
+     *
+     * @return array $mapping
+     */
+    public function validationRuleMapping()
+    {
+        $mapping = [];
+        foreach($this->validatorClasses as $ref) {
+            $mapping[$ref->getAlias()] = $ref->getFullName();
+        }
+
+        return $mapping;
     }
 
     public function validatorsAvailable()

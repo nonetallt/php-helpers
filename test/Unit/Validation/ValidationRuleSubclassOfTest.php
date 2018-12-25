@@ -3,15 +3,9 @@
 namespace Test\Unit\Validation;
 
 use Test\ValidationRuleTest;
-use Nonetallt\Helpers\Validation\Rules\ValidationRuleSubclassOf;
 
 class ValidationRuleSubclassOfTest extends ValidationRuleTest
 {
-    protected function ruleClass()
-    {
-        return ValidationRuleSubclassOf::class;
-    }
-
     protected function ruleName()
     {
         return 'subclass_of';

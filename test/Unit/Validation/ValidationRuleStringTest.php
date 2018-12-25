@@ -7,11 +7,6 @@ use Nonetallt\Helpers\Validation\Rules\ValidationRuleString;
 
 class ValidationRuleStringTest extends ValidationRuleTest
 {
-    protected function ruleClass()
-    {
-        return ValidationRuleString::class;
-    }
-
     protected function ruleName()
     {
         return 'string';

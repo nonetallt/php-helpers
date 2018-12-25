@@ -1,11 +1,5 @@
 # Validation
-* use reflection in testing class and have required stuff in variables instead of methods
-* is object
-* is array
-* is numeric
-* is boolean
-* is scalar
-* rules can defined number of required parameters and param names for error dislay purposes
+* Custom validation using callable methods from class
 
 # HTTP
 * status codes
@@ -15,6 +9,3 @@
 * define validation / processing rules
 * "array|size:2|->serialize"
 * define __set, use parent __set after processing
-
-# Other / ideas
-* return value validation

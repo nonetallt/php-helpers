@@ -3,15 +3,9 @@
 namespace Test\Unit\Validation;
 
 use Test\ValidationRuleTest;
-use Nonetallt\Helpers\Validation\Rules\ValidationRuleArray;
 
 class ValidationRuleArrayTest extends ValidationRuleTest
 {
-    protected function ruleClass()
-    {
-        return ValidationRuleArray::class;
-    }
-
     protected function ruleName()
     {
         return 'array';
