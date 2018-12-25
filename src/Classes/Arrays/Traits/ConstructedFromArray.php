@@ -7,7 +7,7 @@ use Nonetallt\Helpers\Validation\Validator;
 trait ConstructedFromArray
 {
 
-    public static function fromArray(array $array)
+    public static function fromArray(array $array, string $class = null)
     {
         $mapping = self::constructorMapping();
         self::validateArrayValues($array, $mapping);
@@ -17,7 +17,8 @@ trait ConstructedFromArray
             $mapped[$index] = $array[$key];
         }
 
-        return new self(...$mapped);
+        $class = $class ?? self::class;
+        return new $class(...$mapped);
     }
 
     private static function constructorMapping()
