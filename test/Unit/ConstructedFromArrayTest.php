@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Validation\Validator;
 use Test\Mock\FromArrayMock;
 use Test\Mock\FromArrayMockChild;
+use Test\Mock\FromArrayMapMock;
 
 class ConstructedFromArrayTest extends TestCase
 {
@@ -53,5 +54,20 @@ class ConstructedFromArrayTest extends TestCase
 
         $mock = FromArrayMockChild::fromArray($data, FromArrayMockChild::class);
         $this->assertInstanceOf(FromArrayMockChild::class, $mock);
+    }
+
+    /**
+     * Make sure ConstructedFromArray trait static method arrayToConstructorMapping works
+     */
+    public function testMockCanHaveMappingForKeys()
+    {
+        $data = [
+            'value_1' => 1,
+            'value_2' => 2,
+            'value3' => 3,
+        ];
+
+        $mock = FromArrayMapMock::fromArray($data);
+        $this->assertInstanceOf(FromArrayMapMock::class, $mock);
     }
 }

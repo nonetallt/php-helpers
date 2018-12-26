@@ -11,6 +11,17 @@ trait ConstructedFromArray
     {
         $class = $class ?? self::class;
         $mapping = self::constructorMapping($class);
+
+        /* if class defines mapping, transform given array keys according to mapping */
+        if(method_exists($class, 'arrayToConstructorMapping')) {
+            $conversionMapping = $class::arrayToConstructorMapping();
+            foreach($conversionMapping as $from => $to) {
+                $value = $array[$from];
+                unset($array[$from]);
+                $array[$to] = $value;
+            }
+        }
+
         self::validateArrayValues($array, $mapping, $class);
 
         $mapped = [];
