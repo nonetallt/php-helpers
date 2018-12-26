@@ -16,6 +16,10 @@ trait ConstructedFromArray
         if(method_exists($class, 'arrayToConstructorMapping')) {
             $conversionMapping = $class::arrayToConstructorMapping();
             foreach($conversionMapping as $from => $to) {
+
+                /* Do not try to map if source value is not found from array */
+                if(! isset($array[$from])) continue;
+
                 $value = $array[$from];
                 unset($array[$from]);
                 $array[$to] = $value;
