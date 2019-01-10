@@ -6,7 +6,6 @@ use Nonetallt\Helpers\Validation\Validator;
 
 trait ConstructedFromArray
 {
-
     public static function fromArray(array $array, string $class = null)
     {
         $class = $class ?? self::class;
@@ -30,10 +29,25 @@ trait ConstructedFromArray
 
         $mapped = [];
         foreach($mapping as $key => $index) {
+            if(! isset($array[$key])) continue;
             $mapped[$index] = $array[$key];
         }
 
         return new $class(...$mapped);
+    }
+
+    private static function requiredKeys($class)
+    {
+        $reflection = new \ReflectionClass($class);
+        $constructor = $reflection->getConstructor();
+
+        $requiredKeys = [];
+
+        foreach($constructor->getParameters() as $parameter) {
+            if(! $parameter->isDefaultValueAvailable()) $requiredKeys[] = $parameter->name;
+        }
+
+        return $requiredKeys;
     }
 
     private static function constructorMapping(string $class)
@@ -42,6 +56,7 @@ trait ConstructedFromArray
         $constructor = $reflection->getConstructor();
 
         $mapping = [];
+
         foreach($constructor->getParameters() as $parameter) {
             $mapping[$parameter->name] = $parameter->getPosition();
         }
@@ -51,8 +66,7 @@ trait ConstructedFromArray
 
     private static function validateArrayValues(array $array, array $mapping, string $class)
     {
-        $required = array_keys($mapping);
-        $missing = array_keys_missing($required, $array);
+        $missing = array_keys_missing(self::requiredKeys($class), $array);
 
         if(! empty($missing)) {
             $class = self::class;

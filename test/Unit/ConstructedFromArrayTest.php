@@ -7,6 +7,7 @@ use Nonetallt\Helpers\Validation\Validator;
 use Test\Mock\FromArrayMock;
 use Test\Mock\FromArrayMockChild;
 use Test\Mock\FromArrayMapMock;
+use Test\Mock\FromArrayDefaultValuesMock;
 
 class ConstructedFromArrayTest extends TestCase
 {
@@ -69,5 +70,16 @@ class ConstructedFromArrayTest extends TestCase
 
         $mock = FromArrayMapMock::fromArray($data);
         $this->assertInstanceOf(FromArrayMapMock::class, $mock);
+    }
+
+    public function testObjectsCanBeConstructedWithMissingParametersIfMissingParametersHaveDefaultValues()
+    {
+        $data = [
+            'value2' => 2,
+            'value3' => 3,
+        ];
+
+        $mock = FromArrayDefaultValuesMock::fromArray($data);
+        $this->assertInstanceOf(FromArrayDefaultValuesMock::class, $mock);
     }
 }
