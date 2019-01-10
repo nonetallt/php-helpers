@@ -34,6 +34,11 @@ class SimpleContainer implements \ArrayAccess
     {
         return $this->strict;
     }
+
+    public function getData()
+    {
+        return $this->data;
+    }
      
     /**
      * implement ArrayAccess

@@ -24,9 +24,15 @@ abstract class ValidationRule
            be keyed by index order or associative array where key name is
            the parameter name 
          */
-        $parameters = $definition->mapValues($parameters);
+        $unmappedParameters = [];
+        $mappedParameters = $definition->mapValues($parameters);
+        $definition->validateValues($mappedParameters, $name);
 
-        $definition->validateValues($parameters, $name);
+        foreach($parameters as $index => $parameter) {
+            if(! is_string($index)) $unmappedParameters[] = $parameter;
+        }
+
+        $parameters = array_merge($unmappedParameters, $mappedParameters);
         $this->parameters = new SimpleContainer('validation rule parameters', $parameters);
     }
 

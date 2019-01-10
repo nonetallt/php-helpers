@@ -20,4 +20,18 @@ class DescribeObject
 
         return $type;
     }
+
+    public function describeValue()
+    {
+        $type = gettype($this->object);
+
+        if(is_null($this->object)) $value = 'null';
+        else if(is_bool($this->object)) $value = $this->object ? 'true' : 'false';
+        else if($type === 'object') $value = get_class($this->object);
+        else if(is_resource($this->object)) $value = 'resource';
+        else if(is_scalar($this->object)) $value = (string)$this->object;
+        else $value = gettype($this->object);
+
+        return $value;
+    }
 }
