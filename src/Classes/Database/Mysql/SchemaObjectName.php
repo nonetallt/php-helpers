@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\DataObject;
+namespace Nonetallt\Helpers\Database\Mysql;
 
 class SchemaObjectName
 {
