@@ -3,6 +3,7 @@
 namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
+use Nonetallt\Helpers\Templating\PlaceholderFormat;
 
 class StringsTest extends TestCase
 {

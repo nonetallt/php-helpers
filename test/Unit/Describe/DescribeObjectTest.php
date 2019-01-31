@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Validation\Validator;
 use Test\Mock\FromArrayMock;
 use Nonetallt\Helpers\Describe\DescribeObject;
+use Nonetallt\Helpers\Templating\PlaceholderFormat;
 
 class DescribeObjectTest extends TestCase
 {
@@ -50,5 +51,47 @@ class DescribeObjectTest extends TestCase
     {
         $desc = new DescribeObject(true);
         $this->assertEquals('true', $desc->describeValue());
+    }
+
+    public function testDescribeAsStringReturnsTheSuppliedStringWhenGivenObjectIsString()
+    {
+        $handle = fopen(__FILE__, 'r');
+        
+        $expectations = [
+            'test'              => 'test',
+            'boolean (true)'       => true,
+            'boolean (false)'      => false,
+            'NULL'              => null,
+            self::class         => $this,
+            '{{$}}'             => (new PlaceholderFormat('{{$}}')),
+            'integer (1)'       => 1,
+            'float (1.1)'       => 1.1,
+            'resource (stream)' => $handle,
+        ];
+
+        foreach($expectations as $expected => $given) {
+            $desc = new DescribeObject($given);
+            $this->assertEquals($expected, $desc->describeAsString(true));
+        }
+
+        fclose($handle);
+    }
+
+    public function testDescribeAsStringCanSerializeArrays()
+    {
+        $arrayOriginal = [
+            'name' => 'test',
+            'obj' => (new PlaceholderFormat('{{$}}')),
+            'bool' => true
+        ];
+
+        $arrayExpected = [
+            'name' => 'test',
+            'obj' => '{{$}}',
+            'bool' => 'boolean (true)'
+        ];
+
+        $desc = new DescribeObject($arrayOriginal);
+        $this->assertEquals(json_encode($arrayExpected, JSON_PRETTY_PRINT), $desc->describeAsString(true));
     }
 }

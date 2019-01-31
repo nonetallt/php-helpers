@@ -87,10 +87,11 @@ if(! function_exists('str_splice')) {
 if(! function_exists('is_str_convertable')) {
     function is_str_convertable($value)
     {
-        if(is_array($value) || is_resource($value)) return false;
+        if(is_null($value)) return true;
+        if(is_scalar($value)) return true;
         if(is_object($value) && method_exists($value, '__toString')) return true;
 
-        return settype($value, 'string') !== false;
+        return false;
     }
 }
 

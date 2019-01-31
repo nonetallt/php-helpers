@@ -5,10 +5,36 @@ namespace Nonetallt\Helpers\Describe;
 class DescribeObject
 {
     private $object;
+    private $stringDescriptionRepository;
 
-    public function __construct($object)
+    public function __construct($object, StringDescriptionRepository $stringDescriptionRepository = null)
     {
         $this->object = $object;
+        $this->stringDescriptionRepository = $stringDescriptionRepository;
+    }
+
+    public function __toString()
+    {
+        return $this->describeAsString();
+    }
+
+    public function describeAsString(bool $pretty = true)
+    {
+        $repo = $this->getStringDescriptionRepository();
+        $repo->setPretty($pretty);
+
+        return $repo->getDescription($this->object);
+
+        throw new \Exception("Cannot describe {$this->describeType()} as string, value is not string convertable");
+    }
+
+    public function getStringDescriptionRepository()
+    {
+        if(is_null($this->stringDescriptionRepository)) {
+            $this->stringDescriptionRepository = new StringDescriptionRepository();
+        }
+
+        return $this->stringDescriptionRepository;
     }
 
     public function describeType()
