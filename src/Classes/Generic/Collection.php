@@ -25,6 +25,16 @@ class Collection implements \Iterator, \ArrayAccess
         $this->items = $items;
     }
 
+    public function push($item)
+    {
+        if(! is_null($this->type) && ! is_a($item, $this->type)) {
+            $msg = "Pushed item must be of type $type, $given given";
+            throw new \InvalidArgumentException($msg);
+        }       
+
+        $this->items[] = $item;
+    }
+
     public function toArray()
     {
         return $this->items;
