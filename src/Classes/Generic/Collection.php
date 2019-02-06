@@ -3,6 +3,7 @@
 namespace Nonetallt\Helpers\Generic;
 
 use Nonetallt\Helpers\Arrays\TypedArray;
+use Nonetallt\Helpers\Describe\DescribeObject;
 
 class Collection implements \Iterator, \ArrayAccess
 {
@@ -14,6 +15,17 @@ class Collection implements \Iterator, \ArrayAccess
         $this->position = 0;
         $this->type = $type;
         $this->setItems($items);
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type)
+    {
+        if(! is_null($this->type)) throw new \Exception("Can't change type, already set: $this->type");
+        $this->type = $type;
     }
 
     public function setItems(array $items)
@@ -28,7 +40,8 @@ class Collection implements \Iterator, \ArrayAccess
     public function push($item)
     {
         if(! is_null($this->type) && ! is_a($item, $this->type)) {
-            $msg = "Pushed item must be of type $type, $given given";
+            $given = (new DescribeObject($item))->describeType();
+            $msg = "Pushed item must be of type $this->type, $given given";
             throw new \InvalidArgumentException($msg);
         }       
 
