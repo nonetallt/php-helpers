@@ -51,4 +51,41 @@ class CollectionTest extends TestCase
         $this->collection->setType($type);
         $this->collection->push($push);
     }
+
+    public function testCountReturnsZeroWhenThereAreNoItems()
+    {
+        $this->assertEquals(0, $this->collection->count());
+    }
+
+    public function testCountReturnsTheNumberOfItemsInCollection()
+    {
+        $this->collection->push('test');
+        $this->assertEquals(1, $this->collection->count());
+    }
+
+    public function testFirstReturnsTheFirstItemInCollection()
+    {
+        $this->collection->push(1);
+        $this->collection->push(2);
+        $this->collection->push(3);
+        $this->assertEquals(1, $this->collection->first());
+    }
+
+    public function testMergeThrowsErrorWhenMergingWithCollectionOfDifferentType()
+    {
+        $expected = self::class;
+        $actual = Collection::class;
+        $this->expectExceptionMessage("Can't merge collections of type $expected and $actual");
+
+        $this->collection->setType($expected);
+        $col = new Collection([], $actual);
+        $this->collection->merge($col);
+    }
+
+    public function testMergeCreatesNewCollectionWithElementsFromBothCollections()
+    {
+        $this->collection->push(1);
+        $col = new Collection([2, 3]);
+        $this->assertEquals([1, 2, 3], $this->collection->merge($col)->toArray());
+    }
 }

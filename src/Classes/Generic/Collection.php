@@ -48,9 +48,32 @@ class Collection implements \Iterator, \ArrayAccess
         $this->items[] = $item;
     }
 
+    public function count()
+    {
+        return count($this->items);
+    }
+
+    public function first()
+    {
+        return $this->items[0] ?? null;
+    }
+
     public function toArray()
     {
         return $this->items;
+    }
+
+    public function merge(Collection $items)
+    {
+        $expected = $this->type;
+        $actual = $items->getType();
+
+        if($expected !== $actual) {
+            throw new \InvalidArgumentException("Can't merge collections of type $expected and $actual");
+        }
+
+        $array = array_merge($this->items, $items->toArray());
+        return new self($array);
     }
 
     // ArrayAccess methods
