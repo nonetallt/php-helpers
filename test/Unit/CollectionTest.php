@@ -88,4 +88,15 @@ class CollectionTest extends TestCase
         $col = new Collection([2, 3]);
         $this->assertEquals([1, 2, 3], $this->collection->merge($col)->toArray());
     }
+
+    public function testIsEmptyReturnsTrueWhenCollectionHasNotItems()
+    {
+        $this->assertTrue($this->collection->isEmpty());
+    }
+
+    public function testIsEmptyReturnsFalseWhenCollectionHasItems()
+    {
+        $this->collection->push(1);
+        $this->assertFalse($this->collection->isEmpty());
+    }
 }
