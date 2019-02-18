@@ -53,6 +53,11 @@ class Collection implements \Iterator, \ArrayAccess
         return count($this->items);
     }
 
+    public function isEmpty()
+    {
+        return empty($this->items);
+    }
+
     public function first()
     {
         return $this->items[0] ?? null;
