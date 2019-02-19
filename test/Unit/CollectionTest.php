@@ -99,4 +99,24 @@ class CollectionTest extends TestCase
         $this->collection->push(1);
         $this->assertFalse($this->collection->isEmpty());
     }
+
+    public function testMapCreatesAnArrayWithReturnedValues()
+    {
+        $this->collection->push(['name' => 'foo']);
+        $this->collection->push(['name' => 'bar']);
+        $this->collection->push(['name' => 'baz']);
+        $this->assertEquals(['foo', 'bar', 'baz'], $this->collection->map(function($item) {
+            return $item['name'];
+        }));
+    }
+
+    public function testMapSkipsNullReturnValues()
+    {
+        $this->collection->push(['name' => 'foo']);
+        $this->collection->push(['k' => 'bar']);
+        $this->collection->push(['name' => 'baz']);
+        $this->assertEquals(['foo', 'baz'], $this->collection->map(function($item) {
+            return $item['name'] ?? null;
+        }));
+    }
 }

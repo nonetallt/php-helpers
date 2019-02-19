@@ -9,6 +9,7 @@ class Collection implements \Iterator, \ArrayAccess
 {
     protected $items;
     private $type;
+    private $position;
 
     public function __construct(array $items = [], string $type = null)
     {
@@ -66,6 +67,18 @@ class Collection implements \Iterator, \ArrayAccess
     public function toArray()
     {
         return $this->items;
+    }
+
+    public function map(callable $cb)
+    {
+        $result = [];
+        foreach($this->items as $index => $item) {
+            $returned = $cb($item, $index);
+            if(is_null($returned)) continue;
+            $result[] = $returned;
+        }
+
+        return $result;
     }
 
     public function merge(Collection $items)
