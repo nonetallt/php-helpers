@@ -12,7 +12,7 @@ class ValidationRuleString extends ValidationRule
         return [
             [
                 'name' => 'disallow_numeric',
-                'type' => 'bool',
+                'type' => 'boolean',
                 'is_required' => false
             ]
         ];

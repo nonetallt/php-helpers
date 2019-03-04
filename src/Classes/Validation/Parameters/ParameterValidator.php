@@ -21,7 +21,7 @@ class ParameterValidator
             'scalar' => function($value) {
                 return is_scalar($value);
             },
-            'bool' => function($value) {
+            'boolean' => function($value) {
                 return is_bool($value);
             },
         ]; 
