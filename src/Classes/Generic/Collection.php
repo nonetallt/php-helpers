@@ -91,7 +91,9 @@ class Collection implements \Iterator, \ArrayAccess
         }
 
         $array = array_merge($this->items, $items->toArray());
-        return new self($array);
+        $class = get_class($this);
+
+        return new $class($array);
     }
 
     // ArrayAccess methods

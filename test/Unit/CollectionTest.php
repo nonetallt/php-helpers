@@ -4,6 +4,7 @@ namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Generic\Collection;
+use Test\Mock\ExceptionCollection;
 
 class CollectionTest extends TestCase
 {
@@ -87,6 +88,13 @@ class CollectionTest extends TestCase
         $this->collection->push(1);
         $col = new Collection([2, 3]);
         $this->assertEquals([1, 2, 3], $this->collection->merge($col)->toArray());
+    }
+
+    public function testCollectionCreatedByMergeHasTheSameSubclass()
+    {
+        $collection1 = new ExceptionCollection([ new \Exception('exception 1') ]);
+        $collection2 = new ExceptionCollection([ new \Exception('exception 2') ]);
+        $this->assertInstanceOf(ExceptionCollection::class, $collection1->merge($collection2));
     }
 
     public function testIsEmptyReturnsTrueWhenCollectionHasNotItems()
