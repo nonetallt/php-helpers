@@ -4,6 +4,7 @@ namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Templating\PlaceholderFormat;
+use Nonetallt\Helpers\Templating\TemplatingException;
 
 class PlaceholderFormatTest extends TestCase
 {
@@ -83,4 +84,62 @@ class PlaceholderFormatTest extends TestCase
         $this->assertEquals($expected, $this->format->getPlaceholdersInString($str, true));
     }
 
+    public function testExceptionIsThrownIfNumberOfStartAndEndingSequencesAreNotEqual()
+    {
+        $msg = "{{value {{nested}}";
+        $this->expectException(TemplatingException::class);
+        $placeholder = new PlaceholderFormat('{{$}}');
+        $result = $placeholder->getPlaceholdersInString($msg);
+    }
+
+    public function testExceptionMessageIsASyntaxErrorWhenNumberOfStartAndEndingSequencesAreNotEqual()
+    {
+        $msg = "{{value {{nested}}";
+        $this->expectExceptionMessage("Syntax error: start count 2 does not match end count 1");
+        $placeholder = new PlaceholderFormat('{{$}}');
+        $result = $placeholder->getPlaceholdersInString($msg);
+    }
+    
+    public function testFindPlaceholdersInStringFindsNestedPlaceholders()
+    {
+        $msg = "{{value {{nested}}}}";
+        $expected = [
+            '{{value {{nested}}}}',
+            '{{nested}}'
+        ];
+
+        $placeholder = new PlaceholderFormat('{{$}}');
+        $result = $placeholder->getPlaceholdersInString($msg);
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testFindPlaceholdersWorksWithComplexMultilevelStrings()
+    {
+        $msg = '{{ {{test {{foo|bar}} {{baz}} }} }}';
+        $expected = [
+            '{{ {{test {{foo|bar}} {{baz}} }} }}',
+            '{{test {{foo|bar}} {{baz}} }}',
+            '{{foo|bar}}',
+            '{{baz}}',
+        ];
+
+        $placeholder = new PlaceholderFormat('{{$}}');
+        $result = $placeholder->getPlaceholdersInString($msg);
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testFindPlaceholdersResultCanBeReversed()
+    {
+        $msg = '{{ {{test {{foo|bar}} {{baz}} }} }}';
+        $expected = [
+            '{{baz}}',
+            '{{foo|bar}}',
+            '{{test {{foo|bar}} {{baz}} }}',
+            '{{ {{test {{foo|bar}} {{baz}} }} }}',
+        ];
+
+        $placeholder = new PlaceholderFormat('{{$}}');
+        $result = $placeholder->getPlaceholdersInString($msg, false, true);
+        $this->assertEquals($expected, $result);
+    }
 }
