@@ -5,6 +5,11 @@ namespace Nonetallt\Helpers\Generic;
 use Nonetallt\Helpers\Arrays\TypedArray;
 use Nonetallt\Helpers\Describe\DescribeObject;
 
+/**
+ * Array style storage with inbuilt array functions.
+ * Does not support string keys, if you need strings as keys use 
+ * Nonetallt\Helpers\Generic\Container instead.
+ */
 class Collection implements \Iterator, \ArrayAccess
 {
     protected $items;
