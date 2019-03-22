@@ -10,7 +10,8 @@
     "require-dev": {
         "phpunit/phpunit": "^6",
         "consolidation/robo": "~1",
-        "henrikbjorn/lurker": "^1.2"
+        "henrikbjorn/lurker": "^1.2",
+        "spatie/phpunit-watcher": "^1.8"
     },
     "license": "MIT",
     "authors": [

@@ -4,7 +4,7 @@ namespace Nonetallt\Helpers\Database\Mysql;
 
 class SchemaObjectName
 {
-
+    /* TODO better checks (unicode etc.) */
     public static function isValid(string $definition)
     {
         $definition = strtolower($definition);
