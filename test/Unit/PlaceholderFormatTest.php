@@ -4,7 +4,7 @@ namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Templating\PlaceholderFormat;
-use Nonetallt\Helpers\Templating\TemplatingException;
+use Nonetallt\Helpers\Templating\Exceptions\TemplatingException;
 
 class PlaceholderFormatTest extends TestCase
 {
