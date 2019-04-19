@@ -4,8 +4,44 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6b7f6dbfd85dc68b050971b480c96785",
+    "content-hash": "6a76ca3c9b50b8b564eca0d45d45f010",
     "packages": [
+        {
+            "name": "brightnucleus/namespace-backtracer",
+            "version": "v0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/brightnucleus/namespace-backtracer.git",
+                "reference": "d4bca86c1d0e5055a5c1ad16cc2f2c6e1819c34a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/brightnucleus/namespace-backtracer/zipball/d4bca86c1d0e5055a5c1ad16cc2f2c6e1819c34a",
+                "reference": "d4bca86c1d0e5055a5c1ad16cc2f2c6e1819c34a",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BrightNucleus\\NamespaceBacktracer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alain Schlesser",
+                    "email": "alain.schlesser@gmail.com"
+                }
+            ],
+            "description": "Get the namespace of the calling object.",
+            "time": "2016-06-18T08:44:15+00:00"
+        },
         {
             "name": "elleyeayeme/case-converter",
             "version": "v1.0.0",
@@ -1728,6 +1764,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2018-07-13T03:27:23+00:00"
         },
         {
