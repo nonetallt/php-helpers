@@ -2,6 +2,8 @@
 
 namespace Nonetallt\Helpers\Templating;
 
+use Nonetallt\Helpers\Templating\Exceptions\TemplatingException;
+
 class PlaceholderFormat
 {
     private $start;
