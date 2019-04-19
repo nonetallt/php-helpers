@@ -15,37 +15,24 @@ use Nonetallt\Helpers\Filesystem\Exceptions\TargetNotDirectoryException;
  */
 class ReflectionRepository extends Collection
 {
-    use FindsReflectionClasses, NamespaceBacktracerTrait;
+    use FindsReflectionClasses;
 
-    protected $callerClassReflection;
+    protected $reflectionClass;
     protected $reflectionNamespace;
     protected $reflectionDir;
 
     public function __construct(string $class, ?string $dir = null, ?string $namespace = null)
     {
-        $this->resolveCallerClassReflection();
         $this->setReflectionDir($dir);
         $this->setReflectionNamespace($namespace);
 
         parent::__construct($this->resolveReflections($class), \ReflectionClass::class);
     }
 
-    protected function getIgnoredInterfaces() {
-        return [self::class];
-    }
-
-    private function resolveCallerClassReflection()
-    {
-        $callerClass = $this->getCaller();
-        $this->callerClassReflection = new \ReflectionClass($callerClass);
-    }
-
     public function setReflectionDir(?string $dir)
     {
-        /* Default null values to directory of the caller */
-        if($dir === null) {
-            $dir = dirname($this->callerClassReflection->getFileName());
-        }
+        /* Default null values to directory of the subclass */
+        if($dir === null) $dir = dirname((new \ReflectionClass($this))->getFileName()); 
 
         if(! file_exists($dir)) throw new FileNotFoundException($dir); 
         if(! is_dir($dir))  throw new TargetNotDirectoryException($dir); 
@@ -56,16 +43,14 @@ class ReflectionRepository extends Collection
     public function setReflectionNamespace(?string $namespace)
     {
         /* Default null values to namespace of the caller */
-        if($namespace === null) {
-            $namespace = $this->callerClassReflection->getNamespaceName();
-        }
+        if($namespace === null) $namespace = (new \ReflectionClass($this))->getNamespaceName(); 
 
         $this->reflectionNamespace = $namespace;
     }
 
-    private function resolveReflections(string $class)
+    private function resolveReflections()
     {
-        $refs = $this->findReflectionClasses($this->reflectionNamespace, $this->reflectionDir, $class);
+        $refs = $this->findReflectionClasses($this->reflectionNamespace, $this->reflectionDir, $this->reflectionClass);
         $mapped = [];
 
         foreach($refs as $ref) {
@@ -85,5 +70,15 @@ class ReflectionRepository extends Collection
     protected function resolveAlias(\ReflectionClass $ref) : string
     {
         return $ref->getShortName();
+    }
+
+    public function getReflectionNamespace()
+    {
+        return $this->reflectionNamespace;
+    }
+
+    public function getReflectionDir()
+    {
+        return $this->reflectionDir;
     }
 }

@@ -11,7 +11,7 @@ class ReflectionRepositoryTest extends TestCase
 {
     public function testCallerDirAndNamespaceCanBeUsedAsDefaultValuesToFindTheCallerClass()
     {
-        $repo = new ReflectionRepository(TestCase::class);
+        $repo = new ReflectionRepository(TestCase::class, __DIR__, __NAMESPACE__);
         $tests = $repo->map(function($ref) {
             return $ref->name;
         });
