@@ -1,6 +1,6 @@
 <?php
 
-namespace Nonetallt\Helpers\Internet\Dns;
+namespace Nonetallt\Helpers\Internet\Dns\Exceptions;
 
 class DnsCheckException extends \Exception
 {
