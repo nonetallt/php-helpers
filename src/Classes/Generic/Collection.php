@@ -86,6 +86,16 @@ class Collection implements \Iterator, \ArrayAccess
         return $result;
     }
 
+    public function filter(callable $cb)
+    {
+        $result = [];
+        foreach($this->items as $index => $item) {
+            if($cb($item, $index)) $result[] = $item;
+        }
+
+        return $result;
+    }
+
     public function merge(Collection $items)
     {
         $expected = $this->type;

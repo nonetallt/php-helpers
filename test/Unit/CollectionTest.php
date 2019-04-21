@@ -127,4 +127,15 @@ class CollectionTest extends TestCase
             return $item['name'] ?? null;
         }));
     }
+
+    public function testFilterRemovesValuesThatReturnFalseInCallback()
+    {
+        $this->collection->push('foo');
+        $this->collection->push('bar');
+        $this->collection->push('baz');
+
+        $this->assertEquals(['foo', 'baz'], $this->collection->filter(function($item) {
+            return in_array($item, ['foo', 'baz']);
+        }));
+    }
 }
