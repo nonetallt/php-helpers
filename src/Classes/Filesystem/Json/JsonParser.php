@@ -21,7 +21,7 @@ class JsonParser
     /**
      * @throws Nonetallt\Helpers\Filesystem\Json\Exceptions\JsonParsingException
      */
-    public function decodeFile(string $filepath)
+    public function decodeFile(string $filepath, bool $assoc = false, int $depth = 512, int $options = 0)
     {
         try {
             if(! file_exists($filepath)) throw new FileNotFoundException($filepath);
@@ -30,7 +30,7 @@ class JsonParser
             $result = file_get_contents($filepath);
             if($result === false) throw new FilesystemException("Error reading file", $filepath);
 
-            return $this->decode($result);
+            return $this->decode($result, $assoc, $depth, $options);
         }
         catch(FilesystemException $e) {
             throw new JsonParsingException("Specified file could not be used for parsing", 0, $e);
@@ -40,7 +40,7 @@ class JsonParser
     /**
      * @throws Nonetallt\Helpers\Filesystem\Json\Exceptions\JsonParsingException
      */
-    public function encodeIntoFile($value, string $filepath, bool $overwrite = false)
+    public function encodeIntoFile($value, string $filepath, bool $overwrite = false, int $depth = 512, int $options = 0)
     {
         try {
             if(! file_exists(dirname($filepath))) throw new FileNotFoundException($filepath, 'Parent directory does not exist');
@@ -71,7 +71,7 @@ class JsonParser
     /**
      * @throws Nonetallt\Helpers\Filesystem\Json\Exceptions\JsonParsingException
      */
-    public function encode($value, int $options = 0, int $depth = 512) : string
+    public function encode($value, int $depth = 512, int $options = 0) : string
     {
         $result = json_encode($value, $options, $depth);
         if($result === false) {

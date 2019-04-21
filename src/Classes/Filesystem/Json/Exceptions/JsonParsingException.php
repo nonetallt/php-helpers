@@ -20,7 +20,7 @@ class JsonParsingException extends \Exception
 
     public function __construct(string $message = '', int $code = 0, \Exception $previous = null)
     {
-        if($message === '') $message = self::ERROR_MESSAGES[json_last_error()];
+        if($message === '') $message = 'Could not parse json: ' . self::ERROR_MESSAGES[json_last_error()];
         parent::__construct($message, $code, $previous);
     }
 }
