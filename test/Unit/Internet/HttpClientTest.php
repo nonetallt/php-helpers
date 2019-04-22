@@ -3,34 +3,14 @@
 namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Arrays\TypedArray;
 use Nonetallt\Helpers\Internet\Http\HttpClient;
 use Nonetallt\Helpers\Internet\Http\HttpRequest;
 use Nonetallt\Helpers\Internet\Http\HttpRequestCollection;
-use Nonetallt\Helpers\Filesystem\Json\JsonParser;
-use Nonetallt\Helpers\Templating\RecursiveAccessor;
-use Nonetallt\Helpers\Internet\Routing\Router;
+use Test\Unit\Internet\TestsHttpClient;
 
 class HttpClientTest extends TestCase
 {
-    private $config;
-    private $configAccessor;
-    private $router;
-
-    public function setUp()
-    {
-        /* Load testing conf */
-        $configPath = dirname(dirname(dirname(__DIR__))) . '/testing_config.json';
-        $parser = new JsonParser();
-        $this->config = $parser->decodeFile($configPath, true);
-        $this->configAccessor = new RecursiveAccessor('.');
-        $this->router = new Router('{$}');
-    }
-
-    private function config(string $option)
-    {
-        return $this->configAccessor->getNestedValue($option, $this->config);
-    }
+    use TestsHttpClient;
 
     /**
      * @group remote

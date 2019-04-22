@@ -1,11 +1,8 @@
 <?php
 
-namespace Nonetallt\Helpers\Internet\Http\Exceptions;
+namespace Nonetallt\Helpers\Generic\Exceptions;
 
-/**
- * Catch all for exceptions when sending http requests
- */
-class HttpRequestException extends \Exception
+class ParsingException extends \Exception
 {
     public function __construct(string $message, int $code = 0, \Exception $previous = null)
     {

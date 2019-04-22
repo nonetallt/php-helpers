@@ -17,7 +17,6 @@ class UnboundDnsCheckerTest extends TestCase
 
     /**
      * @group remote
-     * @group slow
      */
     public function testRecordExistsReturnsFalseWhenQueryingUsingNonExistentDomain()
     {
@@ -27,7 +26,6 @@ class UnboundDnsCheckerTest extends TestCase
 
     /**
      * @group remote
-     * @group slow
      */
     public function testRecordExistsReturnsTrueWhenRecordExists()
     {

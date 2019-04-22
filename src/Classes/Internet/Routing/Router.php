@@ -18,7 +18,7 @@ class Router
         $this->urlPlaceholderFormat = new PlaceholderFormat($urlPlaceholderFormat);
     }
 
-    public function parseUrl(string $url, array $parameters)
+    public function parseUrl(string $url, array $parameters = [])
     {
         foreach($this->urlPlaceholderFormat->getPlaceholdersInString($url) as $placeholder) {
             $key = $this->urlPlaceholderFormat->trimPlaceholderString($placeholder);

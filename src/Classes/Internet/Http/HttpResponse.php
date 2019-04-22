@@ -61,7 +61,7 @@ class HttpResponse
     public function getBody() : string
     {
         if($this->body === null) {
-            if($this->response !== null) $this->body = (string)$response->getBody();
+            if($this->response !== null) $this->body = (string)$this->response->getBody();
             else $this->body = '';
         }
 

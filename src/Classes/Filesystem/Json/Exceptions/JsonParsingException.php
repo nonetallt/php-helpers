@@ -2,7 +2,9 @@
 
 namespace Nonetallt\Helpers\Filesystem\Json\Exceptions;
 
-class JsonParsingException extends \Exception
+use Nonetallt\Helpers\Generic\Exceptions\ParsingException;
+
+class JsonParsingException extends ParsingException
 {
     CONST ERROR_MESSAGES = [
         JSON_ERROR_NONE                  => 'No error has occurred',
