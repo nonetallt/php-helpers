@@ -2,9 +2,7 @@
 
 namespace Nonetallt\Helpers\Testing\Traits;
 
-use Nonetallt\Helpers\Filesystem\Directory;
-
-trait CleansOutput
+trait TestsFiles
 {
     public function setUp()
     {
