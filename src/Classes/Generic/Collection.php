@@ -16,7 +16,7 @@ class Collection implements \Iterator, \ArrayAccess
     private $type;
     private $position;
 
-    public function __construct(array $items = [], string $type = null)
+    public function __construct(array $items = [], ?string $type = null)
     {
         $this->position = 0;
         $this->type = $type;

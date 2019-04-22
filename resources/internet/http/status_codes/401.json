@@ -1,0 +1,6 @@
+{
+    "name": "Unauthorized",
+    "description": "The request requires user authentication",
+    "standard": null,
+    "should_retry": false
+}

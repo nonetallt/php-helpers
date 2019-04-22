@@ -1,0 +1,6 @@
+{
+    "name": "Not Found",
+    "description": "The server has not found anything matching the Request-URI",
+    "standard": null,
+    "should_retry": false
+}

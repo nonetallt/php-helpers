@@ -6,6 +6,7 @@
 
 # HTTP
 * status codes
+    * use status code for request error when applicable (so that the error can be used to know wether user should attempt to retry request)
 * base url parser
 
 # SetsAttributesTrait

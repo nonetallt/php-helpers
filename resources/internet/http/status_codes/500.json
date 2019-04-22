@@ -1,0 +1,6 @@
+{
+    "name": "Internal Server Error",
+    "description": "The server encountered an unexpected condition which prevented it from fulfilling the request",
+    "standard": null,
+    "should_retry": false
+}

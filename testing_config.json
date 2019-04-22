@@ -1,0 +1,6 @@
+{
+    "http" : {
+        "status_code_url": "http://httpbin.org/status/{code}",
+        "basic_auth_url": "http://httpbin.org/basic-auth/{user}/{password}"
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "name": "Forbidden",
+    "description": "The server understood the request, but is refusing to fulfill it",
+    "standard": null,
+    "should_retry": false
+}

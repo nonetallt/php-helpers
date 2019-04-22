@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Api;
+namespace Nonetallt\Helpers\Internet\Http;
 
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
 use App\Domain\Messages\GenericMessage;

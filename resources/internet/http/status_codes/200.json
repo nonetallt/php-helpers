@@ -1,0 +1,6 @@
+{
+    "name": "ok",
+    "description": "The request has succeeded",
+    "standard": null,
+    "should_retry": false
+}
