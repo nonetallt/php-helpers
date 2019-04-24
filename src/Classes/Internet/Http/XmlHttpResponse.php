@@ -2,19 +2,16 @@
 
 namespace Nonetallt\Helpers\Internet\Http;
 
-use Nonetallt\Helpers\Filesystem\Json\Exceptions\JsonParsingException;
-use Nonetallt\Helpers\Filesystem\Json\JsonParser;
+use Nonetallt\Helpers\Filesystem\Xml\XmlParser;
 
 class XmlHttpResponse extends ParsedHttpResponse
 {
     /**
-     * @throws Nonetallt\Helpers\Filesystem\Json\Exceptions\JsonParsingException
+     * @throws Nonetallt\Helpers\Filesystem\Xml\Exceptions\XmlParsingException
      */
-    protected function parseBody(string $body) : array
+    protected function parseBody(string $body)
     {
-        throw new \Exception('TODO');
-
-        $parser = new JsonParser();
+        $parser = new XmlParser();
         return $parser->decode($body, true);
     }
 }

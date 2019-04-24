@@ -6,12 +6,14 @@ use GuzzleHttp\Psr7\Response;
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
 use Nonetallt\Helpers\Generic\Exceptions\ParsingException;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
+use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestResponseException;
 
+/**
+ * HttpResponse which has it's body parsed to a certain format.
+ */
 abstract class ParsedHttpResponse extends HttpResponse
 {
     private $parsed;
-    private $errorAccessor;
-    private $errorMessageAccessor;
 
     /**
      * @param App\Domain\Api\HttpRequest $originalRequest Request that got this
@@ -19,23 +21,27 @@ abstract class ParsedHttpResponse extends HttpResponse
      *
      * @param GuzzleHttp\Psr7\Response $response can be null for unfulfilled
      * requests.
+     *
+     * @param Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection $exceptions
+     * connection exceptions.
      */
-    public function __construct(HttpRequest $originalRequest, ?Response $response = null)
+    public function __construct(HttpRequest $originalRequest, ?Response $response = null, HttpRequestExceptionCollection $exceptions)
     {
-        parent::__construct($originalRequest, $response);
+        parent::__construct($originalRequest, $response, $exceptions);
 
         try {
-            $this->parseBody($this->getBody());
+            /* Only parse if there are no connection exceptions */
+            if($exceptions->isEmpty()) $this->parseBody($this->getBody());
         }
         catch(ParsingException $e) {
-            $msg = "Request response could not be parsed";
+            $msg = "Response could not be parsed";
             $this->exceptions->push(new HttpRequestResponseException($msg, 0, $e));
         }
     }
 
     /**
-     * Try finding errors in the parsed response json by using these keys and
-     * create exceptions for these errors.
+     * Try finding errors in the parsed response by using these keys and
+     * create an exception for each errors.
      *
      * @param string $errorAccessor Accessor path, '->' is used to access
      * nested values.
@@ -45,75 +51,58 @@ abstract class ParsedHttpResponse extends HttpResponse
      * errorAccessor if null
      *
      */
-    public function setErrorAccessors(string $errorAccessor, ?string $messageAccessor = null)
+    public function createResponseExceptions(string $errorAccessor, ?string $messageAccessor = null, string $nestedAccessorFormat = '->')
     {
-        $this->errorAccessor = $error;
-        $this->errorMessageAccessor = $message;
-    }
+        /* Do not attempt to use response if there were exceptions with the request */
+        if($this->hasExceptions()) return;
 
-    /**
-     * @override
-     */
-    public function getExceptions() : HttpRequestExceptionCollection
-    {
-        $accessor = new RecursiveAccessor('->');
+        $accessor = new RecursiveAccessor($nestedAccessorFormat);
 
-        /* Do not attempt to parse response if it has errors already */
-        if($this->hasErrors()) return $this->errors;
-        if($this->errorAccessor === null) return $this->errors;
-        if(! $accessor->isset($this->errorAccessor, $this->getDecoded())) return $this->errors;
+        /* Not errors found */
+        if(! $accessor->isset($errorAccessor, $this->getParsed())) return;
 
-        /* For example, error can have attribute 'message' */
-        $errorMessages = $accessor->getNestedValue($this->errorAccessor, $this->getDecoded());
+        /* Try finding error objects from the response */
+        $errorMessages = $accessor->getNestedValue($errorAccessor, $this->getParsed());
 
-        if(! is_null($this->errorMessageAccessor)) {
-            $errorMessages = array_map(function($error) use($accessor){
-                return $accessor->getNestedValue($this->errorMessageAccessor, $error);
+        /* Try finding messages from within error objects */
+        if($messageAccessor !== null) {
+            $errorMessages = array_map(function($error) use ($accessor, $messageAccessor) {
+                return $accessor->getNestedValue($messageAccessor, $error);
             }, $errorMessages);
         }
 
-        return $this->errors->merge($this->createExceptions($errorMessages));
-    }
-
-    /**
-     * Create exceptions from parsed response content if applicable
-     */
-    private function createExceptions($error) : HttpResponseExceptionCollection
-    {
-        $exceptions = new HttpRequestExceptionCollection();
-
-        if(is_string($error)) {
-            $exceptions->push(new HttpRequestException($error));
-            return $exceptions;
+        if(is_string($errorMessages)) {
+            $this->exceptions->push(new HttpRequestResponseException($errorMessages));
         }
 
-        if(is_array($error)) {
-            foreach($error as $message) {
-                $exceptions->push(new HttpRequestException($message));
+        if(is_array($errorMessages)) {
+            foreach($errorMessages as $message) {
+                $this->exceptions->push(new HttpRequestResponseException($message));
             }
-            return $exceptions;
         }
-
-        /* No exceptions are created if error is not string or array */
-        return $exceptions;
     }
 
     /**
-     * @throws Nonetallt\Helpers\Generic\Exceptions\ParsingException
+     * Get the parsed response body
      *
-     * @return array $parsed Parsed response
-     */
-    protected abstract function parseBody(string $body) : array;
-
-    /**
      * @throws Nonetallt\Helpers\Filesystem\Json\Exceptions\JsonParsingException
      */
     public function getParsed()
     {
         if($this->parsed === null) {
-            $this->parsed = $this->parseBody($this->getBody());
+            $body = $this->getBody();
+            if($body !== '') $this->parsed = $this->parseBody($body);
         }
 
         return $this->parsed;
     }
+
+    /**
+     * Parse the response body
+     *
+     * @throws Nonetallt\Helpers\Generic\Exceptions\ParsingException
+     *
+     * @return mixed $parsed Parsed response
+     */
+    abstract protected function parseBody(string $body);
 }

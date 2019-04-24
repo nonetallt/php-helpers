@@ -13,6 +13,7 @@
         "spatie/phpunit-watcher": "^1.8"
     },
     "suggest": {
+        "ext-libxml": "Required to use XmlParser class and dependent classes like XmlHttpClient"
     },
     "license": "MIT",
     "authors": [

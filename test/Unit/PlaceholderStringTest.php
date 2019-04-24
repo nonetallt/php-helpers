@@ -8,9 +8,6 @@ use Nonetallt\Helpers\Templating\PlaceholderFormat;
 
 class PlaceholderStringTest extends TestCase
 {
-    /**
-     * @group new
-     */
     public function testGetDepth()
     {
         $format = new PlaceholderFormat('{{$}}');
@@ -18,9 +15,6 @@ class PlaceholderStringTest extends TestCase
         $this->assertEquals(3, $str->getDepth());
     }
 
-    /**
-     * @group new 
-     */
     public function testToString()
     {
         $format = new PlaceholderFormat('{{$}}');

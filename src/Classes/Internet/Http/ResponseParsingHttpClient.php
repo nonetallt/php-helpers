@@ -4,6 +4,7 @@ namespace Nonetallt\Helpers\Internet\Http;
 
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Exception\RequestException;
+use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
 
 /**
  * A http client that parses responses
@@ -28,8 +29,8 @@ abstract class ResponseParsingHttpClient extends HttpClient
      */
     public function setErrorAccessors(string $errorAccessor, ?string $messageAccessor = null)
     {
-        $this->errorAccessor = $error;
-        $this->errorMessageAccessor = $message;
+        $this->errorAccessor = $errorAccessor;
+        $this->errorMessageAccessor = $messageAccessor;
     }
 
     /**
@@ -37,14 +38,14 @@ abstract class ResponseParsingHttpClient extends HttpClient
      */
     protected function createResponse(HttpRequest $request, ?Response $response, ?RequestException $exception = null) : HttpResponse
     {
-        $responseWrapper = $this->createResponseClass($request, $response, $exception);
+        $responseWrapper = $this->createResponseClass($request, $response, $this->createConnectionExceptions($exception));
 
         if($this->errorAccessor !== null) {
-            $responseWrapper->setErrorAccessors($this->errorAccessor, $this->errorMessageAccessor);
+            $responseWrapper->createResponseExceptions($this->errorAccessor, $this->errorMessageAccessor);
         }
 
-        return $this->addConnectionException($responseWrapper, $exception);
+        return $responseWrapper;
     }
 
-    abstract protected function createResponseClass(HttpRequest $request, ?Response $response, ?RequestException $exception = null) : ParsedHttpResponse;
+    abstract protected function createResponseClass(HttpRequest $request, ?Response $response, HttpRequestExceptionCollection $exceptions) : ParsedHttpResponse;
 }

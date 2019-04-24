@@ -20,16 +20,22 @@ class HttpResponse
      * @param GuzzleHttp\Psr7\Response $response can be null for unfulfilled
      * requests.
      */
-    public function __construct(HttpRequest $originalRequest, ?Response $response = null)
+    public function __construct(HttpRequest $originalRequest, ?Response $response, HttpRequestExceptionCollection $exceptions)
     {
         $this->originalRequest = $originalRequest;
         $this->response = $response;
-        $this->exceptions = new HttpRequestExceptionCollection();
+        $this->setExceptions($exceptions);
     }
 
     public function addException(HttpRequestException $exception)
     {
         $this->exceptions->push($exception);
+    }
+
+    public function setExceptions(?HttpRequestExceptionCollection $exceptions)
+    {
+        if($exceptions === null) $exceptions = new HttpRequestExceptionCollection();
+        $this->exceptions = $exceptions;
     }
 
     /**

@@ -12,7 +12,7 @@ class UnboundDnsCheckerTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        /* $this->dns = new UnboundDnsChecker(); */
+        $this->dns = new UnboundDnsChecker();
     }
 
     /**
@@ -20,7 +20,6 @@ class UnboundDnsCheckerTest extends TestCase
      */
     public function testRecordExistsReturnsFalseWhenQueryingUsingNonExistentDomain()
     {
-        $this->markTestIncomplete('Not implemented because of http client dependency');
         $this->assertFalse($this->dns->recordExists('aaa'));
     }
 
@@ -29,7 +28,6 @@ class UnboundDnsCheckerTest extends TestCase
      */
     public function testRecordExistsReturnsTrueWhenRecordExists()
     {
-        $this->markTestIncomplete('Not implemented because of http client dependency');
         $this->assertTrue($this->dns->recordExists('google.com'));
     }
 }

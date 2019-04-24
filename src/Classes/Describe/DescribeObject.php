@@ -18,6 +18,21 @@ class DescribeObject
         return $this->describeAsString();
     }
 
+    public function describeStringDiff(string $other) : array
+    {
+        if(! is_string($this->object)) throw new \Exception("Object must be a string");
+        $diff = [];
+
+        for($n = 0; $n < strlen($this->object); $n++) {
+            $s1 = substr($this->object, $n, 1);
+            $s2 = substr($other, $n, 1);
+
+            if($s1 !== $s2) $diff[$n] = "'$s1' !== '$s2'";
+        }
+
+        return $diff;
+    }
+
     public function describeAsString(bool $pretty = true)
     {
         $repo = $this->getStringDescriptionRepository();

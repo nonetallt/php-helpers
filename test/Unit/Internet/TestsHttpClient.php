@@ -14,6 +14,11 @@ trait TestsHttpClient
 
     public function setUp()
     {
+        $this->initializeRouter();
+    }
+
+    public function initializeRouter()
+    {
         /* Load testing conf */
         $configPath = dirname(dirname(dirname(__DIR__))) . '/testing_config.json';
         $parser = new JsonParser();

@@ -2,7 +2,6 @@
 
 namespace Nonetallt\Helpers\Internet\Http;
 
-use Nonetallt\Helpers\Filesystem\Json\Exceptions\JsonParsingException;
 use Nonetallt\Helpers\Filesystem\Json\JsonParser;
 
 class JsonHttpResponse extends ParsedHttpResponse

@@ -4,7 +4,7 @@ namespace Nonetallt\Helpers\Generic;
 
 use Nonetallt\Helpers\Arrays\TypedArray;
 use Nonetallt\Helpers\Validation\Validator;
-use Nonetallt\Helpers\Validation\ValidationException;
+use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
 
 /**
  * Key value pair storage. Perfect for settings.

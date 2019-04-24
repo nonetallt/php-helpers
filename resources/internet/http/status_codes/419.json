@@ -1,0 +1,6 @@
+{
+    "name": "Authentication Timeout",
+    "description": "Previously valid authentication has expired",
+    "standard": null,
+    "should_retry": false
+}

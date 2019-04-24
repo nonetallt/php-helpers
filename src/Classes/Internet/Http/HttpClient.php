@@ -14,6 +14,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestConnectionException;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestServerException;
+use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
 
 /**
  * Wrapper class for common API usage that utilizes GuzzleHttp client for
@@ -148,31 +149,37 @@ class HttpClient
      */
     protected function createResponse(HttpRequest $request, ?Response $response, ?RequestException $exception = null) : HttpResponse
     {
-        $responseWrapper = new HttpResponse($request, $response);
-        return $this->addConnectionException($responseWrapper, $exception);
+        $exceptions = $this->createConnectionExceptions($exception);
+        return new HttpResponse($request, $response, $exceptions);
     }
 
     /**
-     * Add connection exceptions to request response if applicable
+     * Wrap guzzle connection exceptions into a collection
+     *
+     * @param GuzzleHttp\Exception\RequestException $previous Connection exception
+     *
+     * @return Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection $exceptions
      *
      */
-    protected function addConnectionException(HttpResponse $responseWrapper, ?RequestException $exception) : HttpResponse
+    protected function createConnectionExceptions(?RequestException $previous) : HttpRequestExceptionCollection
     {
-        /* No exception, do not add errors */
-        if($exception === null) return $responseWrapper;
+        $exceptions = new HttpRequestExceptionCollection();
 
-        $curlErrorCode = $exception->getHandlerContext()['errno'] ?? 0;
-        $curlErrorMessage = curl_strerror($curlErrorCode);
+        /* No exception, do not add errors */
+        if($previous === null) return $exceptions;
+
+        $curlErrorCode = $previous->getHandlerContext()['errno'] ?? 0;
 
         /* Handle curl errors if applicable */
         if($curlErrorCode !== 0) {
+            $curlErrorMessage = curl_strerror($curlErrorCode);
             $msg = "$curlErrorMessage (connection error code $curlErrorCode)";
-            $responseWrapper->addException(new HttpRequestConnectionException($msg, $curlErrorCode, $exception));
-            return $responseWrapper;
+            $exceptions->push(new HttpRequestConnectionException($msg, $curlErrorCode, $previous));
+            return $exceptions;
         }
 
-        if($exception instanceof BadResponseException) {
-            $statusCode = $exception->getResponse()->getStatusCode();
+        if($previous instanceof BadResponseException) {
+            $statusCode = $previous->getResponse()->getStatusCode();
             $statusName = 'Unknown Status';
 
             if($this->statuses->codeExists($statusCode)) {
@@ -181,8 +188,9 @@ class HttpClient
             }
 
             $msg = "Server responded with code $statusCode ($statusName)";
-            $responseWrapper->addException(new HttpRequestServerException($msg, $statusCode, $exception));
-            return $responseWrapper;
+            $exceptions->push(new HttpRequestServerException($msg, $statusCode, $previous));
         }
+
+        return $exceptions;
     }
 }

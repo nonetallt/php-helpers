@@ -2,6 +2,8 @@
     "http" : {
         "status_code_url": "http://httpbin.org/status/{code}",
         "basic_auth_url": "http://httpbin.org/basic-auth/{user}/{password}",
-        "json_url": "http://httpbin.org/json"
+        "json_url": "http://httpbin.org/json",
+        "xml_url": "http://httpbin.org/xml",
+        "echo_url": "http://testing-server.jmp/api/echo"
     }
 }
