@@ -50,10 +50,16 @@ class DnsRecord
     private $type;
     private $value;
 
-    public function __construct(string $type, string $value)
+    public function __construct(string $hostname, string $type, string $value)
     {
+        $this->setHostname($hostname);
         $this->setType($type);
         $this->setValue($value);
+    }
+
+    public function setHostname(string $hostname)
+    {
+        $this->hostname = $hostname;
     }
 
     public function setType(string $type)
@@ -73,6 +79,11 @@ class DnsRecord
     public function setValue(string $value)
     {
         $this->value = $value;
+    }
+
+    public function getHostname()
+    {
+        return $this->hostname;
     }
 
     public function getType()

@@ -65,13 +65,15 @@ class DigQueryParser
         $parts = explode("\t", $answer);
         $last = count($parts) -1;
 
+        $hostname = $parts[0];
+
         // Last entry in array is the value of the record
         $value = $parts[$last];
 
         // Seconds last entry is the type of the record
         $type = $parts[$last -1];
 
-        return new DnsRecord($type, $value);
+        return new DnsRecord($hostname, $type, $value);
     }
 
     /**
