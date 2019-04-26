@@ -22,25 +22,12 @@ class HttpRequest
     private $method;
     private $url;
     private $query;
-    private $extraData;
 
     public function __construct(string $method, string $url, array $query = [])
     {
         $this->setMethod($method);
-        $this->url = $url;
-        $this->query = $query;
-        $this->extraData = [];
-    }
-
-    public function addExtra(string $key, $value)
-    {
-        $this->extraData[$key] = $value;
-    }
-
-    public function getExtra(string $key)
-    {
-        $value = $this->extraData[$key] ?? null;
-        return $value;
+        $this->setUrl($url);
+        $this->setQuery($query);
     }
 
     public static function arrayValidationRules()
@@ -52,6 +39,9 @@ class HttpRequest
         ];
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function setMethod(string $method)
     {
         $method = strtoupper($method);
@@ -59,22 +49,37 @@ class HttpRequest
         $this->method = $method;
     }
 
-    public function getMethod()
+    public function setUrl(string $url)
+    {
+        $this->url = $url;
+    }
+
+    public function setQuery(array $query)
+    {
+        $this->query = $query;
+    }
+
+    public function addToQuery(array $data)
+    {
+        $this->query = array_merge($this->query, $data);
+    }
+
+    public function getMethod() : string
     {
         return $this->method;
     }
 
-    public function getUrl()
+    public function getUrl() : string
     {
         return $this->url;
     }
 
-    public function getQuery()
+    public function getQuery() : array
     {
         return $this->query;
     }
 
-    public function toArray()
+    public function toArray() : array
     {
         return [
             'method' => $this->method,
