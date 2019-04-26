@@ -50,11 +50,12 @@ class DnsRecord
     private $type;
     private $value;
 
-    public function __construct(string $hostname, string $type, string $value)
+    public function __construct(string $hostname, string $type, string $value, int $ttl)
     {
         $this->setHostname($hostname);
         $this->setType($type);
         $this->setValue($value);
+        $this->setTTL($ttl);
     }
 
     public function setHostname(string $hostname)
@@ -79,6 +80,15 @@ class DnsRecord
     public function setValue(string $value)
     {
         $this->value = $value;
+    }
+
+    public function setTTL(int $ttl)
+    {
+        if($ttl < 0) {
+            $msg = "TTL must be set greater than 0, $ttl given";
+            throw new \InvalidArgumentException($msg);
+        } 
+        $this->ttl = $ttl;
     }
 
     public function getHostname()

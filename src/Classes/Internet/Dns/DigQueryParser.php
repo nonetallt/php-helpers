@@ -73,7 +73,9 @@ class DigQueryParser
         // Seconds last entry is the type of the record
         $type = $parts[$last -1];
 
-        return new DnsRecord($hostname, $type, $value);
+        $ttl = $parts[2];
+
+        return new DnsRecord($hostname, $type, $value, $ttl);
     }
 
     /**
