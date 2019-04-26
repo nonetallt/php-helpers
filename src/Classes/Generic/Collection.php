@@ -30,7 +30,11 @@ class Collection implements \Iterator, \ArrayAccess
 
     public function setType(string $type)
     {
-        if(! is_null($this->type)) throw new \Exception("Can't change type, already set: $this->type");
+        if($this->type !== null && ! $this->isEmpty()) {
+            $msg = "Can't change type to $type from current $this->type when there are already items";
+            throw new \Exception($msg);
+        }
+
         $this->type = $type;
     }
 

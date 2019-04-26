@@ -28,12 +28,26 @@ class CollectionTest extends TestCase
         $this->assertEquals($class, $this->collection->getType());
     }
 
-    public function testTypeCannotBeSetTwice()
+    public function testTypeCanBeSetBeforeCollectionHasItems()
     {
-        $class = self::class;
-        $this->expectExceptionMessage("Can't change type, already set: $class");
-        $this->collection->setType($class);
-        $this->collection->setType(TestCase::class);
+        $original = self::class;
+        $new = TestCase::class;
+
+        $this->collection->setType($original);
+        $this->collection->setType($new);
+        $this->assertEquals($new, $this->collection->getType());
+    }
+
+    public function testTypeCannotBeSetAfterCollectionHasItems()
+    {
+        $original = self::class;
+        $new = TestCase::class;
+
+        $this->collection->push($this);
+        $this->collection->setType($original);
+
+        $this->expectExceptionMessage("Can't change type to $new from current $original when there are already items");
+        $this->collection->setType($new);
     }
 
     public function testPushAddsItemsToCollection()
