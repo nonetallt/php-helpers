@@ -47,8 +47,10 @@ class DnsRecord
         'URI',
     ];
 
+    private $hostname;
     private $type;
     private $value;
+    private $ttl;
 
     public function __construct(string $hostname, string $type, string $value, int $ttl)
     {
@@ -104,5 +106,10 @@ class DnsRecord
     public function getValue()
     {
         return $this->value;
+    }
+
+    public function getTTL()
+    {
+        return $this->ttl;
     }
 }
