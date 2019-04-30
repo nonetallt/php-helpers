@@ -2,19 +2,34 @@
 
 namespace Nonetallt\Helpers\Internet\Http\Exceptions;
 
-use Nonetallt\Helpers\Generic\Collection;
+use Nonetallt\Helpers\Generic\Exceptions\ExceptionCollection;
 
-class HttpRequestExceptionCollection extends Collection
+class HttpRequestExceptionCollection extends ExceptionCollection
 {
     public function __construct(array $items = [])
     {
         parent::__construct($items, HttpRequestException::class);
     }
 
-    public function getMessages() : array
+    public function hasConnectionErrors()
     {
-        return $this->map(function($e) {
-            return $e->getMessage();
-        });
+        return $this->hasItemOfClass(HttpRequestConnectionException::class);
+    }
+
+    public function hasClientErrors()
+    {
+        return $this->hasItemOfClass(HttpRequestClientException::class);
+    }
+
+    public function hasServerErrors()
+    {
+
+        return $this->hasItemOfClass(HttpRequestServerException::class);
+    }
+
+    public function hasResponseErrors()
+    {
+
+        return $this->hasItemOfClass(HttpRequestResponseException::class);
     }
 }

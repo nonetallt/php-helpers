@@ -58,6 +58,27 @@ class Collection implements \Iterator, \ArrayAccess
         $this->items[] = $item;
     }
 
+    /**
+     * Checks if this collection has at least one exception of specified class
+     *
+     * @param string $itemClass Full name of the class to look for
+     * @param bool $allowSubclass Wether subclasses of $itemClass should
+     * be accepted as a match
+     *
+     * @return bool $hasExceptionOfClass Wether this collection has the
+     * specified class
+     *
+     */
+    public function hasItemOfClass(string $itemClass, bool $allowSubclass = true) : bool
+    {
+        foreach($this->items as $item) {
+            if($allowSubclass && is_subclass_of($item, $itemClass)) return true;
+            if(get_class($item) === $itemClass) return true;
+        }
+
+        return false;
+    }
+
     public function count()
     {
         return count($this->items);
