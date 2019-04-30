@@ -23,6 +23,7 @@ class Collection implements \Iterator, \ArrayAccess
         $this->setItems($items);
     }
 
+    // Getters and setters
     public function getType()
     {
         return $this->type;
@@ -47,6 +48,7 @@ class Collection implements \Iterator, \ArrayAccess
         $this->items = $items;
     }
 
+    // Functionality methods
     public function push($item)
     {
         if(! is_null($this->type) && ! is_a($item, $this->type)) {
@@ -56,6 +58,11 @@ class Collection implements \Iterator, \ArrayAccess
         }       
 
         $this->items[] = $item;
+    }
+
+    public function hasItem($item, bool $strict = true) : bool
+    {
+        return in_array($item, $this->items, $strict);
     }
 
     /**
@@ -79,12 +86,12 @@ class Collection implements \Iterator, \ArrayAccess
         return false;
     }
 
-    public function count()
+    public function count() : int
     {
         return count($this->items);
     }
 
-    public function isEmpty()
+    public function isEmpty() : bool
     {
         return empty($this->items);
     }

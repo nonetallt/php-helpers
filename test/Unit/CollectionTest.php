@@ -152,4 +152,21 @@ class CollectionTest extends TestCase
             return in_array($item, ['foo', 'baz']);
         }));
     }
+
+    public function testHasItemReturnsFalseWhenThereAreNoItems()
+    {
+        $this->assertFalse($this->collection->hasItem($this));
+    }
+
+    public function testHasItemReturnsFalseWhenItemDoesNotExist()
+    {
+        $this->collection->push(new \Exception('test'));
+        $this->assertFalse($this->collection->hasItem($this));
+    }
+
+    public function testHasItemReturnsTrueWhenItemExists()
+    {
+        $this->collection->push($this);
+        $this->assertTrue($this->collection->hasItem($this));
+    }
 }
