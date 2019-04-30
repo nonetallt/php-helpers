@@ -1,0 +1,6 @@
+{
+    "name": "Service Unavailable",
+    "description": "The server is currently unable to handle the request due to a temporary overloading or maintenance of the server.",
+    "standard": null,
+    "should_retry": true
+}
