@@ -28,6 +28,16 @@ class Domain
         return $this->name;
     }
 
+    public function toArray() : array
+    {
+        return [
+            'name' => $this->name,
+            'sld' => $this->getSLD(),
+            'tld' => $this->getTLD(),
+            'is_subdomain' => $this->isSubdomain()
+        ];
+    }
+
     public function setName(string $name)
     {
         if(! self::isValidName($name)) {

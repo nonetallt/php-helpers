@@ -13,4 +13,18 @@ class DomainCollection extends Collection
     {
         parent::__construct($items, Domain::class);
     }
+
+    /**
+     * @override
+     */
+    public function toArray() : array
+    {
+        $array = [];
+
+        foreach($this->items as $item) {
+            $array[] = $item->toArray();
+        }
+
+        return $array;
+    }
 }
