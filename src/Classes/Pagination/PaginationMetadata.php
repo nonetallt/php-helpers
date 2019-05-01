@@ -5,7 +5,6 @@ namespace Nonetallt\Helpers\Pagination;
 class PaginationMetadata
 {
     private $totalEntries;
-    private $totalPages;
     private $entriesPerPage;
     private $currentPage;
 
