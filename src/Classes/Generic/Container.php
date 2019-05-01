@@ -34,7 +34,19 @@ class Container
     public function isOptionWhitelisted(string $name)
     {
         if(empty($this->whitelisted)) return true;
-        return in_array($name, $this->whitelisted);
+
+        foreach($this->whitelisted as $whitelisted) {
+            if($name === $whitelisted) return true;
+            if(strpos($whitelisted, '%') === false && strpos($whitelisted, '*') === false) continue;
+
+            $pattern = "|^$whitelisted$|";
+            $pattern = str_replace('%', '\d+', $pattern);
+            $pattern = str_replace('*', '.+', $pattern);
+
+            if(preg_match($pattern, $name) === 1) return true;
+        }
+
+        return false;
     }
 
     /**

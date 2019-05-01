@@ -96,4 +96,32 @@ class ContainerTest extends TestCase
         $container = new Container($options, [], ['options' => 'integer']);
         $this->assertEquals(1, $container->options);
     }
+
+    public function testWhitelistingAcceptsCorrectValueWithDigitWildcard()
+    {
+        $options = ['value1' => 1, 'value2' => 2];
+        $container = new Container($options, [], [], ['value%']);
+        $this->assertEquals($options, $container->toArray());
+    }
+
+    public function testWhitelistingRejectIncorrectValueWithDigitWildcard()
+    {
+        $options = ['value1' => 1, 'value2' => 2];
+        $this->expectExceptionMessage("Invalid option 'value1': only whitelisted values are allowed");
+        $container = new Container($options, [], [], ['%value1']);
+    }
+
+    public function testWhitelistingAcceptsCorrectValueWithGeneralWildcard()
+    {
+        $options = ['value foo' => 1, 'value bar' => 2];
+        $container = new Container($options, [], [], ['value*']);
+        $this->assertEquals($options, $container->toArray());
+    }
+
+    public function testWhitelistingRejectIncorrectValueWithGeneralWildcard()
+    {
+        $options = ['value1' => 1, 'value2' => 2];
+        $this->expectExceptionMessage("Invalid option 'value1': only whitelisted values are allowed");
+        $container = new Container($options, [], [], ['val*ue1']);
+    }
 }
