@@ -54,11 +54,20 @@ class ReflectionRepository extends Collection
         $mapped = [];
 
         foreach($refs as $ref) {
+            if(! $this->filterClasses($ref)) continue;
             $key = $this->resolveAlias($ref);
             $mapped[$key] = $ref;
         }
 
         return $mapped;
+    }
+
+    /**
+     * Wether class should be used. Ment to be overriden by child classes
+     */
+    protected function filterClasses(\ReflectionClass $ref) : bool
+    {
+        return true;
     }
 
     /**
