@@ -51,27 +51,41 @@ class PaginationMetadata
         $this->currentPage = $currentPage;
     }
 
-    public function getTotalEntries()
+    public function getNextPages() : array
+    {
+        $pages = [];
+        for($n = $this->currentPage + 1; $n <= $this->getTotalPages(); $n++) {
+            $pages[] = $n;
+        }
+        return $pages;
+    }
+
+    public function getPagesLeft() : int
+    {
+        return $this->getTotalPages() - $this->currentPage;
+    }
+
+    public function getTotalEntries() : int
     {
         return $this->totalEntries;
     }
 
-    public function getEntriesPerPage()
+    public function getEntriesPerPage() : int
     {
         return $this->entriesPerPage;
     }
 
-    public function getCurrentPage()
+    public function getCurrentPage() : int
     {
         return $this->currentPage;
     }
 
-    public function getTotalPages()
+    public function getTotalPages() : int
     {
         return (int)ceil($this->totalEntries / $this->entriesPerPage);
     }
 
-    public function countEntriesOnLastPage()
+    public function countEntriesOnLastPage() : int
     {
         return $this->totalEntries % $this->entriesPerPage;
     }

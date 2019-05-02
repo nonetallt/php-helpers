@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Unit;
+namespace Test\Unit\Pagination;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Pagination\PaginationMetadata;
@@ -55,5 +55,29 @@ class PaginationMetadataTest extends TestCase
         ];
 
         $this->assertEquals($expected, $pagination->toArray());
+    }
+
+    public function testGetNextPagesWorksWhenThereAreMutliplePages()
+    {
+        $pagination = new PaginationMetadata(3500, 1000, 1);
+        $this->assertEquals([2, 3, 4], $pagination->getNextPages());
+    }
+
+    public function testGetNextPagesWorksWhenThereIsOnlyOnePage()
+    {
+        $pagination = new PaginationMetadata(1, 1, 1);
+        $this->assertEquals([], $pagination->getNextPages());
+    }
+
+    public function testGetPagesLeftWorksWhenThereAreMultiplePages()
+    {
+        $pagination = new PaginationMetadata(3500, 1000, 1);
+        $this->assertEquals(3, $pagination->getPagesLeft());
+    }
+
+    public function testGetPagesLeftWorksWhenThereIsOnlyOnePage()
+    {
+        $pagination = new PaginationMetadata(1, 1, 1);
+        $this->assertEquals(0, $pagination->getPagesLeft());
     }
 }
