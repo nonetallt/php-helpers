@@ -80,4 +80,46 @@ class PaginationMetadataTest extends TestCase
         $pagination = new PaginationMetadata(1, 1, 1);
         $this->assertEquals(0, $pagination->getPagesLeft());
     }
+
+    public function testHasMorePagesReturnsFalseWhenThereIsOnlyOnePage()
+    {
+        $pagination = new PaginationMetadata(1, 1, 1);
+        $this->assertFalse($pagination->hasMorePages());
+    }
+
+    public function testHasMorePagesReturnsFalseWhenCurrentPageIsLastPage()
+    {
+        $pagination = new PaginationMetadata(5, 1, 5);
+        $this->assertFalse($pagination->hasMorePages());
+    }
+
+    public function testHasMorePagesReturnsTrueWhenThereArePagesLeft()
+    {
+        $pagination = new PaginationMetadata(5, 1, 3);
+        $this->assertTrue($pagination->hasMorePages());
+    }
+
+    public function testIsFirstPageReturnsFalseWhenNotOnFirstPage()
+    {
+        $pagination = new PaginationMetadata(5, 1, 3);
+        $this->assertFalse($pagination->isFirstPage());
+    }
+
+    public function testIsFirstPageReturnsTrueWhenOnFirstPage()
+    {
+        $pagination = new PaginationMetadata(5, 10, 1);
+        $this->assertTrue($pagination->isFirstPage());
+    }
+
+    public function testIsLastPageReturnsFalseWhenNotOnLastPage()
+    {
+        $pagination = new PaginationMetadata(5, 1, 3);
+        $this->assertFalse($pagination->isLastPage());
+    }
+
+    public function testIsLastPageReturnsTrueWhenOnLastPage()
+    {
+        $pagination = new PaginationMetadata(100, 10, 10);
+        $this->assertTrue($pagination->isLastPage());
+    }
 }

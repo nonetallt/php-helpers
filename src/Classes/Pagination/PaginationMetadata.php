@@ -90,6 +90,21 @@ class PaginationMetadata
         return $this->totalEntries % $this->entriesPerPage;
     }
 
+    public function hasMorePages() : bool
+    {
+        return $this->getPagesLeft() > 0;
+    }
+
+    public function isLastPage() : bool
+    {
+        return $this->currentPage === $this->getTotalPages();
+    }
+
+    public function isFirstPage() : bool
+    {
+        return $this->currentPage === 1;
+    }
+
     public function toArray()
     {
         return  [
