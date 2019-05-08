@@ -1,6 +1,6 @@
 <?php
 
-namespace Nonetallt\Helpers\Internet\Http;
+namespace Nonetallt\Helpers\Internet\Http\Statuses;
 
 use Nonetallt\Helpers\Filesystem\JsonFileRepository;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpCodeNotFoundException;
@@ -9,7 +9,7 @@ class HttpStatusRepository extends JsonFileRepository
 {
     public function __construct()
     {
-        $filepath = dirname(dirname(dirname(dirname(__DIR__)))) . '/resources/internet/http/status_codes';
+        $filepath = dirname(dirname(dirname(dirname(dirname(__DIR__))))) . '/resources/internet/http/status_codes';
         parent::__construct($filepath, HttpStatus::class);
     }
 

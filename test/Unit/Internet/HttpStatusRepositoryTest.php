@@ -1,9 +1,9 @@
 <?php
 
-namespace Test\Unit;
+namespace Test\Unit\Internet;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Internet\Http\HttpStatusRepository;
+use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatusRepository;
 
 class HttpStatusRepositoryTest extends TestCase
 {
@@ -18,7 +18,7 @@ class HttpStatusRepositoryTest extends TestCase
     {
         $expected = [
             'code' => 200,
-            'name' => 'ok',
+            'name' => 'OK',
             'description' => 'The request has succeeded',
             'standard' => ''
         ];

@@ -4,6 +4,7 @@
         "basic_auth_url": "http://httpbin.org/basic-auth/{user}/{password}",
         "json_url": "http://httpbin.org/json",
         "xml_url": "http://httpbin.org/xml",
-        "echo_url": "http://testing-server.jmp/api/echo"
+        "echo_url": "http://testing-server.jmp/api/echo",
+        "redirect_url": "http://testing-server.jmp/api/redirect"
     }
 }

@@ -3,10 +3,11 @@
 namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Internet\Http\HttpClient;
-use Nonetallt\Helpers\Internet\Http\HttpRequest;
-use Nonetallt\Helpers\Internet\Http\HttpRequestCollection;
 use Test\Unit\Internet\TestsHttpClient;
+use Nonetallt\Helpers\Internet\Http\QueryParameters;
+use Nonetallt\Helpers\Internet\Http\Clients\HttpClient;
+use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
+use Nonetallt\Helpers\Internet\Http\Requests\HttpRequestCollection;
 
 class HttpClientTest extends TestCase
 {
@@ -87,5 +88,34 @@ class HttpClientTest extends TestCase
             'Server responded with code 500 (Internal Server Error)'
         ];
         $this->assertEquals($expected, $response->getErrors());
+    }
+
+    /**
+     * @group new
+     */
+    public function testRedirectionTraceIsSaved()
+    {
+        $client = new HttpClient();
+        $url = $this->router->parseUrl($this->config('http.redirect_url'));
+        $destination = 'https://www.google.com';
+        $query = new QueryParameters([
+            'times' => 3,
+            'destination' => $destination
+        ]);
+
+        $request = new HttpRequest('POST', $url, $query->toArray());
+        $response = $client->sendRequest($request);
+        $trace = $response->getOriginalRequest()->getRedirections()->getUrlTrace();
+
+        $firstUrl = $url . (string)(new QueryParameters(['times' => 2, 'destination' => $destination]));
+        $secondUrl = $url . (string)(new QueryParameters(['times' => 1, 'destination' => $destination]));
+
+        $expected = [
+            $firstUrl,
+            $secondUrl,
+            $destination
+        ];
+
+        $this->assertEquals($expected, $trace);
     }
 }

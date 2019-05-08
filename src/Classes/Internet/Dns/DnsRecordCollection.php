@@ -34,7 +34,7 @@ class DnsRecordCollection extends Collection
     /**
      * @override
      */
-    public function toArray()
+    public function toArray() : array
     {
         $array = [];
 

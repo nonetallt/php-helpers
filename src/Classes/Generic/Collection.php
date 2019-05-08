@@ -101,7 +101,7 @@ class Collection implements \Iterator, \ArrayAccess
         return $this->items[0] ?? null;
     }
 
-    public function toArray()
+    public function toArray() : array
     {
         return $this->items;
     }

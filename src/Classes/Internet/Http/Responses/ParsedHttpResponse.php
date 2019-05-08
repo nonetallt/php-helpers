@@ -1,12 +1,13 @@
 <?php
 
-namespace Nonetallt\Helpers\Internet\Http;
+namespace Nonetallt\Helpers\Internet\Http\Responses;
 
 use GuzzleHttp\Psr7\Response;
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
 use Nonetallt\Helpers\Generic\Exceptions\ParsingException;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestResponseException;
+use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 
 /**
  * HttpResponse which has it's body parsed to a certain format.

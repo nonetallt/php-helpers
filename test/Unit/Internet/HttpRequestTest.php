@@ -3,7 +3,7 @@
 namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Internet\Http\HttpRequest;
+use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 
 class HttpRequestTest extends TestCase
 {

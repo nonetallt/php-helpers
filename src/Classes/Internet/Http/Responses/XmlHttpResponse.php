@@ -1,6 +1,6 @@
 <?php
 
-namespace Nonetallt\Helpers\Internet\Http;
+namespace Nonetallt\Helpers\Internet\Http\Responses;
 
 use Nonetallt\Helpers\Filesystem\Xml\XmlParser;
 

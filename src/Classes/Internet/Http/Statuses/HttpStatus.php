@@ -1,6 +1,6 @@
 <?php
 
-namespace Nonetallt\Helpers\Internet\Http;
+namespace Nonetallt\Helpers\Internet\Http\Statuses;
 
 use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
 

@@ -13,3 +13,6 @@
 * define validation / processing rules
 * "array|size:2|->serialize"
 * define __set, use parent __set after processing
+
+# Collection
+* toArray(): check if item class has "toArray()" (and check that return type is array) and map all items by default if true

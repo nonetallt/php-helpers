@@ -44,7 +44,7 @@ class JsonFileRepository extends Collection
         $this->dirPath = $dirPath;
     }
 
-    public function toArray()
+    public function toArray() : array
     {
         return $this->map(function($item) {
             return $item->toArray();

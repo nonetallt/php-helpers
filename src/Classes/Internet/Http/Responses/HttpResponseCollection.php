@@ -1,6 +1,6 @@
 <?php
 
-namespace Nonetallt\Helpers\Internet\Http;
+namespace Nonetallt\Helpers\Internet\Http\Responses;
 
 use Nonetallt\Helpers\Generic\Collection;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;

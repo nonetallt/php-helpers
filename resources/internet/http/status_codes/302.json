@@ -1,0 +1,6 @@
+{
+    "name": "Found",
+    "description": "The requested resource resides temporarily under a different URI",
+    "standard": null,
+    "should_retry": false
+}

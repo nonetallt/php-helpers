@@ -1,6 +1,6 @@
 <?php
 
-namespace Nonetallt\Helpers\Internet\Http;
+namespace Nonetallt\Helpers\Internet\Http\Clients;
 
 use GuzzleHttp\Promise;
 use GuzzleHttp\Client;
@@ -12,9 +12,19 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\TransferStats;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestConnectionException;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestServerException;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
+use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirection;
+use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatusRepository;
+use Nonetallt\Helpers\Internet\Http\Requests\HttpRequestCollection;
+use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
+use Nonetallt\Helpers\Internet\Http\Responses\HttpResponseCollection;
+use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
 
 /**
  * Wrapper class for common API usage that utilizes GuzzleHttp client for
@@ -79,7 +89,7 @@ class HttpClient
         foreach($requests as $index => $request) {
             $method = $request->getMethod();
             $url = $request->getUrl();
-            $query = $this->requestOptions($request->getQuery());
+            $query = $this->requestOptions($request->getQuery(), $request);
 
             $originalRequests[] = $request;
             $promises[] = $this->client->requestAsync($method, $url, $query);
@@ -112,7 +122,7 @@ class HttpClient
     {
         $method = $request->getMethod();
         $url = $request->getUrl();
-        $query = $this->requestOptions($request->getQuery());
+        $query = $this->requestOptions($request->getQuery(), $request);
 
         try {
             $response = $this->client->request($method, $url, $query);
@@ -124,10 +134,22 @@ class HttpClient
         }
     }
 
-    private function requestOptions(array $query)
+    private function requestOptions(array $query, HttpRequest $requestWrapper)
     {
+        $onRedirect = function(RequestInterface $request, ResponseInterface $response, UriInterface $uri) use ($requestWrapper) {
+            $from = (string)$request->getUri();
+            $to = (string)$uri;
+            $code = $response->getStatusCode();
+            $status = $this->statuses->getByCode($code);
+            $redirection = new HttpRedirection($from, $to, $status);
+            $requestWrapper->getRedirections()->push($redirection);
+        };
+
         $requestOptions = [
-            'query' => $query
+            'query' => $query,
+            'allow_redirects' => [
+                'on_redirect' => $onRedirect
+            ]
         ];
 
         /* If auth is set, append to request */

@@ -3,8 +3,8 @@
 namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Internet\Http\JsonHttpClient;
-use Nonetallt\Helpers\Internet\Http\HttpRequest;
+use Nonetallt\Helpers\Internet\Http\Clients\JsonHttpClient;
+use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Test\Unit\Internet\TestsHttpClient;
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
 
