@@ -4,7 +4,7 @@ namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Test\Unit\Internet\TestsHttpClient;
-use Nonetallt\Helpers\Internet\Http\QueryParameters;
+use Nonetallt\Helpers\Internet\Http\HttpQuery;
 use Nonetallt\Helpers\Internet\Http\Clients\HttpClient;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequestCollection;
@@ -91,14 +91,14 @@ class HttpClientTest extends TestCase
     }
 
     /**
-     * @group new
+     * @group remote
      */
     public function testRedirectionTraceIsSaved()
     {
         $client = new HttpClient();
         $url = $this->router->parseUrl($this->config('http.redirect_url'));
         $destination = 'https://www.google.com';
-        $query = new QueryParameters([
+        $query = new HttpQuery([
             'times' => 3,
             'destination' => $destination
         ]);
@@ -107,8 +107,8 @@ class HttpClientTest extends TestCase
         $response = $client->sendRequest($request);
         $trace = $response->getOriginalRequest()->getRedirections()->getUrlTrace();
 
-        $firstUrl = $url . (string)(new QueryParameters(['times' => 2, 'destination' => $destination]));
-        $secondUrl = $url . (string)(new QueryParameters(['times' => 1, 'destination' => $destination]));
+        $firstUrl = $url . (string)(new HttpQuery(['times' => 2, 'destination' => $destination]));
+        $secondUrl = $url . (string)(new HttpQuery(['times' => 1, 'destination' => $destination]));
 
         $expected = [
             $firstUrl,

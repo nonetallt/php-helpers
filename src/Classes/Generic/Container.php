@@ -9,7 +9,7 @@ use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
 /**
  * Key value pair storage. Perfect for settings.
  */
-class Container
+class Container implements \ArrayAccess
 {
     protected $options;
     protected $defaults;
@@ -160,7 +160,7 @@ class Container
         $this->whitelisted = TypedArray::create('string', $whitelisted);
     }
 
-    public function toArray()
+    public function toArray() : array
     {
         $array = [];
         /* Translate modified keys back to their original values */
@@ -208,5 +208,30 @@ class Container
     public function __set(string $name, $value)
     {
         $this->set($name, $value);
+    }
+
+    // ArrayAccess methods
+    public function offsetSet($offset, $value) 
+    {
+        if (is_null($offset)) {
+            $this->options[] = $value;
+        } else {
+            $this->options[$offset] = $value;
+        }
+    }
+
+    public function offsetExists($offset) 
+    {
+        return isset($this->options[$offset]);
+    }
+
+    public function offsetUnset($offset) 
+    {
+        unset($this->options[$offset]);
+    }
+
+    public function offsetGet($offset) 
+    {
+        return isset($this->options[$offset]) ? $this->options[$offset] : null;
     }
 }

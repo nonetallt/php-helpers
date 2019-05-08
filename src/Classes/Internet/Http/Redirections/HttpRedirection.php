@@ -3,6 +3,8 @@
 namespace Nonetallt\Helpers\Internet\Http\Redirections;
 
 use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatus;
+use Nonetallt\Helpers\Internet\Http\Url;
+use Nonetallt\Helpers\Describe\DescribeObject;
 
 class HttpRedirection
 {
@@ -10,11 +12,37 @@ class HttpRedirection
     private $to;
     private $status;
 
-    public function __construct(string $from, string $to, HttpStatus $status)
+    public function __construct($from, $to, HttpStatus $status)
     {
-        $this->from = $from;
-        $this->to = $to;
+        $this->setFrom($from);
+        $this->setTo($to);
         $this->setStatus($status);
+    }
+
+    public function setFrom($from)
+    {
+        $class = Url::class;
+
+        if(is_string($from)) $from = Url::fromString($from);
+        if(is_a($from, $class)) $this->from = $from;
+        else {
+            $given = (new DescribeObject($from))->describeType();
+            $msg = "From must be either a string or $class object, $given given";
+            throw new \InvalidArgumentException($msg);
+        }
+    }
+
+    public function setTo($to)
+    {
+        $class = Url::class;
+
+        if(is_string($to)) $to = Url::fromString($to);
+        if(is_a($to, $class)) $this->to = $to;
+        else {
+            $given = (new DescribeObject($to))->describeType();
+            $msg = "To must be either a string or $class object, $given given";
+            throw new \InvalidArgumentException($msg);
+        }
     }
 
     /**

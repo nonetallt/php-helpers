@@ -4,6 +4,9 @@ namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
+use Nonetallt\Helpers\Internet\Http\QueryParameters;
+use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirection;
+use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatusRepository;
 
 class HttpRequestTest extends TestCase
 {
@@ -28,5 +31,36 @@ class HttpRequestTest extends TestCase
         $request->addToQuery($appended);
 
         $this->assertEquals(array_merge($parameters, $appended), $request->getQuery());
+    }
+
+    public function testGetUrlReturnsUrlWithoutParameters()
+    {
+        $url = 'https://google.com';
+        $query = ['foo' => 1, 'bar' => 2];
+        $request = new HttpRequest('get', $url, $query);
+        $this->assertEquals($url, $request->getUrl());
+    }
+
+    public function testGetEffectiveUrlWorksLikeGetUrlWhenThereAreNoRedirections()
+    {
+        $url = 'https://google.com';
+        $query = ['foo' => 1, 'bar' => 2];
+        $request = new HttpRequest('get', $url, $query);
+        $this->assertEquals($url, $request->getEffectiveUrl());
+    }
+
+    public function testGetEffectiveUrlReturnsLastUrlWhenThereAreRedirections()
+    {
+        $firstUrl = 'foo.com';
+        $secondUrl = 'bar.com';
+        $thirdUrl = 'https://google.com';
+
+        $query = ['foo' => 1, 'bar' => 2];
+        $request = new HttpRequest('get', $firstUrl, $query);
+        $repo = new HttpStatusRepository();
+        $request->getRedirections()->push(new HttpRedirection($firstUrl, $secondUrl, $repo->getByCode(302)));
+        $request->getRedirections()->push(new HttpRedirection($secondUrl, $thirdUrl, $repo->getByCode(302)));
+
+        $this->assertEquals($thirdUrl, $request->getEffectiveUrl());
     }
 }

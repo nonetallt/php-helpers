@@ -4,6 +4,7 @@ namespace Nonetallt\Helpers\Internet\Http\Requests;
 
 use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
 use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirectionCollection;
+use Nonetallt\Helpers\Internet\Http\QueryParameters;
 
 /**
  * Wrapper class for http request information
@@ -75,6 +76,14 @@ class HttpRequest
     public function getUrl() : string
     {
         return $this->url;
+    }
+
+    public function getEffectiveUrl() : string
+    {
+        if($this->redirections->isEmpty()) return $this->getUrl(); 
+
+        /* Return last redirection location */
+        return (string)$this->redirections[$this->redirections->count() -1]->getTo();
     }
 
     public function getQuery() : array

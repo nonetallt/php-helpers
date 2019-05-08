@@ -2,13 +2,13 @@
 
 namespace Nonetallt\Helpers\Internet\Http;
 
-class QueryParameters implements \ArrayAccess
-{
-    private $parameters;
+use Nonetallt\Helpers\Generic\Container;
 
+class HttpQuery extends Container
+{
     public function __construct(array $parameters)
     {
-        $this->parameters = $parameters;
+        parent::__construct($parameters);
     }
 
     public static function fromString($value)
@@ -37,7 +37,7 @@ class QueryParameters implements \ArrayAccess
     public function __toString()
     {
         $string = '';
-        foreach($this->parameters as $key => $value) {
+        foreach($this->options as $key => $value) {
             $key = urlencode($key);
             $value = urlencode($value);
             $leader = $string === '' ? '?' : '&';
@@ -45,35 +45,5 @@ class QueryParameters implements \ArrayAccess
         }
 
         return $string;
-    }
-
-    public function toArray() : array
-    {
-        return $this->parameters;
-    }
-
-    // ArrayAccess methods
-    public function offsetSet($offset, $value) 
-    {
-        if (is_null($offset)) {
-            $this->parameters[] = $value;
-        } else {
-            $this->parameters[$offset] = $value;
-        }
-    }
-
-    public function offsetExists($offset) 
-    {
-        return isset($this->parameters[$offset]);
-    }
-
-    public function offsetUnset($offset) 
-    {
-        unset($this->parameters[$offset]);
-    }
-
-    public function offsetGet($offset) 
-    {
-        return isset($this->parameters[$offset]) ? $this->parameters[$offset] : null;
     }
 }
