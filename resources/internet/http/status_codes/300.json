@@ -1,0 +1,6 @@
+{
+    "name": "Multiple Choices",
+    "description": "The requested resource corresponds to any one of a set of representations, each with its own specific location",
+    "standard": null,
+    "should_retry": false
+}
