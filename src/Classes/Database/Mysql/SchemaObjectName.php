@@ -2,14 +2,14 @@
 
 namespace Nonetallt\Helpers\Database\Mysql;
 
-use Nonetallt\Helpers\Database\Common\Exceptions\SchemaValidationException;
+use Nonetallt\Helpers\Database\Common\Exceptions\SchemaException;
 
 class SchemaObjectName
 {
     /** 
      * Check if a string is a valid mysql schema name
      *
-     * @throws Nonetallt\Helpers\Database\Common\Exceptions\SchemaValidationException $e
+     * @throws Nonetallt\Helpers\Database\Common\Exceptions\SchemaException $e
      *
      * TODO better checks (unicode etc.) 
      */
@@ -17,17 +17,17 @@ class SchemaObjectName
     {
         if($name === '') {
             $msg = "Database schema name should not be empty";
-            throw new SchemaValidationException($msg);
+            throw new SchemaException($msg);
         }
 
         if(preg_match('|^\d+$|', $name) === 1) {
             $msg = "Database schema name '$name' should not consist of only digits";
-            throw new SchemaValidationException($msg);
+            throw new SchemaException($msg);
         }
 
         if(strlen($name) > 64) {
             $msg = "Database schema name '$name' is too long, maximum of 64 characters allowed";
-            throw new SchemaValidationException($msg);
+            throw new SchemaException($msg);
         }
 
         $name = strtolower($name);
@@ -36,7 +36,7 @@ class SchemaObjectName
         foreach(str_split($name) as $char) {
             if(in_array($char, $whitelisted)) continue;
             $msg = "Database schema name '$name' contains one or more illegal characters: $char";
-            throw new SchemaValidationException($msg);
+            throw new SchemaException($msg);
         }
     }
 
@@ -46,7 +46,7 @@ class SchemaObjectName
             self::validate($name);
             return true;
         }
-        catch(SchemaValidationException $e) {
+        catch(SchemaException $e) {
             return false;
         }
     }

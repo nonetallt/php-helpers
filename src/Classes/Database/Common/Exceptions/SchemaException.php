@@ -2,7 +2,7 @@
 
 namespace Nonetallt\Helpers\Database\Common\Exceptions;
 
-class SchemaValidationException extends \Exception
+class SchemaException extends \Exception
 {
 
 }
