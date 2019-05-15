@@ -25,7 +25,7 @@ class ValidationRuleCustomMethod extends ValidationRule
         ];
     }
 
-    public function validateValue($value, string $name)
+    public function validate($value, string $name) : ValidationResult
     {
         $class = $this->parameters->class;
         $method = $this->parameters->method;

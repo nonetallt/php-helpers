@@ -4,6 +4,7 @@ namespace Nonetallt\Helpers\Validation\Rules;
 
 use Nonetallt\Helpers\Validation\ValidationRule;
 use Nonetallt\Helpers\Describe\DescribeObject;
+use Nonetallt\Helpers\Validation\ValidationResult;
 
 class ValidationRuleIn extends ValidationRule
 {
@@ -13,7 +14,7 @@ class ValidationRuleIn extends ValidationRule
         ];
     }
 
-    public function validateValue($value, string $name)
+    public function validate($value, string $name) : ValidationResult
     {
         $validChoices = $this->parameters->getData();
         $choices = [];

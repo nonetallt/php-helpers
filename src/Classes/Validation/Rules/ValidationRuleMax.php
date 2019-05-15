@@ -3,6 +3,7 @@
 namespace Nonetallt\Helpers\Validation\Rules;
 
 use Nonetallt\Helpers\Validation\ValidationRule;
+use Nonetallt\Helpers\Validation\ValidationResult;
 
 class ValidationRuleMax extends ValidationRule
 {
@@ -17,7 +18,7 @@ class ValidationRuleMax extends ValidationRule
         ];
     }
 
-    public function validateValue($value, string $name)
+    public function validate($value, string $name) : ValidationResult
     {
         $max = $this->parameters['max'];
 

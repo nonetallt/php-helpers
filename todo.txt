@@ -1,4 +1,6 @@
 # Validation
+* refactor
+* null rule
 
 # Describe
 * Describe string, describesCharacters method that lists all characters example: a, space, tab
@@ -16,3 +18,4 @@
 
 # Collection
 * toArray(): check if item class has "toArray()" (and check that return type is array) and map all items by default if true
+    * toArray(bool recursive = false) recursively array items if options is true

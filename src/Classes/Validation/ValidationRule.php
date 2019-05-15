@@ -36,29 +36,6 @@ abstract class ValidationRule
         $this->parameters = new SimpleContainer('validation rule parameters', $parameters);
     }
 
-    /**
-     * Returned value must be an instance of ValidationResult or an Exception
-     * will be thrown.
-     * 
-     * @param mixed $value Value to validate
-     * @param string $name Name of the value to validate
-     *
-     * @return ValidationResult $result Validation result
-     */
-    protected abstract function validateValue($value, string $name);
-
-    public function validate($value, string $name)
-    {
-        $result = $this->validateValue($value, $name);
-        if(is_a($result, ValidationResult::class)) return $result;
-
-        $actual = gettype($result);
-        if($actual === 'object') $actual = get_class($actual);
-        $expected = ValidationResult::class;
-
-        throw new \Exception("Method ValidateValue() of child class returned $actual instead of expected $expected");
-    }  
-
     protected function createResult(ValidationRule $rule, bool $success, string $message)
     {
         if($success) $message = null;
@@ -75,4 +52,14 @@ abstract class ValidationRule
     {
         return $this->parameters;
     }
+
+    /**
+     * Validate a given value
+     * 
+     * @param mixed $value Value to validate
+     * @param string $name Name of the value to validate
+     *
+     * @return ValidationResult $result Validation result
+     */
+    abstract public function validate($value, string $name) : ValidationResult;
 }

@@ -3,6 +3,7 @@
 namespace Nonetallt\Helpers\Validation\Rules;
 
 use Nonetallt\Helpers\Validation\ValidationRule;
+use Nonetallt\Helpers\Validation\ValidationResult;
 
 class ValidationRuleSubclassOf extends ValidationRule
 {
@@ -22,7 +23,7 @@ class ValidationRuleSubclassOf extends ValidationRule
         ];
     }
 
-    public function validateValue($value, string $name)
+    public function validate($value, string $name) : ValidationResult
     {
         $parent = $this->parameters->parent_class;
         $acceptString = $this->parameters->accepts_string ?? false;

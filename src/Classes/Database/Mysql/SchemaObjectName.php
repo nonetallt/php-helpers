@@ -35,7 +35,7 @@ class SchemaObjectName
 
         foreach(str_split($name) as $char) {
             if(in_array($char, $whitelisted)) continue;
-            $msg = "Database schema name '$name' contains one or more illegal characters: $char";
+            $msg = "Database schema name '$name' contains one or more illegal characters: '$char'";
             throw new SchemaException($msg);
         }
     }
