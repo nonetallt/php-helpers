@@ -1,6 +1,4 @@
 # Validation
-* refactor
-* null rule
 
 # Describe
 * Describe string, describesCharacters method that lists all characters example: a, space, tab
