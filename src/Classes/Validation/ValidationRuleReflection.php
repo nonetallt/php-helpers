@@ -5,16 +5,15 @@ namespace Nonetallt\Helpers\Validation;
 use Nonetallt\Helpers\Filesystem\Traits\FindsReflectionClasses;
 use CaseConverter\CaseConverter;
 
-class ValidationRuleReflection
+class ValidationRuleReflection extends \ReflectionClass
 {
-    private $name;
-    private $namespace;
+    CONST CLASS_PREFIX = 'ValidationRule';
+
     private $alias;
 
-    public function __construct(\ReflectionClass $reflection)
+    public function __construct(string $class)
     {
-        $this->fullName = $reflection->getName();
-        $this->setAlias($reflection->getShortName());
+        parent::__construct($class);
     }
 
     public function __toString()
@@ -22,25 +21,28 @@ class ValidationRuleReflection
         return $this->alias;
     }
 
-    public function setAlias(string $alias)
+    private function resolveAlias() : string
     {
+        $alias = $this->getShortName();
+
         /* Strip class name prefix from alias */
-        $prefix = 'ValidationRule';
-        if(starts_with($alias, $prefix)) $alias = substr($alias, strlen($prefix));
+        if(starts_with($alias, self::CLASS_PREFIX)) {
+            $alias = substr($alias, strlen(self::CLASS_PREFIX));
+        }
 
         $converter = new CaseConverter();
-        $alias = $converter->convert($alias)->from('camel')->to('snake');
+        $alias = $converter->convert($alias)
+            ->from('camel')
+            ->to('snake');
 
-        $this->alias = $alias;
+        return $alias;
     }
 
-    public function getFullName()
+    public function getAlias() : string
     {
-        return $this->fullName;
-    }
-
-    public function getAlias()
-    {
+        if($this->alias === null) {
+            $this->alias = $this->resolveAlias();
+        }
         return $this->alias;
     }
 }

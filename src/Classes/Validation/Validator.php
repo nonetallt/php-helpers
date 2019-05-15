@@ -77,11 +77,11 @@ class Validator
         return array_keys($this->ruleStrings);
     }
 
-    public function getRulesFor(string $fieldName) : array
+    public function getRulesFor(string $fieldName) : ValidationRuleCollection
     {
         foreach($this->getAllRules() as $field => $rules) {
             if($field === $fieldName) return $rules;
         }
-        return [];
+        return new ValidationRuleCollection();
     }
 }

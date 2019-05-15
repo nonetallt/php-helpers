@@ -6,7 +6,7 @@ trait FindsReflectionClasses
 {
     use FindsFiles;
 
-    protected function findReflectionClasses(string $namespace, string $dir, string $filterClass = null)
+    protected function findReflectionClasses(string $namespace, string $dir, ?string $filterClass = null)
     {
         $classes = [];
 
@@ -25,10 +25,18 @@ trait FindsReflectionClasses
 
         $reflections = [];
         foreach($classes as $class) {
-            $reflections[] = new \ReflectionClass($class);
+            $reflections[] = $this->createReflectionClass($class);
         }
 
         return $reflections;
+    }
+
+    /**
+     * Can be overridden by target class to customize created reflections
+     */
+    protected function createReflectionClass(string $class) : \ReflectionClass
+    {
+        return new \ReflectionClass($class);
     }
 
     private function filterInvalidClasses(array $classes, string $class)

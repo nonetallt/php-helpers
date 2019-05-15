@@ -3,6 +3,7 @@
 namespace Nonetallt\Helpers\Validation;
 
 use Nonetallt\Helpers\Filesystem\Traits\FindsReflectionClasses;
+use Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException;
 
 class ValidationRuleFactory
 {
@@ -22,10 +23,17 @@ class ValidationRuleFactory
         $namespace = __NAMESPACE__ . '\\Rules';
         $directory = __DIR__ . '/Rules';
 
-        $classes = $this->findReflectionClasses($namespace, $directory, ValidationRule::class);
-        $this->validatorClasses = array_map(function($reflectionClass) {
-            return new ValidationRuleReflection($reflectionClass);
-        }, $classes);
+        $this->validatorClasses = $this->findReflectionClasses($namespace, $directory, ValidationRule::class);
+    }
+
+    /**
+     * Trait method, customize class
+     *
+     * @override
+     */
+    protected function createReflectionClass(string $class) : \ReflectionClass
+    {
+        return new ValidationRuleReflection($class);
     }
 
     /**
@@ -38,7 +46,7 @@ class ValidationRuleFactory
     {
         $mapping = [];
         foreach($this->validatorClasses as $ref) {
-            $mapping[$ref->getAlias()] = $ref->getFullName();
+            $mapping[$ref->getAlias()] = $ref->name;
         }
 
         return $mapping;
@@ -51,25 +59,30 @@ class ValidationRuleFactory
         }, $this->validatorClasses);
     }
 
-    public function makeRules(string $ruleList)
+    /**
+     * @throws Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException
+     */
+    public function makeRules(string $ruleList) : ValidationRuleCollection
     {
-        if(trim($ruleList) === '') return [];
+        $rules = new ValidationRuleCollection();
 
-        $ruleStrings = explode($this->ruleDelimiter, $ruleList);
-
-        /* if there is no splitter, consider string as a single rule */
-        if($ruleStrings === false) $ruleStrings = [$ruleList];
-
-        $parsedRules = [];
-
-        foreach($ruleStrings as $ruleString) {
-            $parsedRules[] = $this->parseRule($ruleString);
+        /* No rules for empty string */
+        if(trim($ruleList) === '') {
+            return $rules;
         }
 
-        return $parsedRules;
+        /* Create rule from each delimited rule string */
+        foreach(explode($this->ruleDelimiter, $ruleList) as $ruleString) {
+             $rules->push($this->makeRule($ruleString));
+        }
+
+        return $rules;
     }
 
-    private function parseRule(string $ruleString)
+    /**
+     * @throws Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException
+     */
+    public function makeRule(string $ruleString) : ValidationRule
     {
         $parts = explode($this->ruleParamDelimiter, $ruleString);
         $name = strtolower($parts[0]);
@@ -78,15 +91,13 @@ class ValidationRuleFactory
         if(isset($parts[1])) $params = explode($this->paramDelimiter, $parts[1]);
 
         foreach($this->validatorClasses as $class) {
-            if($name === $class->getAlias()) {
-                $className = $class->getFullName();
-                return new $className($name, $params);
-            }
+            if($name !== $class->getAlias()) continue;
+            $className = $class->name;
+            return new $className($name, $params);
         }
 
         $classes = $this->validatorClasses;
         sort($classes);
-
         $valid = PHP_EOL . implode(PHP_EOL, $classes);
         $msg = "Rule '$name' not found in list of valid rules: $valid";
         throw new \Exception($msg);
