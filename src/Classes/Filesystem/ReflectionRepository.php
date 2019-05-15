@@ -25,8 +25,9 @@ class ReflectionRepository extends Collection
     {
         $this->setReflectionDir($dir);
         $this->setReflectionNamespace($namespace);
+        $this->reflectionClass = $class;
 
-        parent::__construct($this->resolveReflections($class), \ReflectionClass::class);
+        parent::__construct($this->resolveReflections(), \ReflectionClass::class);
     }
 
     public function setReflectionDir(?string $dir)
@@ -81,13 +82,18 @@ class ReflectionRepository extends Collection
         return $ref->getShortName();
     }
 
-    public function getReflectionNamespace()
+    public function getReflectionNamespace() : string
     {
         return $this->reflectionNamespace;
     }
 
-    public function getReflectionDir()
+    public function getReflectionDir() : string
     {
         return $this->reflectionDir;
+    }
+
+    public function getReflectionClass() : string
+    {
+        return $this->reflectionClass;
     }
 }
