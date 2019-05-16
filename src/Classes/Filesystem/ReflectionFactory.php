@@ -29,11 +29,10 @@ class ReflectionFactory extends ReflectionRepository
         }
 
         $mapping = new MethodMapping(new \ReflectionMethod($this, 'makeItem'));
-
         $parameters['reflection'] = $reflection;
-        dd($mapping->validateMethodCall($parameters, new \ReflectionMethod($this, 'make')));
+        $mapping->validateMethodCall($parameters, new \ReflectionMethod($this, 'make'));
 
-        return $this->makeItem($class, $parameters);
+        return $this->makeItem(...$mapping->mapArray($parameters));
     }
 
     /**
@@ -49,15 +48,18 @@ class ReflectionFactory extends ReflectionRepository
      */
     protected function resolveAlias(\ReflectionClass $ref) : string
     {
+        /* Change class name from studly case to snake */
         $case = new CaseConverter();
         $alias = $case->convert($ref->getShortName())
             ->from('studly')
             ->to('snake');
 
+        /* Remove prefix */
         if(starts_with($alias, static::CLASS_PREFIX)) {
             $alias = substr($alias, strlen(static::CLASS_PREFIX));
         }
 
+        /* Remove suffix */
         if(starts_with($alias, static::CLASS_SUFFIX)) {
             $alias = substr($alias, strlen(static::CLASS_SUFFIX));
         }
