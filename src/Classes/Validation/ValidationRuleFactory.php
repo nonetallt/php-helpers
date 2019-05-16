@@ -98,7 +98,7 @@ class ValidationRuleFactory
     /**
      * @throws Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException
      */
-    public function makeRule(string $ruleName, array $parameters) : ValidationRule
+    public function makeRule(string $ruleName, array $parameters = []) : ValidationRule
     {
         foreach($this->validatorClasses as $class) {
             if($ruleName !== $class->getAlias()) continue;
