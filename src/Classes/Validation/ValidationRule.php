@@ -10,7 +10,7 @@ abstract class ValidationRule
     private $name;
     protected $parameters;
 
-    public function __construct(array $parameters)
+    public function __construct(array $parameters = [])
     {
         $definition = new ValidationRuleParameterDefinitions([]);
 
@@ -59,6 +59,14 @@ abstract class ValidationRule
     public function getParameters()
     {
         return $this->parameters;
+    }
+
+    public function toArray() : array
+    {
+        return [
+            'name' => $this->name,
+            'parameters' => $this->parameters->toArray()
+        ];
     }
 
     /**

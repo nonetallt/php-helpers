@@ -16,6 +16,11 @@ class CollectionTest extends TestCase
         $this->collection = new Collection;
     }
 
+    public function toArray()
+    {
+        return ['test'];
+    }
+
     public function testCanBeInitialized()
     {
         $this->assertInstanceOf(Collection::class, $this->collection);
@@ -168,5 +173,19 @@ class CollectionTest extends TestCase
     {
         $this->collection->push($this);
         $this->assertTrue($this->collection->hasItem($this));
+    }
+
+    public function testSerializeToArrayReturnsItemsInArray()
+    {
+        $exception = new \Exception('test');
+        $this->collection->push($exception);
+        $this->assertEquals([$exception], $this->collection->serializeToArray());
+    }
+
+    public function testSerializeToArrayConvertsItemsToArrayIfMethodExists()
+    {
+        $this->collection->push($this);
+        $expected = [['test']];
+        $this->assertEquals($expected, $this->collection->serializeToArray());
     }
 }

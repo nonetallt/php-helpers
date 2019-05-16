@@ -27,15 +27,24 @@ class Validator
         $this->errors = [];
 
         foreach($data as $key => $value) {
-            foreach($this->getRulesFor($key) as $rule) {
-                $result = $rule->validate($value, $key);
-                if($result->passed()) continue;
-                $this->errors[$key][] = $result->getMessage();
-            }
+            $this->validateValue($key, $value);
         }
 
         if(empty($this->errors)) return true;
         return false;
+    }
+
+    public function validateValue(string $key, $value)
+    {
+        foreach($this->getRulesFor($key) as $rule) {
+            $validation = $rule->validate($value, $key);
+
+            if($validation->passed()) {
+                if($validation->shouldContinue()) continue;
+                else break;
+            } 
+            $this->errors[$key][] = $validation->getMessage();
+        }
     }
 
     private function resolveRules()

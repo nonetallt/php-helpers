@@ -101,9 +101,28 @@ class Collection implements \Iterator, \ArrayAccess
         return $this->items[0] ?? null;
     }
 
+    /**
+     * Get all items as array
+     */
     public function toArray() : array
     {
         return $this->items;
+    }
+
+    /**
+     * Get all items as array and convert items to array if possible
+     */
+    public function serializeToArray(bool $preserveKeys = true, array $toArrayArgs = []) : array
+    {
+        $items = [];
+
+        foreach($this->items as $key => $item) {
+            $value = method_exists($item, 'toArray') ? $item->toArray(...$toArrayArgs) : $item;
+            if($preserveKeys) $items[$key] = $value;
+            else $items[] = $value;
+        }
+
+        return $items;
     }
 
     public function map(callable $cb)

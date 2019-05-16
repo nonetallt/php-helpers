@@ -3,6 +3,7 @@
 namespace Nonetallt\Helpers\Arrays\Traits;
 
 use Nonetallt\Helpers\Validation\Validator;
+use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
 
 trait ConstructedFromArray
 {
@@ -64,34 +65,30 @@ trait ConstructedFromArray
         return $mapping;
     }
 
-    private static function validateArrayValues(array $array, array $mapping, string $class)
+    /**
+     * @throws Nonetallt\Helpers\Validation\Exceptions\ValidationException
+     */
+    private static function validateRequiredArrayKeys(array $array, string $class)
     {
         $missing = array_keys_missing(self::requiredKeys($class), $array);
+        if(empty($missing)) return;
 
-        if(! empty($missing)) {
-            $class = self::class;
-            $keys = implode(', ', $missing);
-            $msg = "Cannot create $class from array, missing required keys: $keys";
-            throw new \InvalidArgumentException($msg);
-        }
+        $class = self::class;
+        $keys = implode(', ', $missing);
+        $msg = "Cannot create $class from array, missing required keys: $keys";
+        throw new ValidationException($msg);
+    }
 
+    /**
+     * @throws Nonetallt\Helpers\Validation\Exceptions\ValidationException
+     */
+    private static function validateArrayValues(array $array, array $mapping, string $class)
+    {
+        self::validateRequiredArrayKeys($array, $class);
         $validator = new Validator($class::arrayValidationRules());
 
-        if(! $validator->fails($array)) return;
-
-        $msg = "";
-        $errors = $validator->getErrors();
-        foreach($errors as $key => $messages) {
-
-            $paramErrors = array_map(function($message) {
-                return "- $message";
-            }, $messages);
-            $paramErrors = implode(PHP_EOL, $paramErrors);
-
-            $msg .= PHP_EOL . "Validation for $key failed:" . PHP_EOL . $paramErrors;
-        }
-
-        throw new \InvalidArgumentException($msg);
+        if($validator->passes($array)) return;
+        throw new ValidationException($validator->getErrors());
     }
 
     /**

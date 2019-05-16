@@ -79,7 +79,7 @@ class ReflectionRepository extends Collection
      */
     protected function resolveAlias(\ReflectionClass $ref) : string
     {
-        return $ref->getShortName();
+        return $ref->name;
     }
 
     public function getReflectionNamespace() : string
@@ -95,5 +95,10 @@ class ReflectionRepository extends Collection
     public function getReflectionClass() : string
     {
         return $this->reflectionClass;
+    }
+
+    public function getAliases() : array
+    {
+        return array_keys($this->items);
     }
 }

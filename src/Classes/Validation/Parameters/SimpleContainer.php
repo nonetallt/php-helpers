@@ -39,6 +39,15 @@ class SimpleContainer implements \ArrayAccess
     {
         return $this->data;
     }
+
+    public function toArray()
+    {
+        return [
+            'name' => $this->name,
+            'data' => $this->data,
+            'is_strict' => $this->strict
+        ];
+    }
      
     /**
      * implement ArrayAccess
