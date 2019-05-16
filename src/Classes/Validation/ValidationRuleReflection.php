@@ -11,7 +11,7 @@ class ValidationRuleReflection extends \ReflectionClass
 
     private $alias;
 
-    public function __construct(string $class)
+    public function __construct($class)
     {
         parent::__construct($class);
     }

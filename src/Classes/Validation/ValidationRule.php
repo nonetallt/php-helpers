@@ -7,13 +7,11 @@ use Nonetallt\Helpers\Validation\Parameters\SimpleContainer;
 
 abstract class ValidationRule
 {
-    protected $name;
+    private $name;
     protected $parameters;
 
-    public function __construct(string $name, array $parameters)
+    public function __construct(array $parameters)
     {
-        $this->name = $name;
-
         $definition = new ValidationRuleParameterDefinitions([]);
 
         if(method_exists($this, 'defineParameters')) {
@@ -26,7 +24,7 @@ abstract class ValidationRule
          */
         $unmappedParameters = [];
         $mappedParameters = $definition->mapValues($parameters);
-        $definition->validateValues($mappedParameters, $name);
+        $definition->validateValues($mappedParameters, $this->getName());
 
         foreach($parameters as $index => $parameter) {
             if(! is_string($index)) $unmappedParameters[] = $parameter;
@@ -43,8 +41,18 @@ abstract class ValidationRule
         return $result;
     }
 
-    public function getName()
+    protected function resolveName() : string
     {
+        $ref = new ValidationRuleReflection($this);
+        return $ref->getAlias();
+    }
+
+    public function getName() : string
+    {
+        if($this->name === null) {
+            $this->name = $this->resolveName();
+        }
+
         return $this->name;
     }
 

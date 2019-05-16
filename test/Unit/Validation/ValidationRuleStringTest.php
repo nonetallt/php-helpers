@@ -27,7 +27,7 @@ class ValidationRuleStringTest extends ValidationRuleTest
 
     public function testOptionalParameterDisallowNumericWorks()
     {
-        $rule = new ValidationRuleString('string', ['disallow_numeric' => true]);
+        $rule = new ValidationRuleString(['disallow_numeric' => true]);
         $result = $rule->validate('1234', 'number');
 
         $this->assertTrue($result->failed());

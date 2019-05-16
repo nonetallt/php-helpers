@@ -25,7 +25,7 @@ abstract class ValidationRuleTest extends TestCase
         $name = $this->ruleName();
         $this->class = $mapping[$name];
 
-        $this->rule = new $this->class($name, $this->parameters());
+        $this->rule = new $this->class($this->parameters());
     }
 
     public function testValidatorCanBeCreated()

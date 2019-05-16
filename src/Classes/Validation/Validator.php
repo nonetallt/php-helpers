@@ -42,7 +42,7 @@ class Validator
     {
         $this->rules = [];
         foreach($this->ruleStrings as $key => $string) {
-            $this->rules[$key] = $this->factory->makeRules($string);
+            $this->rules[$key] = $this->factory->makeRulesFromString($string);
         }
     }
 

@@ -34,7 +34,7 @@ class ValidationRuleSubclassOfTest extends ValidationRuleTest
 
     public function testValueIsAcceptedWhenAcceptStringParameterIsSetTrue()
     {
-        $rule = new ValidationRuleSubclassOf('test', [
+        $rule = new ValidationRuleSubclassOf([
             'parent_class' => ValidationRuleTest::class,
             'accepts_string' => true
         ]);
@@ -44,7 +44,7 @@ class ValidationRuleSubclassOfTest extends ValidationRuleTest
 
     public function testValueIsDeclinedWhenAcceptStringParameterIsSetFalse()
     {
-        $rule = new ValidationRuleSubclassOf('test', [
+        $rule = new ValidationRuleSubclassOf([
             'parent_class' => ValidationRuleTest::class,
             'accepts_string' => false
         ]);
@@ -54,7 +54,7 @@ class ValidationRuleSubclassOfTest extends ValidationRuleTest
 
     public function testAcceptStringParameterIsFalseByDefault()
     {
-        $rule = new ValidationRuleSubclassOf('test', [
+        $rule = new ValidationRuleSubclassOf([
             'parent_class' => ValidationRuleTest::class,
         ]);
 

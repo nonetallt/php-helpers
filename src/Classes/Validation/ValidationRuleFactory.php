@@ -62,7 +62,7 @@ class ValidationRuleFactory
     /**
      * @throws Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException
      */
-    public function makeRules(string $ruleList) : ValidationRuleCollection
+    public function makeRulesFromString(string $ruleList) : ValidationRuleCollection
     {
         $rules = new ValidationRuleCollection();
 
@@ -73,7 +73,7 @@ class ValidationRuleFactory
 
         /* Create rule from each delimited rule string */
         foreach(explode($this->ruleDelimiter, $ruleList) as $ruleString) {
-             $rules->push($this->makeRule($ruleString));
+             $rules->push($this->makeRuleFromString($ruleString));
         }
 
         return $rules;
@@ -82,24 +82,39 @@ class ValidationRuleFactory
     /**
      * @throws Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException
      */
-    public function makeRule(string $ruleString) : ValidationRule
+    public function makeRuleFromString(string $ruleString) : ValidationRule
     {
         $parts = explode($this->ruleParamDelimiter, $ruleString);
-        $name = strtolower($parts[0]);
-        $params = [];
+        $ruleName = strtolower($parts[0]);
+        $parameters = [];
 
-        if(isset($parts[1])) $params = explode($this->paramDelimiter, $parts[1]);
-
-        foreach($this->validatorClasses as $class) {
-            if($name !== $class->getAlias()) continue;
-            $className = $class->name;
-            return new $className($name, $params);
+        if(isset($parts[1])) {
+            $parameters = explode($this->paramDelimiter, $parts[1]);
         }
 
+        return $this->makeRule($ruleName, $parameters);
+    }
+
+    /**
+     * @throws Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException
+     */
+    public function makeRule(string $ruleName, array $parameters) : ValidationRule
+    {
+        foreach($this->validatorClasses as $class) {
+            if($ruleName !== $class->getAlias()) continue;
+            $className = $class->name;
+            return new $className($parameters);
+        }
+
+        throw $this->ruleNotFound($naem);
+    }
+
+    public function ruleNotFound(string $name) : RuleNotFoundException
+    {
         $classes = $this->validatorClasses;
         sort($classes);
         $valid = PHP_EOL . implode(PHP_EOL, $classes);
         $msg = "Rule '$name' not found in list of valid rules: $valid";
-        throw new \Exception($msg);
+        return new RuleNotFoundException($msg);
     }
 }
