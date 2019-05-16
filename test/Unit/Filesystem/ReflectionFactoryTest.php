@@ -3,7 +3,7 @@
 namespace Test\Unit\Filesystem;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Filesystem\ReflectionFactory;
+use Nonetallt\Helpers\Filesystem\Reflections\ReflectionFactory;
 
 class ReflectionFactoryTest extends TestCase
 {

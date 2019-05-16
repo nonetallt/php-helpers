@@ -1,9 +1,11 @@
 <?php
 
-namespace Nonetallt\Helpers\Filesystem;
+namespace Nonetallt\Helpers\Filesystem\Reflections;
+
 use Nonetallt\Helpers\Mapping\MethodMapping;
 use Nonetallt\Helpers\Filesystem\Reflections\Exceptions\AliasNotFoundException;
 use CaseConverter\CaseConverter;
+use Nonetallt\Helpers\Filesystem\ReflectionRepository;
 
 class ReflectionFactory extends ReflectionRepository
 {
