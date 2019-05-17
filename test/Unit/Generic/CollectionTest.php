@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Unit;
+namespace Test\Unit\Generic;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Generic\Collection;
@@ -173,19 +173,5 @@ class CollectionTest extends TestCase
     {
         $this->collection->push($this);
         $this->assertTrue($this->collection->hasItem($this));
-    }
-
-    public function testSerializeToArrayReturnsItemsInArray()
-    {
-        $exception = new \Exception('test');
-        $this->collection->push($exception);
-        $this->assertEquals([$exception], $this->collection->serializeToArray());
-    }
-
-    public function testSerializeToArrayConvertsItemsToArrayIfMethodExists()
-    {
-        $this->collection->push($this);
-        $expected = [['test']];
-        $this->assertEquals($expected, $this->collection->serializeToArray());
     }
 }
