@@ -2,13 +2,15 @@
 
 namespace Nonetallt\Helpers\Filesystem\Reflections;
 
-use Nonetallt\Helpers\Mapping\MethodMapping;
 use Nonetallt\Helpers\Filesystem\Reflections\Exceptions\AliasNotFoundException;
 use CaseConverter\CaseConverter;
 use Nonetallt\Helpers\Filesystem\ReflectionRepository;
+use Nonetallt\Helpers\Generic\Traits\ProxiesMethodCalls;
 
 class ReflectionFactory extends ReflectionRepository
 {
+    use ProxiesMethodCalls;
+
     /* Can be overridden by child class */
     CONST CLASS_PREFIX = '';
     CONST CLASS_SUFFIX = '';
@@ -30,11 +32,13 @@ class ReflectionFactory extends ReflectionRepository
             throw new AliasNotFoundException($msg);
         }
 
-        $mapping = new MethodMapping(new \ReflectionMethod($this, 'makeItem'));
-        $parameters['reflection'] = $reflection;
-        $mapping->validateMethodCall($parameters, new \ReflectionMethod($this, 'make'));
+        /* Return the reflection class if makeItem does not exist */
+        if(! method_exists($this, 'makeItem')) {
+            return $reflection;
+        }
 
-        return $this->makeItem(...$mapping->mapArray($parameters));
+        array_unshift($parameters, $reflection);
+        return $this->proxyForMethod('make', 'makeItem', $parameters);
     }
 
     /**
@@ -50,11 +54,7 @@ class ReflectionFactory extends ReflectionRepository
      */
     protected function resolveAlias(\ReflectionClass $ref) : string
     {
-        /* Change class name from studly case to snake */
-        $case = new CaseConverter();
-        $alias = $case->convert($ref->getShortName())
-            ->from('studly')
-            ->to('snake');
+        $alias = $ref->getShortName();
 
         /* Remove prefix */
         if(starts_with($alias, static::CLASS_PREFIX)) {
@@ -62,19 +62,18 @@ class ReflectionFactory extends ReflectionRepository
         }
 
         /* Remove suffix */
-        if(starts_with($alias, static::CLASS_SUFFIX)) {
-            $alias = substr($alias, strlen(static::CLASS_SUFFIX));
+        if(ends_with($alias, static::CLASS_SUFFIX)) {
+            $len = strlen($alias) - strlen(static::CLASS_SUFFIX);
+            $alias = substr($alias, 0, $len);
         }
 
-        return $alias;
-    }
+        /* Change class name from studly case to snake */
+        $case = new CaseConverter();
+        $alias = $case->convert($alias)
+            ->from('studly')
+            ->to('snake');
 
-    /**
-     * Ment to be overridden by child class
-     */
-    protected function makeItem(\ReflectionClass $reflection)
-    {
-        return $reflection;
+        return $alias;
     }
 
     /**

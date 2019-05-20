@@ -3,7 +3,7 @@
 namespace Nonetallt\Helpers\Validation\Rules;
 
 use Nonetallt\Helpers\Validation\ValidationRule;
-use Nonetallt\Helpers\Validation\ValidationResult;
+use Nonetallt\Helpers\Validation\ValidationRuleResult;
 
 class ValidationRuleMin extends ValidationRule
 {
@@ -18,7 +18,7 @@ class ValidationRuleMin extends ValidationRule
         ];
     }
 
-    public function validate($value, string $name) : ValidationResult
+    public function validate($value, string $name) : ValidationRuleResult
     {
         $min = $this->parameters['min'];
 

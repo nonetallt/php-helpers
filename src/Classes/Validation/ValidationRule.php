@@ -37,7 +37,7 @@ abstract class ValidationRule
     protected function createResult(ValidationRule $rule, bool $success, string $message)
     {
         if($success) $message = null;
-        $result = new ValidationResult($rule, $message);
+        $result = new ValidationRuleResult($rule, $message);
         return $result;
     }
 
@@ -75,7 +75,7 @@ abstract class ValidationRule
      * @param mixed $value Value to validate
      * @param string $name Name of the value to validate
      *
-     * @return ValidationResult $result Validation result
+     * @return ValidationRuleResult $result Validation result
      */
-    abstract public function validate($value, string $name) : ValidationResult;
+    abstract public function validate($value, string $name) : ValidationRuleResult;
 }

@@ -3,7 +3,7 @@
 namespace Nonetallt\Helpers\Validation\Rules;
 
 use Nonetallt\Helpers\Validation\ValidationRule;
-use Nonetallt\Helpers\Validation\ValidationResult;
+use Nonetallt\Helpers\Validation\ValidationRuleResult;
 use Nonetallt\Helpers\Describe\DescribeObject;
 
 class ValidationRuleCustomMethod extends ValidationRule
@@ -25,7 +25,7 @@ class ValidationRuleCustomMethod extends ValidationRule
         ];
     }
 
-    public function validate($value, string $name) : ValidationResult
+    public function validate($value, string $name) : ValidationRuleResult
     {
         $class = $this->parameters->class;
         $method = $this->parameters->method;
@@ -55,7 +55,7 @@ class ValidationRuleCustomMethod extends ValidationRule
         });
 
         /* Make sure the method returns correct type */
-        $expected = ValidationResult::class;
+        $expected = ValidationRuleResult::class;
         if(! is_a($result, $expected)) {
             
             $actual = (new DescribeObject($result))->describeType();

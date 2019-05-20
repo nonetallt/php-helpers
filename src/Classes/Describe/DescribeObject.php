@@ -52,12 +52,15 @@ class DescribeObject
         return $this->stringDescriptionRepository;
     }
 
-    public function describeType()
+    public function describeType(bool $primitive = false)
     {
         $type = gettype($this->object);
 
         /* Get class instead if type is an object */
         if($type === 'object') $type = get_class($this->object);
+
+        if($primitive && $type === 'boolean') $type = 'bool';
+        if($primitive && $type === 'integer') $type = 'int';
 
         return $type;
     }

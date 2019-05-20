@@ -2,14 +2,14 @@
 
 namespace Nonetallt\Helpers\Mapping;
 
-use Nonetallt\Helpers\Validation\ValidationRuleCollection;
+use Nonetallt\Helpers\Validation\ValueValidator;
 
 class OrderedParameterMapping extends ParameterMapping
 {
-    public function __construct(string $name, int $position, $default = null, ValidationRuleCollection $rules = null)
+    public function __construct(string $name, int $position, $default = null, ValueValidator $rules = null, bool $isRequired = true)
     {
         $this->position = $position;
-        parent::__construct($name, $default, $rules);
+        parent::__construct($name, $default, $rules, $isRequired);
     }
 
     public function setPosition(int $position)

@@ -130,11 +130,12 @@ class Collection implements \Iterator, \ArrayAccess
 
     public function merge(Collection $items)
     {
-        $expected = $this->type;
         $actual = $items->getType();
+        $expected = $this->type;
 
-        if($expected !== $actual) {
-            throw new \InvalidArgumentException("Can't merge collections of type $expected and $actual");
+        if(! is_a($actual, $expected, true)) {
+            $msg = "Can't merge collections of type $expected and $actual";
+            throw new \InvalidArgumentException($msg);
         }
 
         $array = array_merge($this->items, $items->toArray());

@@ -2,6 +2,7 @@
 
 namespace Nonetallt\Helpers\Mapping;
 
+use Nonetallt\Helpers\Validation\ValueValidator;
 use Nonetallt\Helpers\Validation\ValidationRuleCollection;
 use Nonetallt\Helpers\Validation\ValidationRule;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleInteger;
@@ -13,9 +14,8 @@ use Nonetallt\Helpers\Validation\Rules\ValidationRuleCallable;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleOptional;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleIs;
 use Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException;
-use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
 
-class MethodMapping extends ParameterMappingCollection
+class MethodParameter extends OrderedParameterMapping
 {
     CONST RULES = [
         'int' => ValidationRuleInteger::class,
@@ -27,24 +27,21 @@ class MethodMapping extends ParameterMappingCollection
     ];
 
     private $reflection;
+    private $type;
 
-    /**
-     * @throws Nonetallt\Helpers\Mapping\Exceptions\MappingException
-     */
-    public function __construct(\ReflectionMethod $method)
+    public function __construct(\ReflectionParameter $reflection)
     {
-        $this->reflection = $method;
-        $parameters = [];
+        $this->reflection = $reflection;
 
-        foreach($method->getParameters() as $parameter) {
-            $name = $parameter->getName();
-            $position = $parameter->getPosition();
-            $default = $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null;
-            $rules = self::resolveParameterRules($parameter);
-            $parameters[] = new OrderedParameterMapping($name, $position, $default, $rules);
-        }
+        $name = $reflection->getName();
+        $position = $reflection->getPosition();
+        $default = $reflection->isDefaultValueAvailable() ? $reflection->getDefaultValue() : null;
+        $validator = new ValueValidator(self::resolveParameterRules($reflection));
+        $isRequired  = ! $reflection->isOptional();
+        $type = (string)$reflection->getType();
 
-        parent::__construct($parameters);
+        $this->type = $type;
+        parent::__construct($name, $position, $default, $validator, $isRequired);
     }
 
     /**
@@ -57,7 +54,7 @@ class MethodMapping extends ParameterMappingCollection
     {
         $rules = new ValidationRuleCollection();
 
-        if($parameter->isOptional()) {
+        if($parameter->allowsNull()) {
             $rules->push(new ValidationRuleOptional());
         }
 
@@ -81,7 +78,7 @@ class MethodMapping extends ParameterMappingCollection
      * @throws Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException
      *
      */
-    public static function resolveTypeRule(\ReflectionParameter $parameter) : ValidationRule
+    private static function resolveTypeRule(\ReflectionParameter $parameter) : ValidationRule
     {
         $class = $parameter->getClass();
 
@@ -103,34 +100,28 @@ class MethodMapping extends ParameterMappingCollection
         return new $ruleClass;
     }
 
-    /**
-     * @throws ArgumentCountException
-     * @throws TypeError
-     *
-     */
-    public function validateMethodCall(array $parameters = [], ?\ReflectionMethod $proxy = null)
+    public function getReflection() : \ReflectionParameter
     {
-        $reflection = $proxy ?? $this->reflection;
+        return $this->reflection;
+    }
 
-        $file = $reflection->getFileName();
-        $line = $reflection->getStartLine();
-        $class = $reflection->getDeclaringClass()->name;
-        $expected = $this->reflection->getNumberOfRequiredParameters();
-        $method = $reflection->getName();
-        $passed = count($parameters);
+    public function setType(?string $type)
+    {
+        $this->type = $type;
+    }
 
+    public function getType() : string
+    {
+        return $this->type;
+    }
 
-        /* Argument count is checked first by php parser */
-        if($passed < $expected) {
-            $msg = "Too few arguments to function {$class}::{$method}(), $passed passed in $file on line $line and at least $expected expected";
-            throw new \ArgumentCountError($msg);
-        }
-
-        /* if(! isset($this->items[$alias])) { */
-        /*     $msg = $this->NotFoundException($alias); */
-        /*     throw new NotFoundException($msg); */
-        /* } */
-
-        /* $expected = $mapping->getRequiredParameters()->count(); */
+    /**
+     * @override
+     */
+    public function toArray() : array
+    {
+        $array = parent::toArray();
+        $array['type'] = $this->type;
+        return $array;
     }
 }

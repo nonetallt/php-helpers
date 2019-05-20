@@ -3,10 +3,10 @@
 namespace Test\Unit\Mapping;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Mapping\MethodMapping;
+use Nonetallt\Helpers\Mapping\MethodParameterMapping;
 use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
 
-class MethodMappingTest extends TestCase
+class MethodParameterMappingTest extends TestCase
 {
     public function exampleMethod(string $arg1, int $arg2, TestCase $arg3, $arg4 = null)
     {
@@ -17,7 +17,7 @@ class MethodMappingTest extends TestCase
     public function testEmptyArrayFailsValidation()
     {
         $reflection = new \ReflectionMethod($this, 'exampleMethod');
-        $mapping = new MethodMapping($reflection);
+        $mapping = new MethodParameterMapping($reflection);
         $this->expectException(MappingException::class);
 
         $parameters = $mapping->mapArray([]);
@@ -26,7 +26,7 @@ class MethodMappingTest extends TestCase
     public function testArrayWithSomeCorrectDataFailsValidation()
     {
         $reflection = new \ReflectionMethod($this, 'exampleMethod');
-        $mapping = new MethodMapping($reflection);
+        $mapping = new MethodParameterMapping($reflection);
         $this->expectException(MappingException::class);
 
         $parameters = $mapping->mapArray(['foo', 1]);
@@ -35,7 +35,7 @@ class MethodMappingTest extends TestCase
     public function testArrayWithOnlyCorrectDataPassesValidation()
     {
         $reflection = new \ReflectionMethod($this, 'exampleMethod');
-        $mapping = new MethodMapping($reflection);
+        $mapping = new MethodParameterMapping($reflection);
 
         $parameters = $mapping->mapArray([
             'arg1' => 'foo',
@@ -49,7 +49,7 @@ class MethodMappingTest extends TestCase
     public function testOptionalValuesAreMapped()
     {
         $reflection = new \ReflectionMethod($this, 'exampleMethod');
-        $mapping = new MethodMapping($reflection);
+        $mapping = new MethodParameterMapping($reflection);
 
         $parameters = $mapping->mapArray([
             'arg1' => 'foo',

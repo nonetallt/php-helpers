@@ -3,11 +3,11 @@
 namespace Nonetallt\Helpers\Validation\Rules;
 
 use Nonetallt\Helpers\Validation\ValidationRule;
-use Nonetallt\Helpers\Validation\ValidationResult;
+use Nonetallt\Helpers\Validation\ValidationRuleResult;
 
 class ValidationRuleOptional extends ValidationRule
 {
-    public function validate($value, string $name) : ValidationResult
+    public function validate($value, string $name) : ValidationRuleResult
     {
         /* If value is optional, null values should not continue validation */
         if($value === null) {

@@ -2,7 +2,7 @@
 
 namespace Nonetallt\Helpers\Validation;
 
-class ValidationResult
+class ValidationRuleResult
 {
     private $validationRule;
     private $message;

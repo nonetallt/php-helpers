@@ -2,20 +2,22 @@
 
 namespace Nonetallt\Helpers\Mapping;
 
-use Nonetallt\Helpers\Validation\ValidationRuleCollection;
+use Nonetallt\Helpers\Validation\ValueValidator;
 use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
 
 class ParameterMapping
 {
     private $name;
     private $default;
-    private $rules;
+    private $validator;
+    private $isRequired;
 
-    public function __construct(string $name, $default = null, ValidationRuleCollection $rules = null)
+    public function __construct(string $name, $default = null, ValueValidator $validator = null, bool $isRequired = true)
     {
         $this->setName($name);
         $this->setDefaultValue($default);
-        $this->setValidationRules($rules);
+        $this->setValidator($validator);
+        $this->isRequired = $isRequired;
     }
 
     public function setName(string $name)
@@ -28,13 +30,13 @@ class ParameterMapping
         $this->default = $value;
     }
 
-    public function setValidationRules(?ValidationRuleCollection $rules)
+    public function setValidator(?ValueValidator $validator)
     {
-        if($rules === null) {
-            $rules = new ValidationRuleCollection();
+        if($validator === null) {
+            $validator = new ValueValidator();
         }
 
-        $this->rules = $rules;
+        $this->validator = $validator;
     }
 
     public function getName() : string
@@ -47,37 +49,19 @@ class ParameterMapping
         return $this->default;
     }
 
+    public function getValidator() : ValueValidator
+    {
+        return $this->validator;
+    }
+
     public function isRequired() : bool
     {
-        return $this->default === null;
+        return $this->isRequired;
     }
 
-    public function getValidationRules() : ValidationRuleCollection
+    public function isOptional() : bool
     {
-        return $this->rules;
-    }
-
-    /**
-     * @throws Nonetallt\Helpers\Validation\Exceptions\ValidationException
-     */
-    public function validateValue($value)
-    {
-        $errors = [];
-
-        foreach($this->rules as $rule) {
-            $validation = $rule->validate($value, $this->name);
-
-            if($validation->passed()) {
-                if($validation->shouldStop()) break;
-                else continue;
-            }
-
-            $errors[$this->name][] = $validation->getMessage();
-        }
-
-        if(! empty($errors)) {
-            throw new ValidationException($errors);
-        }
+        return ! $this->isRequired();
     }
 
     public function toArray() : array
@@ -86,7 +70,7 @@ class ParameterMapping
             'name' => $this->name,
             'default_value' => $this->default,
             'is_required' => $this->isRequired(),
-            'validation_rules' => $this->rules->serializeToArray()
+            'validator' => $this->validator->toArray()
         ];
     }
 }

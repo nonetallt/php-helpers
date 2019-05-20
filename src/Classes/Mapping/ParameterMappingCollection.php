@@ -3,9 +3,11 @@
 namespace Nonetallt\Helpers\Mapping;
 
 use Nonetallt\Helpers\Mapping\ParameterMapping;
-use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
+use Nonetallt\Helpers\Mapping\Exceptions\ParameterMappingException;
 use Nonetallt\Helpers\Generic\Collection;
-use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
+use Nonetallt\Helpers\Validation\Exceptions\ValidationExceptionCollection;
+use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
+use Nonetallt\Helpers\Mapping\Exceptions\ParameterValueMappingException;
 
 class ParameterMappingCollection extends Collection
 {
@@ -23,40 +25,73 @@ class ParameterMappingCollection extends Collection
         return new self($required);
     }
 
-    /**
-     * @throws Nonetallt\Helpers\Validation\Exceptions\ValidationException
-     */
-    public function validateArray(array $array)
+    public function validateArray(array $array) : ValidationExceptionCollection
     {
+        $exceptions = new ValidationExceptionCollection();
+
         foreach($this->items as $mapping) {
             $key = $mapping->getName();
             $value = $array[$key] ?? null;
-            $mapping->validateValue($value);
+            $validator = $mapping->getValidator();
+            $exceptions->merge($validator->validate($key, $value));
         }
+
+        return $exceptions;
     }
 
     /**
-     * @throws Nonetallt\Helpers\Mapping\Exceptions\MappingException
+     * @throws Nonetallt\Helpers\Mapping\Exceptions\ParameterMappingException
+     */
+    private function getValue(array $array, ParameterMapping $mapping)
+    {
+        $key = $mapping->getName();
+        $position = $mapping->getPosition();
+
+        if(isset($array{$key})) return $array[$key];
+        if(isset($array{$position})) return $array[$position];
+
+        $msg = "Could not find value for either key: '$key' or position '$position'";
+        throw new ParameterMappingException($mapping, $msg);
+    }
+
+    /**
+     * @throws Nonetallt\Helpers\Mapping\Exceptions\ParameterMappingException
      */
     public function mapArray(array $array) : array
     {
         $result = [];
 
         foreach($this->items as $mapping) {
-            $key = $mapping->getName();
-            $value = $array[$key] ?? null;
-            $position = $mapping->getPosition();
+            $value = null;
 
+            /* Skip missing optional values */
             try {
-                $mapping->validateValue($value);
-                $result[$position] = $value;
+                $value = $this->getValue($array, $mapping);
             }
-            catch(ValidationException $e) {
-                $msg = "Value '$key' failed validation and cannot be mapped";
-                throw new MappingException($msg, 0, $e);
+            catch(ParameterMappingException $e) {
+                if($mapping->isRequired()) {
+                    throw $this->requiredValueMissing($mapping, $e);
+                } 
+                continue;
             }
+
+            $exceptions = $mapping->getValidator()->validate($mapping->getName(), $value);
+
+            if(! $exceptions->isEmpty()) {
+                $msg = (string)$exceptions;
+                throw new ParameterValueMappingException($mapping, $value, $msg);
+            }
+
+            $result[$mapping->getPosition()] = $value;
         }
 
         return $result;
+    }
+
+    protected function requiredValueMissing(ParameterMapping $mapping, \Exception $previous) : ParameterMappingException
+    {
+        $name = $mapping->getName();
+        $msg = "Missing mapping for required value '$name'";
+        return new ParameterMappingException($mapping, $msg, null, 0, $previous);
     }
 }

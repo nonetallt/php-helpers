@@ -18,6 +18,11 @@ class ExceptionCollection extends Collection
         });
     }
 
+    public function __toString()
+    {
+        return implode(PHP_EOL, $this->getMessages());
+    }
+
     /**
      * Proxy for hasItemOfClass
      */
