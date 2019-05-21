@@ -93,6 +93,11 @@ class HttpResponse
         return ! $this->exceptions->isEmpty();
     }
 
+    public function hasBody() : bool
+    {
+        return $this->getBody() !== '';
+    }
+
     public function isSuccessful() : bool
     {
         return $this->exceptions->isEmpty();

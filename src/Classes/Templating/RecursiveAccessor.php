@@ -23,7 +23,7 @@ class RecursiveAccessor
 
     public function isset(string $path, $values)
     {
-        if(is_null($values)) return false;
+        if($values === null) return false;
         if(! is_array($values)) throw new \InvalidArgumentException("Not implemented");
 
         /* If path does not have accessor */

@@ -54,16 +54,17 @@ abstract class ParsedHttpResponse extends HttpResponse
      */
     public function createResponseExceptions(string $errorAccessor, ?string $messageAccessor = null, string $nestedAccessorFormat = '->')
     {
-        /* Do not attempt to use response if there were exceptions with the request */
-        if($this->hasExceptions()) return;
+        /* Do not attempt to use response if there is no body to parse */
+        if(! $this->hasBody()) return;
 
         $accessor = new RecursiveAccessor($nestedAccessorFormat);
+        $parsed = $this->getParsed();
 
         /* Not errors found */
-        if(! $accessor->isset($errorAccessor, $this->getParsed())) return;
+        if(! $accessor->isset($errorAccessor, $parsed)) return;
 
         /* Try finding error objects from the response */
-        $errorMessages = $accessor->getNestedValue($errorAccessor, $this->getParsed());
+        $errorMessages = $accessor->getNestedValue($errorAccessor, $parsed);
 
         /* Try finding messages from within error objects */
         if($messageAccessor !== null) {

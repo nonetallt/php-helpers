@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
@@ -37,11 +38,13 @@ class HttpClient
     private $auth;
     private $retryTimes;
     private $statuses;
+    private $ignore4xxErrors;
 
     public function __construct(int $retryTimes = 0, float $timeout = 10)
     {
         $this->auth = null;
         $this->retryTimes = $retryTimes;
+        $this->ignore4xxErrors = false;
 
         $handler = HandlerStack::create(new CurlMultiHandler());
         $handler->push(Middleware::retry($this->retryDecider(), $this->retryDelay()));
@@ -102,6 +105,16 @@ class HttpClient
         };
     }
 
+    public function setIgnore4xxErrors(bool $ignore)
+    {
+        $this->ignore4xxErrors = $ignore;
+    }
+
+    public function ignores4xxErrors() : bool
+    {
+        return $this->ignore4xxErrors;
+    }
+
     public function sendRequests(HttpRequestCollection $requests) : HttpResponseCollection
     {
         $originalRequests = [];
@@ -150,9 +163,10 @@ class HttpClient
             $response = $this->client->request($method, $url, $query);
             return $this->createResponse($request, $response);
         } 
-        catch(BadResponseException $e) {
+        catch(ClientException $e) {
             /* Get proper response for 4xx errors from the exception */
-            $response = $this->createResponse($request, $e->getResponse(), $e);
+            $exception = $this->ignores4xxErrors() ? null : $e;
+            $response = $this->createResponse($request, $e->getResponse(), $exception);
             return $response;
         }
         catch(RequestException $e) {
