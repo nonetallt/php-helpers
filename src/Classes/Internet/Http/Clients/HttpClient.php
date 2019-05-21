@@ -150,6 +150,11 @@ class HttpClient
             $response = $this->client->request($method, $url, $query);
             return $this->createResponse($request, $response);
         } 
+        catch(BadResponseException $e) {
+            /* Get proper response for 4xx errors from the exception */
+            $response = $this->createResponse($request, $e->getResponse(), $e);
+            return $response;
+        }
         catch(RequestException $e) {
             $response = $this->createResponse($request, null, $e);
             return $response;

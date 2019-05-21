@@ -155,4 +155,19 @@ class HttpClientTest extends TestCase
 
         $this->assertEquals($expected, json_decode($response->getBody(), true));
     }
+
+    /**
+     * @group remote
+     */
+    public function testResponseBodyCanBeFoundWhenErrorWas4xx()
+    {
+        $auth = 'token';
+        $client = new HttpClient();
+        $client->setAuth($auth);
+        $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 400]);
+        $request = new HttpRequest('GET', $url);
+        $response = $client->sendRequest($request);
+
+        $this->assertEquals('successful', $response->getBody());
+    }
 }

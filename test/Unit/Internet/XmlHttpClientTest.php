@@ -77,7 +77,7 @@ class XmlClientTest extends TestCase
     public function testExceptionIsCretedWhenResponseHas404StausCode()
     {
         $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 404]);
-        $request = new HttpRequest('POST', $url);
+        $request = new HttpRequest('GET', $url);
 
         $response = $this->client->sendRequest($request);
         $expected = ['Server responded with code 404 (Not Found)'];
