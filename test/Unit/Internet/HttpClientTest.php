@@ -118,4 +118,41 @@ class HttpClientTest extends TestCase
 
         $this->assertEquals($expected, $trace);
     }
+
+    /**
+     * @group remote
+     */
+    public function testAuthorizationHeaderIsSetUsingBasicAuthWhenAuthIsSetUsingArray()
+    {
+        $auth = ['username', 'password'];
+        
+        $client = new HttpClient();
+        $client->setAuth($auth);
+        $url = $this->router->parseUrl($this->config('http.header_url'));
+        $request = new HttpRequest('POST', $url, ['header' => 'Authorization']);
+
+        $response = $client->sendRequest($request);
+        $encoded = base64_encode($auth[0].':'.$auth[1]);
+        $expected = "Basic $encoded";
+
+        $decodedResponse = json_decode($response->getBody(), true);
+        $this->assertEquals($expected, $decodedResponse['Authorization']);
+    }
+
+    /**
+     * @group remote
+     */
+    public function testAuthorizationHeaderIsSetWhenAuthIsSetUsingString()
+    {
+        $auth = 'token';
+        $client = new HttpClient();
+        $client->setAuth($auth);
+        $url = $this->router->parseUrl($this->config('http.header_url'));
+        $request = new HttpRequest('POST', $url, ['header' => 'Authorization']);
+
+        $response = $client->sendRequest($request);
+        $expected = ['Authorization' => $auth];
+
+        $this->assertEquals($expected, json_decode($response->getBody(), true));
+    }
 }

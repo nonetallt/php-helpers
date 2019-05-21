@@ -53,8 +53,12 @@ class ReflectionFactoryTest extends TestCase
         $file = __FILE__;
         $line = __LINE__ + 3;
         $msg = "Too few arguments to function {$class}::make(), 1 passed in $file on line $line and at least 2 expected";
-        $this->expectExceptionMessage($msg);
-        $exception = $factory->make('example');
+        try {
+            $exception = $factory->make('example');
+        }
+        catch(\ArgumentCountError $e) {
+            $this->assertEquals($msg, $e->getMessage());
+        }
     }
 
     public function testSubclassMakeThrowsExceptionWithIncorrectArgumentType()
@@ -71,7 +75,11 @@ class ReflectionFactoryTest extends TestCase
         $file = __FILE__;
         $line = __LINE__ + 3;
         $msg = "Argument 2 passed to {$class}::make(), must be of the type string, int given, called in $file on line $line";
-        $this->expectExceptionMessage($msg);
-        $exception = $factory->make('example', 1);
+        try {
+            $exception = $factory->make('example', 1);
+        }
+        catch(\TypeError $e) {
+            $this->assertEquals($msg, $e->getMessage());
+        }
     }
 }

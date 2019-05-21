@@ -5,6 +5,7 @@
         "json_url": "http://httpbin.org/json",
         "xml_url": "http://httpbin.org/xml",
         "echo_url": "http://testing-server.jmp/api/echo",
-        "redirect_url": "http://testing-server.jmp/api/redirect"
+        "redirect_url": "http://testing-server.jmp/api/redirect",
+        "header_url": "http://testing-server.jmp/api/headers/echo"
     }
 }

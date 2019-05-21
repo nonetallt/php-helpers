@@ -25,6 +25,7 @@ use Nonetallt\Helpers\Internet\Http\Requests\HttpRequestCollection;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponseCollection;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
+use Nonetallt\Helpers\Describe\DescribeObject;
 
 /**
  * Wrapper class for common API usage that utilizes GuzzleHttp client for
@@ -53,9 +54,30 @@ class HttpClient
         $this->statuses = new HttpStatusRepository();
     }
 
-    public function setAuth(string $user, string $password)
+    public function setAuth($auth)
     {
-        $this->auth = [$user, $password];
+        if(is_string($auth)) {
+            $this->auth = $auth;
+            return;
+        }
+
+        if(! is_array($auth)) {
+            $given = (new DescribeObject($auth))->describeType();
+            $msg = "Auth must be either a string or an array, $given given";
+            throw new \InvalidArgumentException($msg);
+        }
+
+        if(! isset($auth[0])) {
+            $msg = "Auth array must contain 0 index used as the username";
+            throw new \InvalidArgumentException($msg);
+        } 
+
+        if(! isset($auth[1])) {
+            $msg = "Auth array must contain 1 index used as the password";
+            throw new \InvalidArgumentException($msg);
+        }
+
+        $this->auth = [$auth[0], $auth[1]];
     }
 
     private function retryDecider()
@@ -153,7 +175,8 @@ class HttpClient
         ];
 
         /* If auth is set, append to request */
-        if($this->auth !== null) $requestOptions['auth'] = $this->auth;
+        if(is_array($this->auth)) $requestOptions['auth'] = $this->auth;
+        if(is_string($this->auth)) $requestOptions['headers']['Authorization'] = $this->auth;
 
         return $requestOptions;
     }
