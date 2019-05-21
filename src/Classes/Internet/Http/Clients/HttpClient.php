@@ -163,7 +163,7 @@ class HttpClient
                 $exception = $promise['reason'];
             }
 
-            $response = $this->createResponse($originalRequest, $guzzleResponse, $exception);
+            $response = $this->resolveResponse($originalRequest, $guzzleResponse, $exception);
             $results->push($response);
         }
 
