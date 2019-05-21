@@ -27,6 +27,8 @@ use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponseCollection;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
 use Nonetallt\Helpers\Describe\DescribeObject;
+use Nonetallt\Helpers\Arrays\TypedArray;
+use Nonetallt\Helpers\Generic\Exceptions\InvalidTypeException;
 
 /**
  * Wrapper class for common API usage that utilizes GuzzleHttp client for
@@ -38,13 +40,13 @@ class HttpClient
     private $auth;
     private $retryTimes;
     private $statuses;
-    private $ignore4xxErrors;
+    private $ignoredErrorCodes;
 
     public function __construct(int $retryTimes = 0, float $timeout = 10)
     {
         $this->auth = null;
         $this->retryTimes = $retryTimes;
-        $this->ignore4xxErrors = false;
+        $this->ignoredErrorCodes = [];
 
         $handler = HandlerStack::create(new CurlMultiHandler());
         $handler->push(Middleware::retry($this->retryDecider(), $this->retryDelay()));
@@ -105,14 +107,25 @@ class HttpClient
         };
     }
 
-    public function setIgnore4xxErrors(bool $ignore)
+    public function ignoreErrorCodes(array $codes)
     {
-        $this->ignore4xxErrors = $ignore;
+        foreach($codes as $code) {
+            $this->ignoreErrorCode($code);
+        }
     }
 
-    public function ignores4xxErrors() : bool
+    public function ignoreErrorCode(int $code, bool $ignore = true)
     {
-        return $this->ignore4xxErrors;
+        if($code < 400 || $code > 499) {
+            $msg = "Codes can only be ignored from the 4xx range, $code given";
+            throw new \InvalidArgumentException($msg);
+        }
+        $this->ignoredErrorCodes[$code] = $ignore;
+    }
+
+    public function isCodeIgnored(int $code) : bool
+    {
+        return in_array($code, array_keys($this->ignoredErrorCodes));
     }
 
     public function sendRequests(HttpRequestCollection $requests) : HttpResponseCollection
@@ -164,9 +177,12 @@ class HttpClient
             return $this->createResponse($request, $response);
         } 
         catch(ClientException $e) {
+            $guzzleResponse = $e->getResponse();
+            $code = $guzzleResponse->getStatusCode();
+            $exception = $this->isCodeIgnored($code) ? null : $e;
+
             /* Get proper response for 4xx errors from the exception */
-            $exception = $this->ignores4xxErrors() ? null : $e;
-            $response = $this->createResponse($request, $e->getResponse(), $exception);
+            $response = $this->createResponse($request, $guzzleResponse, $exception);
             return $response;
         }
         catch(RequestException $e) {

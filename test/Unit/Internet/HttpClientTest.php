@@ -175,7 +175,7 @@ class HttpClientTest extends TestCase
     public function test4xxErrorsCanBeIgnored()
     {
         $client = new HttpClient();
-        $client->setIgnore4xxErrors(true);
+        $client->ignoreErrorCodes([400]);
         $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 400]);
         $request = new HttpRequest('GET', $url);
         $response = $client->sendRequest($request);
