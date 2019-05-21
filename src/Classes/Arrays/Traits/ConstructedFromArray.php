@@ -3,10 +3,13 @@
 namespace Nonetallt\Helpers\Arrays\Traits;
 
 use Nonetallt\Helpers\Validation\Validator;
-use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
+use Nonetallt\Helpers\Mapping\MethodParameterMapping;
+use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
 
 trait ConstructedFromArray
 {
+    private static $reflectionClass;
+
     public static function fromArray(array $array, string $class = null)
     {
         $class = $class ?? self::class;
@@ -37,9 +40,22 @@ trait ConstructedFromArray
         return new $class(...$mapped);
     }
 
+    private static function getReflectionClass(?string $class) : \ReflectionClass
+    {
+        if($class == null) {
+            $class = self::class;
+        }
+
+        if(self::$reflectionClass === null) {
+            self::$reflectionClass = new \ReflectionClass($class);
+        }
+
+        return self::$reflectionClass;
+    }
+
     private static function requiredKeys($class)
     {
-        $reflection = new \ReflectionClass($class);
+        $reflection = self::getReflectionClass($class);
         $constructor = $reflection->getConstructor();
 
         $requiredKeys = [];
@@ -53,7 +69,7 @@ trait ConstructedFromArray
 
     private static function constructorMapping(string $class)
     {
-        $reflection = new \ReflectionClass($class);
+        $reflection = self::getReflectionClass($class);
         $constructor = $reflection->getConstructor();
 
         $mapping = [];
@@ -66,7 +82,7 @@ trait ConstructedFromArray
     }
 
     /**
-     * @throws Nonetallt\Helpers\Validation\Exceptions\ValidationException
+     * @throws Nonetallt\Helpers\Validation\Exceptions\MappingException
      */
     private static function validateRequiredArrayKeys(array $array, string $class)
     {
@@ -76,11 +92,11 @@ trait ConstructedFromArray
         $class = self::class;
         $keys = implode(', ', $missing);
         $msg = "Cannot create $class from array, missing required keys: $keys";
-        throw new ValidationException($msg);
+        throw new MappingException($msg);
     }
 
     /**
-     * @throws Nonetallt\Helpers\Validation\Exceptions\ValidationException
+     * @throws Nonetallt\Helpers\Validation\Exceptions\MappingException
      */
     private static function validateArrayValues(array $array, array $mapping, string $class)
     {
@@ -88,7 +104,13 @@ trait ConstructedFromArray
         $validator = new Validator($class::arrayValidationRules());
 
         if($validator->passes($array)) return;
-        throw new ValidationException($validator->getErrors());
+
+        $errors = []; 
+        foreach($validator->getErrors() as $key => $messages) {
+            $errors = array_merge($errors, $messages);
+        }
+        
+        throw new MappingException(implode(PHP_EOL, $errors));
     }
 
     /**

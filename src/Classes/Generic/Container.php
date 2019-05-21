@@ -87,7 +87,7 @@ class Container implements \ArrayAccess
         if(! empty($errors)) {
             $err = implode(PHP_EOL, $errors);
             $msg = "Value validation failed with errors:" . PHP_EOL . $err;
-            throw new ValidationException($msg);
+            throw new ValidationException($key, $value, $msg);
         }
     }
 

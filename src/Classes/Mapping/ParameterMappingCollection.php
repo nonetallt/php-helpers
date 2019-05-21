@@ -92,6 +92,6 @@ class ParameterMappingCollection extends Collection
     {
         $name = $mapping->getName();
         $msg = "Missing mapping for required value '$name'";
-        return new ParameterMappingException($mapping, $msg, null, 0, $previous);
+        return new ParameterMappingException($mapping, $msg, 0, $previous);
     }
 }

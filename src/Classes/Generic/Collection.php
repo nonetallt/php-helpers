@@ -133,7 +133,7 @@ class Collection implements \Iterator, \ArrayAccess
         $actual = $items->getType();
         $expected = $this->type;
 
-        if(! is_a($actual, $expected, true)) {
+        if($actual !== null && $expected !== null && ! is_a($actual, $expected, true)) {
             $msg = "Can't merge collections of type $expected and $actual";
             throw new \InvalidArgumentException($msg);
         }

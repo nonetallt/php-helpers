@@ -4,7 +4,7 @@ namespace Test\Unit\Generic;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Generic\Collection;
-use Test\Mock\ExceptionCollection;
+use Nonetallt\Helpers\Generic\Exceptions\ExceptionCollection;
 
 class CollectionTest extends TestCase
 {

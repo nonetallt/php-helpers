@@ -12,7 +12,7 @@ class FromArrayMock
     private $value2;
     private $value3;
 
-    public function __construct($value3, $value2, $value1)
+    public function __construct(int $value1, int $value2, int $value3)
     {
         $this->value1 = $value1;
         $this->value2 = $value2;

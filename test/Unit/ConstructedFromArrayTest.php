@@ -35,7 +35,7 @@ class ConstructedFromArrayTest extends TestCase
      */
     public function testMockValidationFailsWhenTryingToUseStringAsValue()
     {
-        $msg = "Validation for value1 failed:" . PHP_EOL . "- Value value1 must be an integer";
+        $msg = "Value value1 must be an integer";
         $this->expectExceptionMessage($msg);
 
         $data = [
