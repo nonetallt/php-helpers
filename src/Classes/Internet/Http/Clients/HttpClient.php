@@ -151,15 +151,19 @@ class HttpClient
 
             /* Get the request that has the same index as the promise */
             $originalRequest = $originalRequests[$index];
+            $guzzleResponse = null;
+            $exception = null;
 
-            /* Successful request */
             if($promise['state'] === 'fulfilled') {
-                $results->push($this->createResponse($originalRequest, $promise['value']));
-                continue;
+                /* Successful request */
+                $guzzleResponse = $promise['value'];
+            }
+            else {
+                /* Failed request */
+                $exception = $promise['reason'];
             }
 
-            /* Failed request */
-            $response = $this->createResponse($originalRequest, null, $promise['reason']);
+            $response = $this->createResponse($originalRequest, $guzzleResponse, $exception);
             $results->push($response);
         }
 
@@ -171,24 +175,17 @@ class HttpClient
         $method = $request->getMethod();
         $url = $request->getUrl();
         $query = $this->requestOptions($request->getQuery(), $request);
+        $response = null;
+        $exception = null;
 
         try {
             $response = $this->client->request($method, $url, $query);
-            return $this->createResponse($request, $response);
         } 
-        catch(ClientException $e) {
-            $guzzleResponse = $e->getResponse();
-            $code = $guzzleResponse->getStatusCode();
-            $exception = $this->isCodeIgnored($code) ? null : $e;
-
-            /* Get proper response for 4xx errors from the exception */
-            $response = $this->createResponse($request, $guzzleResponse, $exception);
-            return $response;
-        }
         catch(RequestException $e) {
-            $response = $this->createResponse($request, null, $e);
-            return $response;
+            $exception = $e;
         }
+
+        return $this->resolveResponse($request, $response, $exception);
     }
 
     private function requestOptions(array $query, HttpRequest $requestWrapper)
@@ -214,6 +211,18 @@ class HttpClient
         if(is_string($this->auth)) $requestOptions['headers']['Authorization'] = $this->auth;
 
         return $requestOptions;
+    }
+
+    private function resolveResponse(HttpRequest $request, ?Response $response, ?RequestException $exception = null) : HttpResponse
+    {
+        if($exception instanceof ClientException) {
+            /* Get proper response for 4xx errors from the exception */
+            $response = $exception->getResponse();
+            $code = $response->getStatusCode();
+            $exception = $this->isCodeIgnored($code) ? null : $exception;
+        }
+
+        return $this->createResponse($request, $response, $exception);
     }
 
     /**
