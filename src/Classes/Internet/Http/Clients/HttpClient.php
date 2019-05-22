@@ -200,6 +200,7 @@ class HttpClient
         };
 
         $requestOptions = [
+            'body' => $requestWrapper->getBody(),
             'query' => $query,
             'allow_redirects' => [
                 'on_redirect' => $onRedirect

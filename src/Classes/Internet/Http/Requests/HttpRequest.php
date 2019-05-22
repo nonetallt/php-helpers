@@ -24,6 +24,7 @@ class HttpRequest
     private $method;
     private $url;
     private $query;
+    private $body;
     private $redirections;
 
     public function __construct(string $method, string $url, array $query = [])
@@ -32,6 +33,7 @@ class HttpRequest
         $this->setUrl($url);
         $this->setQuery($query);
         $this->redirections = new HttpRedirectionCollection();
+        $this->body = '';
     }
 
     public static function arrayValidationRules()
@@ -78,6 +80,16 @@ class HttpRequest
         return $this->url;
     }
 
+    public function setBody(string $body)
+    {
+        $this->body = $body;
+    }
+
+    public function getBody()
+    {
+        return $this->body;
+    }
+
     public function getEffectiveUrl() : string
     {
         if($this->redirections->isEmpty()) return $this->getUrl(); 
@@ -99,9 +111,10 @@ class HttpRequest
     public function toArray() : array
     {
         return [
-            'method'       => $this->method,
-            'url'          => $this->url,
-            'query'        => $this->query,
+            'method' => $this->method,
+            'url'    => $this->url,
+            'query'  => $this->query,
+            'body'   => $this->body,
             'redirections' => $this->redirections->toArray()
         ];
     }
