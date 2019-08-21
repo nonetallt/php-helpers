@@ -1,3 +1,12 @@
+* dotenv for filesystem based testing
+* complete file iterator tests
+* csv file
+    * auto-detect delimiter
+
+
+
+
+
 # Reflections
 * validate parameters in reflection factory / method mapping
 
