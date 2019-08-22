@@ -5,6 +5,8 @@ namespace Nonetallt\Helpers\Internet\Http\Requests;
 use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
 use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirectionCollection;
 use Nonetallt\Helpers\Internet\Http\QueryParameters;
+use Nonetallt\Helpers\Internet\Http\Common\HttpHeaderCollection;
+use Nonetallt\Helpers\Internet\Http\Common\HttpHeader;
 
 /**
  * Wrapper class for http request information
@@ -27,13 +29,14 @@ class HttpRequest
     private $body;
     private $redirections;
 
-    public function __construct(string $method, string $url, array $query = [])
+    public function __construct(string $method, string $url, array $query = [], string $body = null, $headers = null)
     {
         $this->setMethod($method);
         $this->setUrl($url);
         $this->setQuery($query);
+        $this->setBody($body);
+        $this->setHeaders($headers);
         $this->redirections = new HttpRedirectionCollection();
-        $this->body = '';
     }
 
     public static function arrayValidationRules()
@@ -80,14 +83,48 @@ class HttpRequest
         return $this->url;
     }
 
-    public function setBody(string $body)
+    public function setBody(?string $body)
     {
+        if($body === null) $body = '';
         $this->body = $body;
     }
 
     public function getBody()
     {
         return $this->body;
+    }
+
+    public function setHeaders($headers)
+    {
+        /* If null, default to empty array */
+        if($headers === null) $headers = [];
+
+        /* If array, convert to header collection */
+        if(is_array($headers)) {
+            $collection = new HttpHeaderCollection();
+
+            foreach($headers as $name => $value) {
+                $collection->push(new HttpHeader($name, $value));
+            }
+
+            $headers = $collection;
+        }
+        
+
+        $class = HttpHeaderCollection::class;
+
+        if(! is_a($headers, $class)) {
+            $given = (new DescribeObject($headers))->describeType();
+            $msg = "Headers must be one of the following: null, array or $class, $given given";
+            throw new \InvalidArgumentException($msg);
+        }
+
+        $this->headers = $headers;
+    }
+
+    public function getHeaders() : HttpHeaderCollection
+    {
+        return $this->headers;
     }
 
     public function getEffectiveUrl() : string

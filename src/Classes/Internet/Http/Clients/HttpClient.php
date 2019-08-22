@@ -211,6 +211,11 @@ class HttpClient
         if(is_array($this->auth)) $requestOptions['auth'] = $this->auth;
         if(is_string($this->auth)) $requestOptions['headers']['Authorization'] = $this->auth;
 
+        /* Set all custom headers */
+        foreach($requestWrapper->getHeaders() as $header) {
+            $requestOptions['headers'][$header->getName()] = $header->getValue();
+        }
+
         return $requestOptions;
     }
 

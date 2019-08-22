@@ -8,6 +8,7 @@ use Nonetallt\Helpers\Internet\Http\HttpQuery;
 use Nonetallt\Helpers\Internet\Http\Clients\HttpClient;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequestCollection;
+use Nonetallt\Helpers\Internet\Http\Common\HttpHeader;
 
 class HttpClientTest extends TestCase
 {
@@ -181,5 +182,23 @@ class HttpClientTest extends TestCase
         $response = $client->sendRequest($request);
 
         $this->assertEmpty($response->getErrors());
+    }
+
+    /**
+     * @group remote
+     */
+    public function testCustomHeadersCanBeSetForEachRequest()
+    {
+        $headerValue = 'foobar';
+
+        $client = new HttpClient();
+        $url = $this->router->parseUrl($this->config('http.header_url'));
+        $request = new HttpRequest('POST', $url, ['header' => 'custom']);
+        $request->getHeaders()->push(new HttpHeader('custom', $headerValue));
+
+        $response = $client->sendRequest($request);
+        $expected = ['custom' => $headerValue];
+
+        $this->assertEquals($expected, json_decode($response->getBody(), true));
     }
 }
