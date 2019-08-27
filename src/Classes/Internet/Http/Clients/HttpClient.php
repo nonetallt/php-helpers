@@ -137,7 +137,7 @@ class HttpClient
         foreach($requests as $index => $request) {
             $method = $request->getMethod();
             $url = $request->getUrl();
-            $query = $this->requestOptions($request->getQuery(), $request);
+            $query = $this->requestOptions($request);
 
             $originalRequests[] = $request;
             $promises[] = $this->client->requestAsync($method, $url, $query);
@@ -174,7 +174,7 @@ class HttpClient
     {
         $method = $request->getMethod();
         $url = $request->getUrl();
-        $query = $this->requestOptions($request->getQuery(), $request);
+        $query = $this->requestOptions($request);
         $response = null;
         $exception = null;
 
@@ -188,7 +188,7 @@ class HttpClient
         return $this->resolveResponse($request, $response, $exception);
     }
 
-    private function requestOptions(array $query, HttpRequest $requestWrapper)
+    private function requestOptions(HttpRequest $requestWrapper)
     {
         $onRedirect = function(RequestInterface $request, ResponseInterface $response, UriInterface $uri) use ($requestWrapper) {
             $from = (string)$request->getUri();
@@ -201,7 +201,7 @@ class HttpClient
 
         $requestOptions = [
             'body' => $requestWrapper->getBody(),
-            'query' => $query,
+            'query' => $requestWrapper->getQuery(),
             'allow_redirects' => [
                 'on_redirect' => $onRedirect
             ]

@@ -46,4 +46,14 @@ class HttpQuery extends Container
 
         return $string;
     }
+
+    public function getBody() : string
+    {
+        return substr((string)$this, 1);
+    }
+
+    public function getQueryString() : string
+    {
+        return (string) $this;
+    }
 }

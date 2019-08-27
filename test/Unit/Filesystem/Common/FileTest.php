@@ -1,15 +1,18 @@
 <?php
 
-namespace Test\Unit\Filesystem;
+namespace Test\Unit\Filesystem\Common;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Filesystem\File;
+use Nonetallt\Helpers\Filesystem\Common\File;
 use Nonetallt\Helpers\Filesystem\Exceptions\FileNotFoundException;
 use Nonetallt\Helpers\Filesystem\Exceptions\TargetNotFileException;
 use Nonetallt\Helpers\Filesystem\Exceptions\PermissionException;
+use Nonetallt\Helpers\Testing\Traits\TestsFiles;
 
 class FileTest extends TestCase
 {
+    use TestsFiles;
+
     private $file;
 
     public function setUp()

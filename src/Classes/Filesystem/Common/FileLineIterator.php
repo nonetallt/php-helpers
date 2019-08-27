@@ -1,8 +1,8 @@
 <?php
 
-namespace Nonetallt\Helpers\Filesystem;
+namespace Nonetallt\Helpers\Filesystem\Common;
 
-class FileIterator implements \Iterator
+class FileLineIterator implements \Iterator
 {
     private $iteratorPosition;
     private $file;
@@ -29,8 +29,11 @@ class FileIterator implements \Iterator
      * @param bool $readBlank If set to true, lines with only whitespace will
      * also be red.
      *
+     * @param bool $stripLineEdings set to true if you want to remove line
+     * endings for the returned lines.
+     *
      */
-    public function read(callable $cb, bool $readBlank = false)
+    public function read(callable $cb, bool $readBlank = false, bool $stripLineEndings = true)
     {
         $lineNumber = 1;
 
@@ -38,11 +41,48 @@ class FileIterator implements \Iterator
             /* Skip empty lines when readBlank argument is not used */
             if(! $readBlank && trim($line) === '') continue;
 
+            /* Strip line ending if option is in use */
+            if($stripLineEndings && ends_with($line, PHP_EOL)) {
+                $line = substr($line, 0, strlen($line) - strlen(PHP_EOL));
+            }
+
             /* Return line content and index to callback */
             if($cb($line, $lineNumber) === false) break;
 
             $lineNumber++;
         }
+    }
+
+    /**
+     * Get lines. 
+     *
+     * @param int $offset How many lines should be skipped from the beginning
+     * of the file.
+     *
+     * @param int $limit How many lines should be returned.
+     *
+     * @param bool $readBlank Set to false if you want to skip lines with only
+     * whitespace.
+     *
+     * @param bool $stripLineEdings set to true if you want to remove line
+     * endings for the returned lines.
+     *
+     * @return array $lines
+     *
+     */
+    public function get(int $offset = 0, int $limit = null, bool $readBlank = false, bool $stripLineEndings = true) : array
+    {
+        $lines = [];
+        $this->read(function($line, $lineNumber) use ($offset, $limit, &$lines) {
+
+            /* Only capture lines after offset */
+            if($lineNumber > $offset) $lines[] = $line;
+
+            /* Stop reading after limit */
+            if($limit !== null && count($lines) >= $limit) return false;
+        }, $readBlank, $stripLineEndings);
+
+        return $lines;
     }
 
     public function count(bool $countEmpty = false) : int

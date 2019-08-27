@@ -18,7 +18,6 @@ class Options extends Container
     ];
 
     CONST DEFAULTS = [
-        'delimiter' => ',',
         'enclosure' => '"',
         'escape' => '"',
         'skip_empty_lines' => true,

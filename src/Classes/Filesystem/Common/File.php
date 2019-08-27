@@ -1,6 +1,6 @@
 <?php
 
-namespace Nonetallt\Helpers\Filesystem;
+namespace Nonetallt\Helpers\Filesystem\Common;
 
 use Nonetallt\Helpers\Generic\Container;
 use Nonetallt\Helpers\Filesystem\Exceptions\FilesystemException;
@@ -102,9 +102,9 @@ class File
         return $this->cache->size;
     }
 
-    public function getLines() : FileIterator
+    public function getLines() : FileLineIterator
     {
-        return new FileIterator($this);
+        return new FileLineIterator($this);
     }
 
     public function getPermissions() : FilePermissions
