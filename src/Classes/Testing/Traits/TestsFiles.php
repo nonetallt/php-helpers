@@ -11,14 +11,6 @@ trait TestsFiles
      */
     protected function initializeForPhpunit()
     {
-        try {
-            $this->setBasePath($this->guessBasePath());
-        }
-        catch(FilesystemException $e) {
-            /* Warn the user that base path was not set correctly */
-            echo $e->getMessage();
-        }
-
         /* $this->cleanOutput(); */
     }
 
@@ -60,6 +52,7 @@ trait TestsFiles
 
     public function getBasePath(string $append = null)
     {
+        if($this->basePath === null) $this->setBasePath($this->guessBasePath());
         return $this->appendToPath($this->basePath, $append);
     }
 
