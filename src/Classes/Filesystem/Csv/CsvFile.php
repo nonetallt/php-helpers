@@ -14,7 +14,21 @@ class CsvFile extends File
         $this->setOptions($options);
     }
 
-    public function getHeaders() : array
+    /**
+     * Get the headers from first non-empty line of the file.
+     * If delimiter is not set, attempt to guess it for the headers row.
+     *
+     * @param bool $renameDuplicates Set to true if you want duplicate headers
+     * to be renamed (positional number is appended after header)
+     *
+     * @param string $renameEmpty Give a name if you want to rename whitespace headers
+     * to the given name, it is recommended to use $renameDuplicates with this
+     * option
+     *
+     * @return array $headers
+     *
+     */
+    public function getHeaders(bool $renameDuplicates = true, string $renameEmpty = null) : array
     {
         /* If options has no delimiter set, make a guess */
         if(! $this->options->has('delimiter')) {
@@ -22,7 +36,28 @@ class CsvFile extends File
         }
 
         $line = $this->getLines()->get(0, 1)[0] ?? [];
-        return str_getcsv($line, $this->options->delimiter, $this->options->enclosure, $this->options->escape);
+        $headers = str_getcsv($line, $this->options->delimiter, $this->options->enclosure, $this->options->escape);
+
+        $headers = array_map(function($header) use ($renameEmpty) {
+            /* Rename empty lines if arg is in use */
+            if($renameEmpty !== null && trim($header) === '') $header = $renameEmpty;
+            return $header;
+        }, $headers);
+
+        if($renameDuplicates) {
+            $result = [];
+            foreach(array_count_values($headers) as $value => $count) {
+                if($count === 1) $result[] = $value;
+                else {
+                    for($n = 0; $n < $count; $n++) {
+                        $result[] = $value . ($n + 1);
+                    }
+                }
+            }
+            $headers = $result;
+        }
+
+        return $headers;
     }
     
     /**

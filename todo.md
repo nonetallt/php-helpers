@@ -1,9 +1,5 @@
 * dotenv for filesystem based testing
 * complete file iterator tests
-* csv file
-    * auto-detect delimiter
-
-
 
 
 

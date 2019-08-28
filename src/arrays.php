@@ -31,3 +31,13 @@ if(! function_exists('array_keys_missing')) {
         return array_diff($keys, array_keys($arr));
     }
 }
+
+if(! function_exists('array_duplicates')) {
+    function array_duplicates(array $array) {
+        $duplicates = [];
+        foreach(array_count_values($array) as $value => $count) {
+            if($count > 1) $duplicates[] = $value;
+        }
+        return $duplicates;
+    }
+}

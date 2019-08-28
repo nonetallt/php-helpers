@@ -26,6 +26,30 @@ class CsvFileTest extends TestCase
         $this->assertEquals(['first_name', 'last_name', 'email'], $file->getHeaders());
     }
 
+    public function testGetHeadersRenamesDuplicateHeadersWhenArgIsTrue()
+    {
+        $path = $this->getTestInputPath('csv/duplicate_headers.csv');
+        $file = new CsvFile($path);
+
+        $this->assertEquals(['first_name1', 'first_name2', 'last_name'], $file->getHeaders(true));
+    }
+
+    public function testGetHeadersRenamesEmptyHeadersWhenArgIsTrue()
+    {
+        $path = $this->getTestInputPath('csv/unnamed_headers.csv');
+        $file = new CsvFile($path);
+
+        $this->assertEquals(['first_name', 'unnamed', 'last_name'], $file->getHeaders(false, 'unnamed'));
+    }
+
+    public function testGetHeadersCanRenameDuplicateUnnamedHeaders()
+    {
+        $path = $this->getTestInputPath('csv/duplicate_unnamed_headers.csv');
+        $file = new CsvFile($path);
+
+        $this->assertEquals(['first_name', 'unnamed1', 'unnamed2'], $file->getHeaders(true, 'unnamed'));
+    }
+
     public function testGetHeadersGuessedDelimiter()
     {
         $path = $this->getTestInputPath('csv/semicolon_delimiter.csv');
