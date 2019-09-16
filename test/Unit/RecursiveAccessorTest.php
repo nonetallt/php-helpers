@@ -4,6 +4,7 @@ namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
+use Nonetallt\Helpers\Templating\Exceptions\AccessorException;
 
 class RecursiveAccessorTest extends TestCase
 {
@@ -39,13 +40,13 @@ class RecursiveAccessorTest extends TestCase
 
     public function testGetNestedValueThrowsExceptionWhenPathIsEmpty()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(AccessorException::class);
         $this->accessor->getNestedValue('', ['value' => 1]);
     }
 
     public function testGetNestedValueThrowsExceptionWhenPathDoesNotExist()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(AccessorException::class);
         $this->accessor->getNestedValue('undefined', ['value' => 1]);
     }
 

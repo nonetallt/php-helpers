@@ -25,10 +25,12 @@ class CsvFile extends File
      * to the given name, it is recommended to use $renameDuplicates with this
      * option
      *
+     * @param bool $trimHeaders
+     *
      * @return array $headers
      *
      */
-    public function getHeaders(bool $renameDuplicates = true, string $renameEmpty = null) : array
+    public function getHeaders(bool $renameDuplicates = true, string $renameEmpty = null, bool $trimHeaders = true) : array
     {
         /* If options has no delimiter set, make a guess */
         if(! $this->options->has('delimiter')) {
@@ -38,9 +40,10 @@ class CsvFile extends File
         $line = $this->getLines()->get(0, 1)[0] ?? [];
         $headers = str_getcsv($line, $this->options->delimiter, $this->options->enclosure, $this->options->escape);
 
-        $headers = array_map(function($header) use ($renameEmpty) {
+        $headers = array_map(function($header) use ($renameEmpty, $trimHeaders) {
             /* Rename empty lines if arg is in use */
             if($renameEmpty !== null && trim($header) === '') $header = $renameEmpty;
+            if($trimHeaders) return trim($header);
             return $header;
         }, $headers);
 

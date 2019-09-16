@@ -2,6 +2,8 @@
 
 namespace Nonetallt\Helpers\Templating;
 
+use Nonetallt\Helpers\Templating\Exceptions\AccessorException;
+
 class RecursiveAccessor
 {
     private $format;
@@ -24,7 +26,11 @@ class RecursiveAccessor
     public function isset(string $path, $values)
     {
         if($values === null) return false;
-        if(! is_array($values)) throw new \InvalidArgumentException("Not implemented");
+
+        if(! is_array($values)) {
+            $msg = "Not implemented for non-array values";
+            throw new \InvalidArgumentException($msg);
+        }
 
         /* If path does not have accessor */
         if(! $this->isContainedInString($path)) {
@@ -43,11 +49,14 @@ class RecursiveAccessor
         return $this->isset(implode($this->format, $pathParts), $values[$current]);
     }
 
+    /**
+     * @throws Nonetallt\Helpers\Templating\Exceptions\AccessorException
+     */
     public function getNestedValue(string $path, $values)
     {
         if(! $this->isset($path, $values)) {
             $msg = "Path $path does not exist in supplied values";
-            throw new \InvalidArgumentException($msg);
+            throw new AccessorException($msg);
         } 
 
         $currentValue = $values;
