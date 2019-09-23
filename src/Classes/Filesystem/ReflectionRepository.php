@@ -10,7 +10,13 @@ use Nonetallt\Helpers\Filesystem\Exceptions\FileNotFoundException;
 use Nonetallt\Helpers\Filesystem\Exceptions\TargetNotDirectoryException;
 
 /**
- * A class for constructing classes from reflections.
+ * A collection of reflection classes from a directory and namespace
+ *
+ * TODO: rename to ReflectionClassRepository
+ *
+ * TODO: reload classes when dir or namespace changes
+ *
+ * TODO: move to reflections dir
  *
  */
 class ReflectionRepository extends Collection
@@ -65,6 +71,7 @@ class ReflectionRepository extends Collection
 
     /**
      * Wether class should be used. Ment to be overriden by child classes
+     * TODO rename to filterClass
      */
     protected function filterClasses(\ReflectionClass $ref) : bool
     {
