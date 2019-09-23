@@ -8,6 +8,8 @@ use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Nonetallt\Helpers\Internet\Http\Responses\ParsedHttpResponse;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
+use Nonetallt\Helpers\Templating\RecursiveAccessor;
+use Nonetallt\Helpers\Internet\Http\Exceptions\Factory\HttpRequestResponseExceptionFactory;
 
 /**
  * A http client that parses responses
@@ -16,6 +18,7 @@ abstract class ResponseParsingHttpClient extends HttpClient
 {
     protected $errorAccessor;
     protected $errorMessageAccessor;
+    private $responseExceptionFactory;
 
     /**
      * Use keys in the parsed json to create exceptions for requests when those
@@ -41,13 +44,75 @@ abstract class ResponseParsingHttpClient extends HttpClient
      */
     protected function createResponse(HttpRequest $request, ?Response $response, ?RequestException $exception = null) : HttpResponse
     {
-        $responseWrapper = $this->createResponseClass($request, $response, $this->createConnectionExceptions($exception));
+        /* Create connection exceptions for the request */
+        $connectionExceptions = $this->createConnectionExceptions($exception);
+        $responseWrapper = $this->createResponseClass($request, $response, $connectionExceptions);
+        $exceptionData = $this->accessResponseExceptions($responseWrapper);
 
-        if($this->errorAccessor !== null) {
-            $responseWrapper->createResponseExceptions($this->errorAccessor, $this->errorMessageAccessor);
+        /* If response exceptions were found, add them to the request */
+        if(! empty($exceptionData)) {
+            $factory = $this->getResponseExceptionFactory();
+            $exceptions = $factory->createExceptions($exceptionData);
+            $responseWrapper->getExceptions()->pushAll($exceptions);
         }
 
         return $responseWrapper;
+    }
+
+    /**
+     * Find exception data contained in the given response
+     *
+     * @param Nonetallt\Helpers\Internet\Http\Requests\HttpRequest $request The
+     * request that is being searched for errors
+     *
+     * @return mixed $exceptionData Exceptions that were found. Empty values
+     * will not be processed by error handlers
+     *
+     */
+    protected function accessResponseExceptions(ParsedHttpResponse $request)
+    {
+        if($this->errorAccessor === null) return;
+
+        $accessor = new RecursiveAccessor('->');
+        $parsed = $request->getParsed();
+
+        if($parsed === null) return;
+
+        /* Not errors found */
+        if(! $accessor->isset($this->errorAccessor, $parsed)) return;
+
+        /* Try finding error objects from the response */
+        $exceptionData = $accessor->getNestedValue($this->errorAccessor, $parsed);
+
+        /* Try finding messages from within error objects */
+        if($this->errorMessageAccessor !== null) {
+            $exceptionData = array_map(function($error) use ($accessor) {
+                return $accessor->getNestedValue($this->errorMessageAccessor, $error);
+            }, $exceptionData);
+        }
+
+        return $exceptionData;
+    }
+
+    private function getResponseExceptionFactory() : HttpRequestResponseExceptionFactory
+    {
+        if($this->responseExceptionFactory === null) {
+            $this->responseExceptionFactory = $this->createResponseExceptionFactory();
+        }
+
+        return $this->responseExceptionFactory;
+    }
+
+    /**
+     * Create the exception factory that should be used by this http client for
+     * creating response exceptions.
+     *
+     * @return HttpRequsetResponseExceptionFactory $factory
+     *
+     */
+    protected function createResponseExceptionFactory() : HttpRequestResponseExceptionFactory
+    {
+        return new HttpRequestResponseExceptionFactory();
     }
 
     abstract protected function createResponseClass(HttpRequest $request, ?Response $response, HttpRequestExceptionCollection $exceptions) : ParsedHttpResponse;

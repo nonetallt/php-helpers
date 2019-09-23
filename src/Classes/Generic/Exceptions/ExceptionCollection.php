@@ -6,9 +6,14 @@ use Nonetallt\Helpers\Generic\Collection;
 
 class ExceptionCollection extends Collection
 {
-    public function __construct(array $items = [])
+    public function __construct(array $items = [], string $type = \Exception::class)
     {
-        parent::__construct($items, \Exception::class);
+        if(! is_a($type, \Exception::class, true)) {
+            $msg = "Given class type must extend Exception";
+            throw new \InvalidArgumentException($msg);
+        }
+
+        parent::__construct($items, $type);
     }
 
     public function getMessages() : array
