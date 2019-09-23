@@ -9,6 +9,8 @@ use Nonetallt\Helpers\Describe\DescribeObject;
  * Array style storage with inbuilt array functions.
  * Does not support string keys, if you need strings as keys use 
  * Nonetallt\Helpers\Generic\Container instead.
+ *
+ * TODO first() etc. methods should work with string keys
  */
 class Collection implements \Iterator, \ArrayAccess
 {
@@ -58,6 +60,13 @@ class Collection implements \Iterator, \ArrayAccess
         }       
 
         $this->items[] = $item;
+    }
+
+    public function pushAll(\Iterator $items)
+    {
+        foreach($items as $item) {
+            $this->push($item);
+        }
     }
 
     public function hasItem($item, bool $strict = true) : bool
