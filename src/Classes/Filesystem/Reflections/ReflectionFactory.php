@@ -7,6 +7,11 @@ use CaseConverter\CaseConverter;
 use Nonetallt\Helpers\Filesystem\ReflectionRepository;
 use Nonetallt\Helpers\Generic\Traits\ProxiesMethodCalls;
 
+/**
+ * TODO: rename to ReflectionClassFactory
+ *
+ * A class for constructing classes from reflections classes.
+ */
 class ReflectionFactory extends ReflectionRepository
 {
     use ProxiesMethodCalls;
