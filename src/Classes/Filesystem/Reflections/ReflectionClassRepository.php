@@ -1,6 +1,6 @@
 <?php
 
-namespace Nonetallt\Helpers\Filesystem;
+namespace Nonetallt\Helpers\Filesystem\Reflections;
 
 use Nonetallt\Helpers\Filesystem\Traits\FindsReflectionClasses;
 use Nonetallt\Helpers\Describe\DescribeObject;
@@ -12,14 +12,10 @@ use Nonetallt\Helpers\Filesystem\Exceptions\TargetNotDirectoryException;
 /**
  * A collection of reflection classes from a directory and namespace
  *
- * TODO: rename to ReflectionClassRepository
- *
  * TODO: reload classes when dir or namespace changes
  *
- * TODO: move to reflections dir
- *
  */
-class ReflectionRepository extends Collection
+class ReflectionClassRepository extends Collection
 {
     use FindsReflectionClasses;
 
@@ -27,15 +23,19 @@ class ReflectionRepository extends Collection
     protected $reflectionNamespace;
     protected $reflectionDir;
 
-    public function __construct(string $class, ?string $dir = null, ?string $namespace = null)
+    public function __construct(string $class, ?string $dir = null, ?string $namespace = null, string $collectionType = \ReflectionClass::class)
     {
+        parent::__construct([], $collectionType);
+
         $this->setReflectionDir($dir);
         $this->setReflectionNamespace($namespace);
         $this->reflectionClass = $class;
-
-        parent::__construct($this->resolveReflections(), \ReflectionClass::class);
+        $this->loadReflections();
     }
 
+    /**
+     * @throws Nonetallt\Helpers\Filesystem\Exceptions\FilesystemException
+     */
     public function setReflectionDir(?string $dir)
     {
         /* Default null values to directory of the subclass */
@@ -51,29 +51,31 @@ class ReflectionRepository extends Collection
     {
         /* Default null values to namespace of the caller */
         if($namespace === null) $namespace = (new \ReflectionClass($this))->getNamespaceName(); 
-
         $this->reflectionNamespace = $namespace;
     }
 
-    private function resolveReflections()
+    /**
+     * Resets and loads all reflections from the currently set dir and
+     * namespace
+     *
+     */
+    public function loadReflections() : void
     {
+        $this->items = [];
         $refs = $this->findReflectionClasses($this->reflectionNamespace, $this->reflectionDir, $this->reflectionClass);
-        $mapped = [];
 
         foreach($refs as $ref) {
-            if(! $this->filterClasses($ref)) continue;
+            if(! $this->filterClass($ref)) continue;
             $key = $this->resolveAlias($ref);
-            $mapped[$key] = $ref;
+            $this->items[$key] = $this->resolveClass($ref);
         }
-
-        return $mapped;
     }
 
     /**
      * Wether class should be used. Ment to be overriden by child classes
-     * TODO rename to filterClass
+     *
      */
-    protected function filterClasses(\ReflectionClass $ref) : bool
+    protected function filterClass(\ReflectionClass $ref) : bool
     {
         return true;
     }
@@ -87,6 +89,16 @@ class ReflectionRepository extends Collection
     protected function resolveAlias(\ReflectionClass $ref) : string
     {
         return $ref->name;
+    }
+
+    /**
+     *  Load reflection class to this collection. Can be customized by child to
+     *  create other classes from the reflection class data.
+     *
+     */
+    protected function resolveClass(\ReflectionClass $ref)
+    {
+        return $ref;
     }
 
     public function getReflectionNamespace() : string

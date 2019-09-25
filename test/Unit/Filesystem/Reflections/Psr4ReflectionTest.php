@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Unit\Reflections;
+namespace Test\Unit\Filesystem\Reflections;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Filesystem\Reflections\Psr4Reflection;
@@ -19,7 +19,7 @@ class Psr4ReflectionTest extends TestCase
     {
         $ref = new Psr4Reflection($this);
 
-        $expected = dirname(dirname(__DIR__));
+        $expected = dirname(dirname(dirname(__DIR__)));
         $this->assertEquals($expected, $ref->getNamespaceRoot());
     }
 }

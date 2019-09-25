@@ -3,6 +3,7 @@
 namespace Nonetallt\Helpers\Internet\Dns;
 
 use Symfony\Component\Process\Process;
+use Nonetallt\Helpers\Internet\Dns\Exceptions\DnsCheckException;
 
 class DigDnsChecker extends DnsChecker
 {

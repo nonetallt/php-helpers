@@ -25,8 +25,10 @@ class JsonHttpClientTest extends TestCase
      */
     public function testSendRequestWorks()
     {
-        $url = $this->router->parseUrl($this->config('http.json_url'));
-        $response = $this->client->sendRequest(new HttpRequest('GET', $url));
+        $url = $this->router->parseUrl($this->config('http.echo_url'));
+        $response = $this->client->sendRequest(new HttpRequest('POST', $url, [
+            'data' => json_encode(['foo' => 'bar'])
+        ]));
         $this->assertTrue($response->isSuccessful());
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Unit\Filesystem;
+namespace Test\Unit\Filesystem\Reflections;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Filesystem\Reflections\ReflectionFactory;

@@ -1,17 +1,17 @@
 <?php
 
-namespace Test\Unit;
+namespace Test\Unit\Filesystem\Reflections;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Filesystem\ReflectionRepository;
+use Nonetallt\Helpers\Filesystem\Reflections\ReflectionClassRepository;
 use Nonetallt\Helpers\Filesystem\Exceptions\FileNotFoundException;
 use Nonetallt\Helpers\Filesystem\Exceptions\TargetNotDirectoryException;
 
-class ReflectionRepositoryTest extends TestCase
+class ReflectionClassRepositoryTest extends TestCase
 {
     public function testCallerDirAndNamespaceCanBeUsedAsDefaultValuesToFindTheCallerClass()
     {
-        $repo = new ReflectionRepository(TestCase::class, __DIR__, __NAMESPACE__);
+        $repo = new ReflectionClassRepository(TestCase::class, __DIR__, __NAMESPACE__);
         $tests = $repo->map(function($ref) {
             return $ref->name;
         });
@@ -23,12 +23,12 @@ class ReflectionRepositoryTest extends TestCase
     public function testNonExistentPathCantBeSetAsDir()
     {
         $this->expectException(FileNotFoundException::class);
-        $repo = new ReflectionRepository(TestCase::class, 'foobar');
+        $repo = new ReflectionClassRepository(TestCase::class, 'foobar');
     }
 
     public function testFileCannotBeSeAsDir()
     {
         $this->expectException(TargetNotDirectoryException::class);
-        $repo = new ReflectionRepository(TestCase::class, __FILE__);
+        $repo = new ReflectionClassRepository(TestCase::class, __FILE__);
     }
 }

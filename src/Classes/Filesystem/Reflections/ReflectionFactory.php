@@ -4,15 +4,14 @@ namespace Nonetallt\Helpers\Filesystem\Reflections;
 
 use Nonetallt\Helpers\Filesystem\Reflections\Exceptions\AliasNotFoundException;
 use CaseConverter\CaseConverter;
-use Nonetallt\Helpers\Filesystem\ReflectionRepository;
 use Nonetallt\Helpers\Generic\Traits\ProxiesMethodCalls;
+use Nonetallt\Helpers\Filesystem\Reflections\ReflectionClassRepository;
 
 /**
- * TODO: rename to ReflectionClassFactory
- *
  * A class for constructing classes from reflections classes.
+ *
  */
-class ReflectionFactory extends ReflectionRepository
+class ReflectionFactory extends ReflectionClassRepository
 {
     use ProxiesMethodCalls;
 
