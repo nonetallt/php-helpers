@@ -174,4 +174,10 @@ class CollectionTest extends TestCase
         $this->collection->push($this);
         $this->assertTrue($this->collection->hasItem($this));
     }
+
+    public function testFirstWorksWithStringKeys()
+    {
+        $collection = new Collection(['foo' => 'bar', 'kappa' => 'keepo']);
+        $this->assertEquals('bar', $collection->first());
+    }
 }
