@@ -10,7 +10,8 @@ use Nonetallt\Helpers\Describe\DescribeObject;
  * Does not support string keys, if you need strings as keys use 
  * Nonetallt\Helpers\Generic\Container instead.
  *
- * TODO first() etc. methods should work with string keys
+ * TODO Iterator should work with string keys
+ *
  */
 class Collection implements \Iterator, \ArrayAccess
 {
