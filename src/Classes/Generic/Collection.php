@@ -155,6 +155,27 @@ class Collection implements \Iterator, \ArrayAccess
         return new $class($array);
     }
 
+
+    public function filterByClass(string $filterClass)
+    {
+        $collectionClass = get_class($this);
+        $collection = new $collectionClass([]);
+
+        foreach($this->items as $item) {
+            if(is_a($item, $filterClass)) $collection->push($item);
+        }
+
+        return $collection;
+    }
+
+    public function getItemTypes() : array
+    {
+        return $this->map(function($item) {
+            $desc = new DescribeObject($item);
+            return $desc->describeType();
+        });
+    }
+
     // ArrayAccess methods
     public function offsetSet($offset, $value) 
     {

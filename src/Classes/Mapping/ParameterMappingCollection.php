@@ -5,12 +5,12 @@ namespace Nonetallt\Helpers\Mapping;
 use Nonetallt\Helpers\Generic\Collection;
 use Nonetallt\Helpers\Generic\MissingValue;
 use Nonetallt\Helpers\Generic\Exceptions\NotFoundException;
-use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
 use Nonetallt\Helpers\Mapping\Exceptions\ParameterMappingExceptionCollection;
 use Nonetallt\Helpers\Mapping\Exceptions\ParameterMappingException;
 use Nonetallt\Helpers\Mapping\Exceptions\ParameterValueMappingException;
 use Nonetallt\Helpers\Mapping\ParameterMapping;
 use Nonetallt\Helpers\Validation\Exceptions\ValidationExceptionCollection;
+use Nonetallt\Helpers\Mapping\Exceptions\MethodMappingException;
 
 class ParameterMappingCollection extends Collection
 {
@@ -58,7 +58,7 @@ class ParameterMappingCollection extends Collection
     }
 
     /**
-     * @throws Nonetallt\Helpers\Mapping\Exceptions\MappingException
+     * @throws Nonetallt\Helpers\Mapping\Exceptions\MethodMappingException
      *
      * @param array $array Array to be used for mapping
      *
@@ -80,8 +80,7 @@ class ParameterMappingCollection extends Collection
         }
 
         if(! $exceptions->isEmpty()) {
-            $msg = (string)$exceptions;
-            throw new MappingException($msg);
+            throw new MethodMappingException($exceptions);
         }
 
         return $result;
