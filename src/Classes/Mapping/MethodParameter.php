@@ -14,6 +14,7 @@ use Nonetallt\Helpers\Validation\Rules\ValidationRuleCallable;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleOptional;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleIs;
 use Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException;
+use Nonetallt\Helpers\Validation\Rules\ValidationRuleObject;
 
 class MethodParameter extends OrderedParameterMapping
 {
@@ -23,7 +24,9 @@ class MethodParameter extends OrderedParameterMapping
         'string' => ValidationRuleString::class,
         'float' => ValidationRuleFloat::class,
         'array' => ValidationRuleArray::class,
-        'callable' => ValidationRuleCallable::class
+        'callable' => ValidationRuleCallable::class,
+        'iteratable' => ValidationRuleIterable::class,
+        'object' => ValidationRuleObject::class
     ];
 
     private $reflection;
@@ -82,6 +85,7 @@ class MethodParameter extends OrderedParameterMapping
     {
         $class = $parameter->getClass();
 
+        /* If parameter has class use class rule. This also catches "self" declaration */
         if($class !== null) {
             return new ValidationRuleIs([
                 'class' => $class->name, 
@@ -89,7 +93,7 @@ class MethodParameter extends OrderedParameterMapping
             ]);
         }
 
-        $type = $parameter->getType();
+        $type = $parameter->getType()->getName();
         $ruleClass = self::RULES[(string)$type] ?? null;
 
         if($ruleClass === null) {

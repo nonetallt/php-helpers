@@ -28,6 +28,6 @@ class ValidationRuleIs extends ValidationRule
         $class = $this->parameters->class;
         $acceptString = $this->parameters->accepts_string ?? false;
 
-        return $this->createResult($this, is_a($value, $class, $acceptString), "Value $name must be an object");
+        return $this->createResult($this, is_a($value, $class, $acceptString), "Value $name must be of type $class");
     }
 }

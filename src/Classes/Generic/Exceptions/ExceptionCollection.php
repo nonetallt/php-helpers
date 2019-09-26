@@ -35,4 +35,25 @@ class ExceptionCollection extends Collection
     {
         return $this->hasItemOfClass($exceptionClass, $allowSubclass);
     }
+
+    /**
+     * Catch all exceptions of this collections type while inside the callback
+     *
+     * @param callable $cb
+     *
+     */
+    public function catch(callable $cb)
+    {
+        try {
+            $cb();
+        }
+        catch(\Exception $e) {
+            if(is_a($e, $this->getType())) {
+                $this->push($e);
+            }
+            else {
+                throw $e;
+            }
+        }
+    }
 }

@@ -27,6 +27,10 @@ class MethodParameterMapping extends ParameterMappingCollection
     }
 
     /**
+     *
+     * Map given parameters to method while throwing possible errors as if the
+     * method was called.
+     *
      * @throws ArgumentCountError
      * @throws TypeError
      *

@@ -2,12 +2,15 @@
 
 namespace Nonetallt\Helpers\Mapping;
 
-use Nonetallt\Helpers\Mapping\ParameterMapping;
-use Nonetallt\Helpers\Mapping\Exceptions\ParameterMappingException;
 use Nonetallt\Helpers\Generic\Collection;
-use Nonetallt\Helpers\Validation\Exceptions\ValidationExceptionCollection;
+use Nonetallt\Helpers\Generic\MissingValue;
+use Nonetallt\Helpers\Generic\Exceptions\NotFoundException;
 use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
+use Nonetallt\Helpers\Mapping\Exceptions\ParameterMappingExceptionCollection;
+use Nonetallt\Helpers\Mapping\Exceptions\ParameterMappingException;
 use Nonetallt\Helpers\Mapping\Exceptions\ParameterValueMappingException;
+use Nonetallt\Helpers\Mapping\ParameterMapping;
+use Nonetallt\Helpers\Validation\Exceptions\ValidationExceptionCollection;
 
 class ParameterMappingCollection extends Collection
 {
@@ -40,58 +43,87 @@ class ParameterMappingCollection extends Collection
     }
 
     /**
-     * @throws Nonetallt\Helpers\Mapping\Exceptions\ParameterMappingException
+     * @throws Nonetallt\Helpers\Generic\Exceptions\NotFoundException
      */
-    private function getValue(array $array, ParameterMapping $mapping)
+    private function findParameterValue(array $array, ParameterMapping $mapping)
     {
         $key = $mapping->getName();
         $position = $mapping->getPosition();
 
-        if(isset($array{$key})) return $array[$key];
-        if(isset($array{$position})) return $array[$position];
+        if(array_key_exists($key, $array)) return $array[$key];
+        if(array_key_exists($position, $array)) return $array[$position];
 
         $msg = "Could not find value for either key: '$key' or position '$position'";
-        throw new ParameterMappingException($mapping, $msg);
+        throw new NotFoundException($msg);
     }
 
     /**
-     * @throws Nonetallt\Helpers\Mapping\Exceptions\ParameterMappingException
+     * @throws Nonetallt\Helpers\Mapping\Exceptions\MappingException
+     *
+     * @param array $array Array to be used for mapping
+     *
+     * @param bool $requireDefaultValues Set to true to create exceptions for
+     * missing values in given array that have defined a default value
+     *
      */
-    public function mapArray(array $array) : array
+    public function mapArray(array $array, bool $requireDefaultValues = false) : array
     {
         $result = [];
+        $exceptions = new ParameterMappingExceptionCollection();
 
         foreach($this->items as $mapping) {
-            $value = null;
+            /* Catch all parameter mapping exceptions */
+            $exceptions->catch(function() use($mapping, $array, $requireDefaultValues, &$result) {
+                $value = $this->mapValue($mapping, $array, $requireDefaultValues);
+                if(! is_a($value, MissingValue::class)) $result[$mapping->getPosition()] = $value;
+            });
+        }
 
-            /* Skip missing optional values */
-            try {
-                $value = $this->getValue($array, $mapping);
-            }
-            catch(ParameterMappingException $e) {
-                if($mapping->isRequired()) {
-                    throw $this->requiredValueMissing($mapping, $e);
-                } 
-                continue;
-            }
-
-            $exceptions = $mapping->getValidator()->validate($mapping->getName(), $value);
-
-            if(! $exceptions->isEmpty()) {
-                $msg = (string)$exceptions;
-                throw new ParameterValueMappingException($mapping, $value, $msg);
-            }
-
-            $result[$mapping->getPosition()] = $value;
+        if(! $exceptions->isEmpty()) {
+            $msg = (string)$exceptions;
+            throw new MappingException($msg);
         }
 
         return $result;
     }
 
+    /**
+     * Map a single parameter 
+     *
+     * @throws Nonetallt\Helpers\Mapping\Exceptions\ParameterMappingException 
+     *
+     */
+    private function mapValue(ParameterMapping $mapping, array $array, bool $requireDefaultValues)
+    {
+        $value = null;
+
+        /* Find value for mapping */
+        try {
+            $value = $this->findParameterValue($array, $mapping);
+        }
+        catch(NotFoundException $e) {
+            if($mapping->isRequired() || $requireDefaultValues) {
+                throw $this->requiredValueMissing($mapping, $e);
+            } 
+
+            return new MissingValue;
+        }
+
+        /* Add validation exceptions */
+        $exceptions = $mapping->getValidator()->validate($mapping->getName(), $value);
+
+        if(! $exceptions->isEmpty()) {
+            $msg = (string)$exceptions;
+            throw new ParameterValueMappingException($mapping, $value, $msg);
+        }
+
+        return $value;
+    }
+
     protected function requiredValueMissing(ParameterMapping $mapping, \Exception $previous) : ParameterMappingException
     {
         $name = $mapping->getName();
-        $msg = "Missing mapping for required value '$name'";
+        $msg = "Required value is missing for key '$name'";
         return new ParameterMappingException($mapping, $msg, 0, $previous);
     }
 }

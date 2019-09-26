@@ -34,10 +34,10 @@ abstract class ValidationRule
         $this->parameters = new SimpleContainer('validation rule parameters', $parameters);
     }
 
-    protected function createResult(ValidationRule $rule, bool $success, string $message)
+    protected function createResult(ValidationRule $rule, bool $success, string $message, bool $continue = true)
     {
         if($success) $message = null;
-        $result = new ValidationRuleResult($rule, $message);
+        $result = new ValidationRuleResult($rule, $message, $continue);
         return $result;
     }
 

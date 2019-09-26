@@ -4,6 +4,10 @@ namespace Nonetallt\Helpers\Mapping\Exceptions;
 
 use Nonetallt\Helpers\Mapping\ParameterMapping;
 
+/**
+ * Throw when a value could not be mapped to a paramter
+ *
+ */
 class ParameterValueMappingException extends ParameterMappingException
 {
     private $value;
