@@ -2,13 +2,13 @@
 
 namespace Nonetallt\Helpers\Filesystem\Reflections;
 
-class Psr4Reflection extends \ReflectionClass
+class ReflectionClass extends \ReflectionClass
 {
     /**
      * Get directory root of the namespace of class
      *
      */
-    public function getNamespaceRoot() : string
+    public function getPsr4NamespaceRoot() : string
     {
         $namespace = $this->getNamespaceName();
         $subfolderCount = substr_count($namespace, '\\');
@@ -61,5 +61,16 @@ class Psr4Reflection extends \ReflectionClass
         };
 
         return array_unique($traits);
+    }
+
+    public function getConstructor()
+    {
+        $method = '__construct';
+
+        if(! method_exists($this->getName(), $method)) {
+            return null;
+        }
+
+        return new ReflectionMethod($this->getName(), $method);
     }
 }

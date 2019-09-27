@@ -7,6 +7,10 @@ use Nonetallt\Helpers\Validation\Validator;
 use Test\Mock\FromArrayMock;
 use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
 use Test\Mock\MockException;
+use Test\Mock\ConstructedFromArray\LevelOneMock;
+use Nonetallt\Helpers\Filesystem\Reflections\ReflectionMethod;
+use Test\Mock\ConstructedFromArray\LevelTwoMock;
+use Test\Mock\ConstructedFromArray\LevelThreeMock;
 
 class ConstructedFromArrayTest extends TestCase
 {
@@ -87,5 +91,42 @@ class ConstructedFromArrayTest extends TestCase
         ];
 
         $this->assertEquals($expected, $mock->toArray());
+    }
+
+    public function testToArrayShowsClearErrorMessageWhenTryingToConstructNestedObjects()
+    {
+        $array = [
+            'name' => 'foo',
+            'next' => [
+                'name' => 'bar',
+                'next' => [
+                    /* 'name' => 'baz' */
+                ]
+            ]
+        ];
+
+        $exceptions = [];
+
+        try {
+            $mock = LevelOneMock::fromArray($array);
+        }
+        catch(MappingException $e) {
+
+            while(true) {
+                if($e === null) break;
+                $exceptions[] = $e->getMessage();
+                $e = $e->getPrevious();
+            }
+        }
+
+        $expected = [];
+        foreach([LevelOneMock::class, LevelTwoMock::class] as $class) {
+            $signature = (new ReflectionMethod($class, '__construct'))->getSignature();
+            $expected[] = "Argument 2 of $signature could not be created from array";
+        }
+        $expected[] = "Required value is missing for key 'name'";
+
+
+        $this->assertEquals($expected, $exceptions);
     }
 }

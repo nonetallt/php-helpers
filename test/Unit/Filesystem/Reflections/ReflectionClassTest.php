@@ -3,15 +3,15 @@
 namespace Test\Unit\Filesystem\Reflections;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Filesystem\Reflections\Psr4Reflection;
 use Test\Mock\FromArrayMock;
 use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
+use Nonetallt\Helpers\Filesystem\Reflections\ReflectionClass;
 
-class Psr4ReflectionTest extends TestCase
+class ReflectionClassTest extends TestCase
 {
     public function testCanBeInitialized()
     {
-        $this->assertInstanceOf(\ReflectionClass::class, new Psr4Reflection($this));
+        $this->assertInstanceOf(\ReflectionClass::class, new ReflectionClass($this));
     }
 
     /**
@@ -19,15 +19,15 @@ class Psr4ReflectionTest extends TestCase
      */
     public function testGetNamespaceRoot()
     {
-        $ref = new Psr4Reflection($this);
+        $ref = new ReflectionClass($this);
 
         $expected = dirname(dirname(dirname(__DIR__)));
-        $this->assertEquals($expected, $ref->getNamespaceRoot());
+        $this->assertEquals($expected, $ref->getPsr4NamespaceRoot());
     }
 
     public function testGetTraitsFindsUsedTrait()
     {
-        $ref = new Psr4Reflection(FromArrayMock::class);
+        $ref = new ReflectionClass(FromArrayMock::class);
         $this->assertContains(ConstructedFromArray::class, $ref->getTraits());
     }
 }

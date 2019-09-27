@@ -11,18 +11,14 @@ class HttpQuery extends Container
         parent::__construct($parameters);
     }
 
-    public static function fromString($value)
+    public static function fromString(string $value) : self
     {
-        /* Empty value */
-        if(! is_string($value) || $value === '') return new self([]);
-
         $params = [];
         foreach(explode('&', $value) as $param) {
             $parts = explode('=', $param);
 
             if(count($parts) !== 2) {
                 return "Syntax error: missing '='";
-                
             }
 
             $key = $parts[0];

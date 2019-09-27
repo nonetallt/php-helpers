@@ -68,7 +68,7 @@ class ParameterMappingCollection extends Collection
         }
 
         $keyType = is_string($parameter) ? 'name' : 'position';
-        $msg = "Mapping could not be found for parameter with $keyType '$key'";
+        $msg = "Mapping could not be found for parameter with $keyType '$parameter'";
         throw new NotFoundException($msg);
     }
 

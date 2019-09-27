@@ -5,12 +5,15 @@ namespace Nonetallt\Helpers\Arrays\Traits;
 use Nonetallt\Helpers\Mapping\MethodParameterMapping;
 use Nonetallt\Helpers\Mapping\MethodParameter;
 use Nonetallt\Helpers\Generic\Exceptions\NotFoundException;
-use Nonetallt\Helpers\Filesystem\Reflections\Psr4Reflection;
+use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
+use Nonetallt\Helpers\Filesystem\Reflections\ReflectionClass;
 
 /**
  *
  * This trait allows construction of using class by calling 
  * fromArray(array $array)
+ *
+ * TODO better error messages, especially for nested parameters
  *
  */
 trait ConstructedFromArray
@@ -31,6 +34,7 @@ trait ConstructedFromArray
     public static function fromArray(array $array, bool $requireDefaultArgs = false)
     {
         $class = static::class;
+
         $reflection = new \ReflectionClass($class);
         $constructor = $reflection->getConstructor();
         
@@ -103,12 +107,21 @@ trait ConstructedFromArray
         if($parameter->getClass() !== null && is_array($value)) {
 
             $parameterClass = $parameter->getClass()->getName();
-            $parameterClassReflection = new Psr4Reflection($parameterClass);
+            $parameterClassReflection = new ReflectionClass($parameterClass);
             $traits = $parameterClassReflection->getTraits();
 
             /* Check that target class uses this trait */
             if(in_array(__TRAIT__, $traits)) {
-                $value = $parameterClass::fromArray($value);
+                try {
+                    $value = $parameterClass::fromArray($value, false);
+                }
+                catch(MappingException $e) {
+                    $ref = new ReflectionClass(static::class);
+                    $signature = $ref->getConstructor()->getSignature();
+                    $position = $parameter->getPosition() + 1;
+                    $msg = "Argument $position of $signature could not be created from array";
+                    throw new MappingException($msg, 0, $e);
+                }
             }
         }
 
