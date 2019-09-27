@@ -5,81 +5,87 @@ namespace Test\Unit\Arrays\Traits;
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Validation\Validator;
 use Test\Mock\FromArrayMock;
-use Test\Mock\FromArrayMockChild;
-use Test\Mock\FromArrayMapMock;
-use Test\Mock\FromArrayDefaultValuesMock;
+use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
+use Test\Mock\MockException;
 
 class ConstructedFromArrayTest extends TestCase
 {
+    private $exception;
 
-    /**
-     * Make sure that array value key pairs can be used as constructor
-     * parameters using reflection to match array keys to constructor parameter
-     * names.
-     */
-    public function testConstructorValuesCanBeMappedFromArray()
+    public function setUp() : void
     {
-        $data = [
-            'value1' => 1,
-            'value2' => 2,
-            'value3' => 3,
-        ];
-
-        $mock = FromArrayMock::fromArray($data);
-        $this->assertEquals($data, $mock->toArray());
+        parent::setUp();
+        $this->exception = new MockException('foo');
     }
 
-    /**
-     * Make sure that arrayValidationRules method on classes can be used by the
-     * trait to validate given the given array.
-     */
-    public function testMockValidationFailsWhenTryingToUseStringAsValue()
+    private function create(array $args, bool $strict = false)
     {
-        $msg = "Value value1 must be an integer";
-        $this->expectExceptionMessage($msg);
+        $data = [];
+        foreach($args as $index => $arg) {
+            $argNumber = $index + 1;
+            $key = "arg$argNumber";
+            $data[$key] = $arg;
+        }
 
-        $data = [
-            'value1' => 'asd',
-            'value2' => 2,
-            'value3' => 3,
-        ];
-
-        $mock = FromArrayMock::fromArray($data);
+        return FromArrayMock::fromArray($data, $strict);
     }
 
-    public function testMockCanBeCreatedFromSubclassOfAbstracClass()
+    public function testClassCanBeCreated()
     {
-        $data = [
-            'test' => 'test',
-        ];
-
-        $mock = FromArrayMockChild::fromArray($data, FromArrayMockChild::class);
-        $this->assertInstanceOf(FromArrayMockChild::class, $mock);
+        $mock = $this->create([ 1, $this->exception, 'bar' ]);
+        $this->assertInstanceOf(FromArrayMock::class, $mock);
     }
 
-    /**
-     * Make sure ConstructedFromArray trait static method arrayToConstructorMapping works
-     */
-    public function testMockCanHaveMappingForKeys()
+    public function testMissingParameterDoesNotThrowExceptionWhenArgHasDefaultValue()
     {
-        $data = [
-            'value_1' => 1,
-            'value_2' => 2,
-            'value3' => 3,
-        ];
-
-        $mock = FromArrayMapMock::fromArray($data);
-        $this->assertInstanceOf(FromArrayMapMock::class, $mock);
+        $mock = $this->create([ 1, $this->exception ]);
+        $this->assertInstanceOf(FromArrayMock::class, $mock);
     }
 
-    public function testObjectsCanBeConstructedWithMissingParametersIfMissingParametersHaveDefaultValues()
+    public function testMissingParameterWithDefaultValueThrowsExceptionWhenStrictIsTrue()
     {
-        $data = [
-            'value2' => 2,
-            'value3' => 3,
+        $this->expectException(MappingException::class);
+        $mock = $this->create([ 1, $this->exception ], true);
+        $this->assertInstanceOf(FromArrayMock::class, $mock);
+    }
+
+    public function testMissingParametersThrowsException()
+    {
+        $this->expectException(MappingException::class);
+        $mock = $this->create([2 => 'bar']);
+        $this->assertInstanceOf(FromArrayMock::class, $mock);
+    }
+
+    public function testNestedValuesAreConvertedToTheirClasses()
+    {
+        $exceptionData = [
+            'message' => 'test',
+            'code' => -1,
+            'previous' => new \Exception('foo')
         ];
 
-        $mock = FromArrayDefaultValuesMock::fromArray($data);
-        $this->assertInstanceOf(FromArrayDefaultValuesMock::class, $mock);
+        $mock = $this->create([1, $exceptionData]);
+
+        /* Assert that the exception data was set correctly for arg2 */
+        $this->assertEquals($exceptionData, $mock->getArg(2)->toArray());
+    }
+
+    public function testToArraySerializesObjectRecursively()
+    {
+        $arg1 = 1; 
+        $arg2 = $this->exception; 
+        $arg3 = 'bar';
+
+        $mock = $this->create([$arg1, $arg2, $arg3]);
+
+        $expected = [
+            'args' => [
+                'arg1' => $arg1,
+                'arg2' => $arg2->toArray(),
+                'arg3' => $arg3
+            ]
+        ];
+
+        $this->assertEquals($expected, $mock->toArray());
     }
 }

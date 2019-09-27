@@ -2,123 +2,116 @@
 
 namespace Nonetallt\Helpers\Arrays\Traits;
 
-use Nonetallt\Helpers\Validation\Validator;
-use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
+use Nonetallt\Helpers\Mapping\MethodParameterMapping;
+use Nonetallt\Helpers\Mapping\MethodParameter;
+use Nonetallt\Helpers\Generic\Exceptions\NotFoundException;
+use Nonetallt\Helpers\Filesystem\Reflections\Psr4Reflection;
 
+/**
+ *
+ * This trait allows construction of using class by calling 
+ * fromArray(array $array)
+ *
+ */
 trait ConstructedFromArray
 {
-    private static $reflectionClass;
+    use Arrayable;
 
-    public static function fromArray(array $array, string $class = null)
+    /**
+     * Construct trait using class from data in the given array.
+     *
+     * @param array $array
+     *
+     * @param bool $requireDefaultArgs If set to true exception will be thrown
+     * when array data is missing a constructor argument with default value
+     *
+     * @return $traitUsingClass New class instance
+     *
+     */
+    public static function fromArray(array $array, bool $requireDefaultArgs = false)
     {
-        $class = $class ?? self::class;
-        $mapping = self::constructorMapping($class);
+        $class = static::class;
+        $reflection = new \ReflectionClass($class);
+        $constructor = $reflection->getConstructor();
+        
+        /* If there is no constructor, create class without args */
+        if($constructor === null) {
+            return new $class();
+        }
 
-        /* if class defines mapping, transform given array keys according to mapping */
-        if(method_exists($class, 'arrayToConstructorMapping')) {
-            $conversionMapping = $class::arrayToConstructorMapping();
-            foreach($conversionMapping as $from => $to) {
+        $mapping = new MethodParameterMapping($constructor);
+        $array = static::mutateConstructorArray($array, $mapping);
+        $constructorParameters = $mapping->mapArray($array, $requireDefaultArgs);
 
-                /* Do not try to map if source value is not found from array */
-                if(! isset($array[$from])) continue;
+        return new $class(...$constructorParameters);
+    }
 
-                $value = $array[$from];
-                unset($array[$from]);
-                $array[$to] = $value;
+    /**
+     *
+     * Change the given array data before it is mapped to the constructor
+     *
+     */
+    protected static function mutateConstructorArray(array $array, MethodParameterMapping $mapping) : array
+    {
+        $result = [];
+
+        foreach($array as $key => $value) {
+            $key = static::mutateConstructorArrayKey($key);
+
+            try {
+                $methodParameter = $mapping->findParameterMapping($key);
+                $result[$key] = static::mutateConstructorArrayValue($value, $methodParameter->getReflection());
+            }
+            catch(NotFoundException $e) {
+                /* Skip binding if there is no matching parameter in constructor */
+                continue;
             }
         }
 
-        self::validateArrayValues($array, $mapping, $class);
-
-        $mapped = [];
-        foreach($mapping as $key => $index) {
-            if(! isset($array[$key])) continue;
-            $mapped[$index] = $array[$key];
-        }
-
-        return new $class(...$mapped);
-    }
-
-    private static function getReflectionClass(?string $class) : \ReflectionClass
-    {
-        if($class == null) {
-            $class = self::class;
-        }
-
-        if(self::$reflectionClass === null) {
-            self::$reflectionClass = new \ReflectionClass($class);
-        }
-
-        return self::$reflectionClass;
-    }
-
-    private static function requiredKeys($class)
-    {
-        $reflection = self::getReflectionClass($class);
-        $constructor = $reflection->getConstructor();
-
-        $requiredKeys = [];
-
-        foreach($constructor->getParameters() as $parameter) {
-            if(! $parameter->isDefaultValueAvailable()) $requiredKeys[] = $parameter->name;
-        }
-
-        return $requiredKeys;
-    }
-
-    private static function constructorMapping(string $class)
-    {
-        $reflection = self::getReflectionClass($class);
-        $constructor = $reflection->getConstructor();
-
-        $mapping = [];
-
-        foreach($constructor->getParameters() as $parameter) {
-            $mapping[$parameter->name] = $parameter->getPosition();
-        }
-
-        return $mapping;
+        return $result;
     }
 
     /**
-     * @throws Nonetallt\Helpers\Validation\Exceptions\MappingException
-     */
-    private static function validateRequiredArrayKeys(array $array, string $class)
-    {
-        $missing = array_keys_missing(self::requiredKeys($class), $array);
-        if(empty($missing)) return;
-
-        $class = self::class;
-        $keys = implode(', ', $missing);
-        $msg = "Cannot create $class from array, missing required keys: $keys";
-        throw new MappingException($msg);
-    }
-
-    /**
-     * @throws Nonetallt\Helpers\Validation\Exceptions\MappingException
-     */
-    private static function validateArrayValues(array $array, array $mapping, string $class)
-    {
-        self::validateRequiredArrayKeys($array, $class);
-        $validator = new Validator($class::arrayValidationRules());
-
-        if($validator->passes($array)) return;
-
-        $errors = []; 
-        foreach($validator->getErrors() as $key => $messages) {
-            $errors = array_merge($errors, $messages);
-        }
-        
-        throw new MappingException(implode(PHP_EOL, $errors));
-    }
-
-    /**
-     * This method is ment to be overridden by implementing class
      *
-     * @return string $rules
+     * Change a given key before it is mapped to the constructor.
+     * Convert snake case argument names to camel case.
+     *
+     * Can be overridden to by child class to customize functionality
+     *
+     * @param string $key Key in the given array
+     *
+     * @return string $customizedKey Key that should be used
+     *
      */
-    protected static function arrayValidationRules()
+    protected static function mutateConstructorArrayKey(string $key) : string
     {
-        return [];
+        $converter = new \CaseConverter\CaseConverter();
+        return $converter->convert($key)->from('snake')->to('camel');
+    }
+
+    /**
+     *
+     * Change a given value in the array before it is mapped to the constructor
+     *
+     * Automatically tries to convert nested arrays to their respective class
+     * types if the classes are using this trait.
+     *
+     */
+    protected static function mutateConstructorArrayValue($value, \ReflectionParameter $parameter)
+    {
+        /* Try converting value to class if its an array and class is required */
+        if($parameter->getClass() !== null && is_array($value)) {
+
+            $parameterClass = $parameter->getClass()->getName();
+            $parameterClassReflection = new Psr4Reflection($parameterClass);
+            $traits = $parameterClassReflection->getTraits();
+
+            /* Check that target class uses this trait */
+            if(in_array(__TRAIT__, $traits)) {
+                $value = $parameterClass::fromArray($value);
+            }
+        }
+
+        return $value;
     }
 }

@@ -3,52 +3,32 @@
 namespace Test\Mock;
 
 use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
+use Test\Mock\MockException;
 
 class FromArrayMock
 {
     use ConstructedFromArray;
 
-    private $value1;
-    private $value2;
-    private $value3;
+    private $args;
 
-    public function __construct(int $value1, int $value2, int $value3)
+    public function __construct(int $arg1, MockException $arg2, string $arg3 = 'foo')
     {
-        $this->value1 = $value1;
-        $this->value2 = $value2;
-        $this->value3 = $value3;
-    }
-
-    public function getValue1()
-    {
-        return $this->value1;
-    }
-
-    public function getValue2()
-    {
-        return $this->value2;
-    }
-
-    public function getValue3()
-    {
-        return $this->value3;
-    }
-
-    public function toArray()
-    {
-        return [
-            'value1' => $this->value1,
-            'value2' => $this->value2,
-            'value3' => $this->value3,
+        $this->args = [
+            'arg1' => $arg1,
+            'arg2' => $arg2,
+            'arg3' => $arg3,
         ];
     }
 
-    private static function arrayValidationRules()
+    public function getArg(int $num)
     {
-        return [
-            'value1' => 'required|integer',
-            'value2' => 'required|integer',
-            'value3' => 'required|integer',
-        ];
+        $key = "arg$num";
+
+        if(! array_key_exists($key, $this->args)) {
+            $msg = "Arg '$key' was not found";
+            throw new NotFoundException($msg);
+        }
+
+        return $this->args[$key];
     }
 }

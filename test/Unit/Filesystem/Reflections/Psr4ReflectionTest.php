@@ -4,6 +4,8 @@ namespace Test\Unit\Filesystem\Reflections;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Filesystem\Reflections\Psr4Reflection;
+use Test\Mock\FromArrayMock;
+use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
 
 class Psr4ReflectionTest extends TestCase
 {
@@ -21,5 +23,11 @@ class Psr4ReflectionTest extends TestCase
 
         $expected = dirname(dirname(dirname(__DIR__)));
         $this->assertEquals($expected, $ref->getNamespaceRoot());
+    }
+
+    public function testGetTraitsFindsUsedTrait()
+    {
+        $ref = new Psr4Reflection(FromArrayMock::class);
+        $this->assertContains(ConstructedFromArray::class, $ref->getTraits());
     }
 }

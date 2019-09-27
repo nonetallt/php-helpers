@@ -19,8 +19,8 @@ class DescribeObjectTest extends TestCase
 
     public function testDescribeTypeReturnsClassWhenVariableIsObject()
     {
-        $desc = new DescribeObject(FromArrayMock::fromArray(['value1' => 1, 'value2' => 2, 'value3' => 3]));
-        $this->assertEquals(FromArrayMock::class, $desc->describeType());
+        $desc = new DescribeObject($this);
+        $this->assertEquals(self::class, $desc->describeType());
     }
 
     public function testDescibeValueReturnsStringWhenVariableIsString()

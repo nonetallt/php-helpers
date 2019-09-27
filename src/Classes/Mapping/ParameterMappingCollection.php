@@ -11,6 +11,7 @@ use Nonetallt\Helpers\Mapping\Exceptions\ParameterValueMappingException;
 use Nonetallt\Helpers\Mapping\ParameterMapping;
 use Nonetallt\Helpers\Validation\Exceptions\ValidationExceptionCollection;
 use Nonetallt\Helpers\Mapping\Exceptions\MethodMappingException;
+use Nonetallt\Helpers\Describe\DescribeObject;
 
 class ParameterMappingCollection extends Collection
 {
@@ -40,6 +41,35 @@ class ParameterMappingCollection extends Collection
         }
 
         return $exceptions;
+    }
+
+    /**
+     *
+     * Get the mapping that should be used for a given parameter
+     *
+     * @throws Nonetallt\Helpers\Generic\Exceptions\NotFoundException
+     *
+     * @param mixed $parameter String name or int parameter position
+     *
+     * @return Nonetallt\Helpers\Mapping\ParameterMapping $mapping
+     *
+     */
+    public function findParameterMapping($parameter) : ParameterMapping
+    {
+        if(! is_string($parameter) && ! is_int($parameter)) {
+            $given = (new DescribeObject($parameter))->describeType();
+            $msg = "Parameter key must be either int position or string name, $given given";
+            throw new \InvalidArgumentException($msg);
+        }
+
+        foreach($this->items as $mapping) {
+            $key = is_string($parameter) ? $mapping->getName() : $mapping->getPosition();
+            if($key === $parameter) return $mapping;
+        }
+
+        $keyType = is_string($parameter) ? 'name' : 'position';
+        $msg = "Mapping could not be found for parameter with $keyType '$key'";
+        throw new NotFoundException($msg);
     }
 
     /**
