@@ -106,7 +106,7 @@ class ValidationRuleFactory
             return new $className($parameters);
         }
 
-        throw $this->ruleNotFound($naem);
+        throw $this->ruleNotFound($ruleName);
     }
 
     public function ruleNotFound(string $name) : RuleNotFoundException
