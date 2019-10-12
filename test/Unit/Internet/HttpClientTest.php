@@ -14,14 +14,22 @@ class HttpClientTest extends TestCase
 {
     use TestsHttpClient;
 
+    private $client;
+
+    public function setUp() : void
+    {
+        parent::setUp();
+        $this->initializeRouter();
+        $this->client = new HttpClient();
+    }
+
     /**
      * @group remote
      */
     public function testSendRequestWorks()
     {
-        $client = new HttpClient();
         $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 200]);
-        $response = $client->sendRequest(new HttpRequest('GET', $url));
+        $response = $this->client->sendRequest(new HttpRequest('GET', $url));
         $this->assertTrue($response->isSuccessful());
     }
 
@@ -30,14 +38,13 @@ class HttpClientTest extends TestCase
      */
     public function testSendRequestsWorks()
     {
-        $client = new HttpClient();
         $requests = new HttpRequestCollection();
         $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 200]);
         $requests->push(new HttpRequest('GET', $url));
         $requests->push(new HttpRequest('GET', $url));
         $requests->push(new HttpRequest('GET', $url));
 
-        $responses = $client->sendRequests($requests);
+        $responses = $this->client->sendRequests($requests);
         $responseIsSuccessful = $responses->map(function($response) {
             return $response->isSuccessful();
         });
@@ -50,8 +57,7 @@ class HttpClientTest extends TestCase
      */
     public function testSendRequestCreatesConnectionErrorWhenHostnameDoesNotExist()
     {
-        $client = new HttpClient();
-        $response = $client->sendRequest(new HttpRequest('GET', 'foobar'));
+        $response = $this->client->sendRequest(new HttpRequest('GET', 'foobar'));
         $error = $response->getExceptions()->first()->getMessage();
         $this->assertEquals("Couldn't resolve host name (connection error code 6)", $error);
     }
@@ -61,13 +67,12 @@ class HttpClientTest extends TestCase
      */
     public function testSendRequestsCreatesConnectionErrorWhenHostnameDoesNotExist()
     {
-        $client = new HttpClient();
         $requests = new HttpRequestCollection();
         $requests->push(new HttpRequest('GET', 'foobar'));
         $requests->push(new HttpRequest('GET', 'foobar'));
         $requests->push(new HttpRequest('GET', 'foobar'));
 
-        $responses = $client->sendRequests($requests);
+        $responses = $this->client->sendRequests($requests);
         $expected = [
             "Couldn't resolve host name (connection error code 6)",
             "Couldn't resolve host name (connection error code 6)",
@@ -82,9 +87,8 @@ class HttpClientTest extends TestCase
      */
     public function testStatusCode500CountsAsError()
     {
-        $client = new HttpClient();
         $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 500]);
-        $response = $client->sendRequest(new HttpRequest('GET', $url));
+        $response = $this->client->sendRequest(new HttpRequest('GET', $url));
         $expected = [
             'Server responded with code 500 (Internal Server Error)'
         ];
@@ -96,7 +100,6 @@ class HttpClientTest extends TestCase
      */
     public function testRedirectionTraceIsSaved()
     {
-        $client = new HttpClient();
         $url = $this->router->parseUrl($this->config('http.redirect_url'));
         $destination = 'https://www.google.com';
         $query = new HttpQuery([
@@ -105,7 +108,7 @@ class HttpClientTest extends TestCase
         ]);
 
         $request = new HttpRequest('POST', $url, $query->toArray());
-        $response = $client->sendRequest($request);
+        $response = $this->client->sendRequest($request);
         $trace = $response->getOriginalRequest()->getRedirections()->getUrlTrace();
 
         $firstUrl = $url . (string)(new HttpQuery(['times' => 2, 'destination' => $destination]));
@@ -127,12 +130,11 @@ class HttpClientTest extends TestCase
     {
         $auth = ['username', 'password'];
         
-        $client = new HttpClient();
-        $client->setAuth($auth);
+        $this->client->setAuth($auth);
         $url = $this->router->parseUrl($this->config('http.header_url'));
         $request = new HttpRequest('POST', $url, ['header' => 'Authorization']);
 
-        $response = $client->sendRequest($request);
+        $response = $this->client->sendRequest($request);
         $encoded = base64_encode($auth[0].':'.$auth[1]);
         $expected = "Basic $encoded";
 
@@ -146,12 +148,11 @@ class HttpClientTest extends TestCase
     public function testAuthorizationHeaderIsSetWhenAuthIsSetUsingString()
     {
         $auth = 'token';
-        $client = new HttpClient();
-        $client->setAuth($auth);
+        $this->client->setAuth($auth);
         $url = $this->router->parseUrl($this->config('http.header_url'));
         $request = new HttpRequest('POST', $url, ['header' => 'Authorization']);
 
-        $response = $client->sendRequest($request);
+        $response = $this->client->sendRequest($request);
         $expected = ['Authorization' => $auth];
 
         $this->assertEquals($expected, json_decode($response->getBody(), true));
@@ -162,10 +163,9 @@ class HttpClientTest extends TestCase
      */
     public function testResponseBodyCanBeFoundWhenErrorWas4xx()
     {
-        $client = new HttpClient();
         $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 400]);
         $request = new HttpRequest('GET', $url);
-        $response = $client->sendRequest($request);
+        $response = $this->client->sendRequest($request);
 
         $this->assertEquals('successful', $response->getBody());
     }
@@ -175,11 +175,10 @@ class HttpClientTest extends TestCase
      */
     public function test4xxErrorsCanBeIgnored()
     {
-        $client = new HttpClient();
-        $client->ignoreErrorCodes([400]);
+        $this->client->ignoreErrorCodes([400]);
         $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 400]);
         $request = new HttpRequest('GET', $url);
-        $response = $client->sendRequest($request);
+        $response = $this->client->sendRequest($request);
 
         $this->assertEmpty($response->getErrors());
     }
@@ -191,12 +190,11 @@ class HttpClientTest extends TestCase
     {
         $headerValue = 'foobar';
 
-        $client = new HttpClient();
         $url = $this->router->parseUrl($this->config('http.header_url'));
         $request = new HttpRequest('POST', $url, ['header' => 'custom']);
         $request->getHeaders()->push(new HttpHeader('custom', $headerValue));
 
-        $response = $client->sendRequest($request);
+        $response = $this->client->sendRequest($request);
         $expected = ['custom' => $headerValue];
 
         $this->assertEquals($expected, json_decode($response->getBody(), true));

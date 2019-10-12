@@ -24,6 +24,8 @@ class Container implements \ArrayAccess
         $this->setValidationRules($validators);
         $this->setDefaults($defaults);
         $this->setAll($options);
+
+        /* TODO THROW EXCEPTION IF REQUIRED VALUES ARE MISSING */
     }
 
     public static function prefixOptionName(string $name)
@@ -104,7 +106,7 @@ class Container implements \ArrayAccess
         }
 
         /* Set default values without overriding user supplied values */
-        $this->default(false);
+        $this->setValuesToDefault(false);
     }
 
     /**
@@ -113,7 +115,7 @@ class Container implements \ArrayAccess
     public function reset()
     {
         $this->options = [];
-        $this->default(false);
+        $this->setValuesToDefault(false);
     }
 
     /**
@@ -122,7 +124,7 @@ class Container implements \ArrayAccess
      * @param bool $override Set true to override user input values with
      * defaults. Set false to preserve values given by user.
      */
-    public function default(bool $override)
+    public function setValuesToDefault(bool $override)
     {
         /* Set default values */
         foreach($this->defaults as $optionName => $default) {

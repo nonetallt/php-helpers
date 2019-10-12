@@ -4,6 +4,7 @@ namespace Nonetallt\Helpers\Internet\Http\Statuses;
 
 use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
 
+/* TODO rename HttpStatusCode */
 class HttpStatus
 {
     use ConstructedFromArray;
@@ -43,6 +44,7 @@ class HttpStatus
 
     public function __toString() : string
     {
+        /* TODO expected functionality should return code as string? */
         return "$this->code $this->name";
     }
 

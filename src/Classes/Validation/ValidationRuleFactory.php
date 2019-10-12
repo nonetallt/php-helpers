@@ -5,6 +5,9 @@ namespace Nonetallt\Helpers\Validation;
 use Nonetallt\Helpers\Filesystem\Traits\FindsReflectionClasses;
 use Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException;
 
+/**
+ * TODO split validator classes into ValidationRuleRepository singleton ?
+ */
 class ValidationRuleFactory
 {
     use FindsReflectionClasses;

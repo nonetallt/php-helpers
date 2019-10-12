@@ -5,6 +5,9 @@ namespace Nonetallt\Helpers\Internet\Http\Statuses;
 use Nonetallt\Helpers\Filesystem\JsonFileRepository;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpCodeNotFoundException;
 
+/**
+ * TODO singleton pattern?
+ */
 class HttpStatusRepository extends JsonFileRepository
 {
     public function __construct()

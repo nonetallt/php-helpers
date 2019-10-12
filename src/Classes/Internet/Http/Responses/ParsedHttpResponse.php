@@ -33,7 +33,9 @@ abstract class ParsedHttpResponse extends HttpResponse
 
         try {
             /* Only parse if there are no connection exceptions */
-            if($exceptions->isEmpty()) $this->parseBody($this->getBody());
+            if($exceptions->isEmpty()) {
+                $this->parsed = $this->parseBody($this->getBody());
+            }
         }
         catch(ParsingException $e) {
             $msg = "Response could not be parsed";
@@ -44,15 +46,9 @@ abstract class ParsedHttpResponse extends HttpResponse
     /**
      * Get the parsed response body
      *
-     * @throws Nonetallt\Helpers\Filesystem\Json\Exceptions\JsonParsingException
      */
     public function getParsed()
     {
-        if($this->parsed === null) {
-            $body = $this->getBody();
-            if($body !== '') $this->parsed = $this->parseBody($body);
-        }
-
         return $this->parsed;
     }
 
