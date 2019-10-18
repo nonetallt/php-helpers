@@ -130,9 +130,9 @@ class HttpClientTest extends TestCase
     {
         $auth = ['username', 'password'];
         
-        $this->client->setAuth($auth);
         $url = $this->router->parseUrl($this->config('http.header_url'));
         $request = new HttpRequest('POST', $url, ['header' => 'Authorization']);
+        $request->getHeaders()->setAuthorization($auth);
 
         $response = $this->client->sendRequest($request);
         $encoded = base64_encode($auth[0].':'.$auth[1]);
@@ -148,9 +148,9 @@ class HttpClientTest extends TestCase
     public function testAuthorizationHeaderIsSetWhenAuthIsSetUsingString()
     {
         $auth = 'token';
-        $this->client->setAuth($auth);
         $url = $this->router->parseUrl($this->config('http.header_url'));
         $request = new HttpRequest('POST', $url, ['header' => 'Authorization']);
+        $request->getHeaders()->setAuthorization($auth);
 
         $response = $this->client->sendRequest($request);
         $expected = ['Authorization' => $auth];
@@ -175,9 +175,9 @@ class HttpClientTest extends TestCase
      */
     public function test4xxErrorsCanBeIgnored()
     {
-        $this->client->ignoreErrorCodes([400]);
         $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 400]);
         $request = new HttpRequest('GET', $url);
+        $request->ignoreErrorCodes([400]);
         $response = $this->client->sendRequest($request);
 
         $this->assertEmpty($response->getErrors());

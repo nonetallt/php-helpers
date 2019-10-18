@@ -1,3 +1,7 @@
+* validation rule factory singleton ?
+* container validation ?
+
+
 * dotenv for filesystem based testing
 * complete file iterator tests
 

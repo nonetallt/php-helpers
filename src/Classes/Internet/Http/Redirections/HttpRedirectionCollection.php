@@ -11,17 +11,17 @@ class HttpRedirectionCollection extends Collection
         parent::__construct($items, HttpRedirection::class);
     }
 
-    public function toArray() : array
-    {
-        return $this->map(function($item) {
-            return $item->toArray();
-        });
-    }
-
     public function getUrlTrace() : array
     {
         return $this->map(function($item) {
             return $item->getTo();
+        });
+    }
+
+    public function toArray() : array
+    {
+        return $this->map(function($item) {
+            return $item->toArray();
         });
     }
 }

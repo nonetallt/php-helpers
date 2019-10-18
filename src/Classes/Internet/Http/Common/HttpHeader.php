@@ -13,6 +13,11 @@ class HttpHeader
         $this->setValue($value);
     }
 
+    public function __toString()
+    {
+        return "$this->name:$this->value";
+    }
+
     /**
      * TODO requires validation
      */

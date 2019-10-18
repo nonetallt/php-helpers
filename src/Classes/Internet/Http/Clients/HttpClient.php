@@ -2,6 +2,7 @@
 
 namespace Nonetallt\Helpers\Internet\Http\Clients;
 
+
 use GuzzleHttp\Promise;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
@@ -10,16 +11,13 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\TransferStats;
+
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestConnectionException;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestServerException;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirection;
 use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatusRepository;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequestCollection;
@@ -29,6 +27,8 @@ use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
 use Nonetallt\Helpers\Describe\DescribeObject;
 use Nonetallt\Helpers\Arrays\TypedArray;
 use Nonetallt\Helpers\Generic\Exceptions\InvalidTypeException;
+use Nonetallt\Helpers\Internet\Http\Requests\Processors\HttpRequestProcessorCollection;
+use Nonetallt\Helpers\Internet\Http\Responses\Processors\HttpResponseProcessorCollection;
 
 /**
  * Wrapper class for common API usage that utilizes GuzzleHttp client for
@@ -36,150 +36,33 @@ use Nonetallt\Helpers\Generic\Exceptions\InvalidTypeException;
  */
 class HttpClient
 {
-    private $client;
-    private $auth;
-    private $retryTimes;
-    private $statuses;
-    private $ignoredErrorCodes;
+    private $guzzle;
 
-    public function __construct(int $retryTimes = 0, float $timeout = 10)
+    private $requestProcessors;
+    private $responseProcessors;
+
+    public function __construct()
     {
-        $this->auth = null;
-        $this->retryTimes = $retryTimes;
-        $this->ignoredErrorCodes = [];
+        $this->requestProcessors = new HttpRequestProcessorCollection();
+        $this->responseProcessors = new HttpResponseProcessorCollection();
 
-        $handler = HandlerStack::create(new CurlMultiHandler());
-        $handler->push(Middleware::retry($this->retryDecider(), $this->retryDelay()));
-
-        $this->client = new Client([
-            'handler' => $handler,
-            'timeout' => $timeout,
+        $this->guzzle = new Client([
+            'handler' => HandlerStack::create(new CurlMultiHandler()),
+            'timeout' => 10,
         ]);
-
-        $this->statuses = new HttpStatusRepository();
     }
 
-    public function setAuth($auth)
-    {
-        if(is_string($auth)) {
-            $this->auth = $auth;
-            return;
-        }
-
-        if(! is_array($auth)) {
-            $given = (new DescribeObject($auth))->describeType();
-            $msg = "Auth must be either a string or an array, $given given";
-            throw new \InvalidArgumentException($msg);
-        }
-
-        if(! isset($auth[0])) {
-            $msg = "Auth array must contain 0 index used as the username";
-            throw new \InvalidArgumentException($msg);
-        } 
-
-        if(! isset($auth[1])) {
-            $msg = "Auth array must contain 1 index used as the password";
-            throw new \InvalidArgumentException($msg);
-        }
-
-        $this->auth = [$auth[0], $auth[1]];
-    }
-
-    private function retryDecider()
-    {
-        return function ($retries, Request $request, Response $response = null, RequestException $exception = null) {
-            /* \Illuminate\Support\Facades\Log::debug("retry decider $retries times"); */
-
-            // Limit the number of retries 
-            if ($retries >= $this->retryTimes) return false;
-
-            // Retry connection exceptions
-            if ($exception instanceof ConnectException) return true;
-
-            return false;
-        };
-    }
-
-    private function retryDelay()
-    {
-        return function ($numberOfRetries) {
-            return 1000 * $numberOfRetries;
-        };
-    }
-
-    public function ignoreErrorCodes(array $codes)
-    {
-        foreach($codes as $code) {
-            $this->ignoreErrorCode($code);
-        }
-    }
-
-    public function ignoreErrorCode(int $code, bool $ignore = true)
-    {
-        if($code < 400 || $code > 499) {
-            $msg = "Codes can only be ignored from the 4xx range, $code given";
-            throw new \InvalidArgumentException($msg);
-        }
-        $this->ignoredErrorCodes[$code] = $ignore;
-    }
-
-    public function isCodeIgnored(int $code) : bool
-    {
-        return in_array($code, array_keys($this->ignoredErrorCodes));
-    }
-
-    public function sendRequests(HttpRequestCollection $requests) : HttpResponseCollection
-    {
-        $originalRequests = [];
-        $promises = [];
-
-        /* Create asynchronous requests for each requesst */
-        foreach($requests as $index => $request) {
-            $method = $request->getMethod();
-            $url = $request->getUrl();
-            $query = $this->requestOptions($request);
-
-            $originalRequests[] = $request;
-            $promises[] = $this->client->requestAsync($method, $url, $query);
-        }
-
-        // Wait for the requests to complete, even if some of them fail
-        $responses = Promise\settle($promises)->wait();
-        $results = new HttpResponseCollection();
-
-        foreach($responses as $index => $promise) {
-
-            /* Get the request that has the same index as the promise */
-            $originalRequest = $originalRequests[$index];
-            $guzzleResponse = null;
-            $exception = null;
-
-            if($promise['state'] === 'fulfilled') {
-                /* Successful request */
-                $guzzleResponse = $promise['value'];
-            }
-            else {
-                /* Failed request */
-                $exception = $promise['reason'];
-            }
-
-            $response = $this->resolveResponse($originalRequest, $guzzleResponse, $exception);
-            $results->push($response);
-        }
-
-        return $results;
-    }
-
+    /**
+     * Send a single http request and wait for a response
+     *
+     */
     public function sendRequest(HttpRequest $request) : HttpResponse
     {
-        $method = $request->getMethod();
-        $url = $request->getUrl();
-        $query = $this->requestOptions($request);
         $response = null;
         $exception = null;
 
         try {
-            $response = $this->client->request($method, $url, $query);
+            $response = $this->guzzle->request($request->getMethod(), $request->getUrl(), $request->getRequestOptions());
         } 
         catch(RequestException $e) {
             $exception = $e;
@@ -188,35 +71,37 @@ class HttpClient
         return $this->resolveResponse($request, $response, $exception);
     }
 
-    private function requestOptions(HttpRequest $requestWrapper)
+    /**
+     * Send multiple http requests and wait for responses 
+     *
+     */
+    public function sendRequests(HttpRequestCollection $requests, int $concurrency = null) : HttpResponseCollection
     {
-        $onRedirect = function(RequestInterface $request, ResponseInterface $response, UriInterface $uri) use ($requestWrapper) {
-            $from = (string)$request->getUri();
-            $to = (string)$uri;
-            $code = $response->getStatusCode();
-            $status = $this->statuses->getByCode($code);
-            $redirection = new HttpRedirection($from, $to, $status);
-            $requestWrapper->getRedirections()->push($redirection);
-        };
+        $responses = new HttpResponseCollection();
 
-        $requestOptions = [
-            'body' => $requestWrapper->getBody(),
-            'query' => $requestWrapper->getQuery(),
-            'allow_redirects' => [
-                'on_redirect' => $onRedirect
-            ]
-        ];
+        /* Map requests to promises */
+        $guzzleRequests = $requests->map(function($request) {
+            return function() use ($request) {
+                return $this->guzzle->requestAsync($request->getMethod(), $request->getUrl(), $request->getRequestOptions());
+            };
+        });
 
-        /* If auth is set, append to request */
-        if(is_array($this->auth)) $requestOptions['auth'] = $this->auth;
-        if(is_string($this->auth)) $requestOptions['headers']['Authorization'] = $this->auth;
+        $pool = new \GuzzleHttp\Pool($this->guzzle, $guzzleRequests, [
+            'concurrency' => $concurrency ?? $requests->count(),
+            'fulfilled' => function($response, $index) use ($requests, &$responses) {
+                $response = $this->resolveResponse($requests[$index], $response);
+                $responses->push($response);
+            },
+            'rejected' => function($exception, $index) use ($requests, &$responses) {
+                $response = $this->resolveResponse($requests[$index], null, $exception);
+                $responses->push($response);
+            }
+        ]);
 
-        /* Set all custom headers */
-        foreach($requestWrapper->getHeaders() as $header) {
-            $requestOptions['headers'][$header->getName()] = $header->getValue();
-        }
+        /* Wait for requests to resolve */
+        $pool->promise()->wait();
 
-        return $requestOptions;
+        return $responses;
     }
 
     private function resolveResponse(HttpRequest $request, ?Response $response, ?RequestException $exception = null) : HttpResponse
@@ -225,7 +110,7 @@ class HttpClient
             /* Get proper response for 4xx errors from the exception */
             $response = $exception->getResponse();
             $code = $response->getStatusCode();
-            $exception = $this->isCodeIgnored($code) ? null : $exception;
+            $exception = $request->isCodeIgnored($code) ? null : $exception;
         }
 
         return $this->createResponse($request, $response, $exception);
@@ -276,9 +161,10 @@ class HttpClient
         if($previous instanceof BadResponseException) {
             $statusCode = $previous->getResponse()->getStatusCode();
             $statusName = 'Unknown Status';
+            $statuses = HttpStatusRepository::getInstance();
 
-            if($this->statuses->codeExists($statusCode)) {
-                $status = $this->statuses->getByCode($statusCode);
+            if($statuses->codeExists($statusCode)) {
+                $status = $statuses->getByCode($statusCode);
                 $statusName = $status->getName();
             }
 

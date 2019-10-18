@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9bae0c791ce0c6f74a9db73f52b47408",
+    "content-hash": "cf69ba0141caaa82b8b093f108486e7c",
     "packages": [
         {
             "name": "elleyeayeme/case-converter",

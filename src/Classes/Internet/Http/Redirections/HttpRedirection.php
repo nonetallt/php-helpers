@@ -5,9 +5,12 @@ namespace Nonetallt\Helpers\Internet\Http\Redirections;
 use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatus;
 use Nonetallt\Helpers\Internet\Http\Url;
 use Nonetallt\Helpers\Describe\DescribeObject;
+use Nonetallt\Helpers\Arrays\Traits\Arrayable;
 
 class HttpRedirection
 {
+    use Arrayable;
+
     private $from;
     private $to;
     private $status;
@@ -86,14 +89,5 @@ class HttpRedirection
     public function getStatusCode() : int
     {
         return $this->status->getCode();
-    }
-
-    public function toArray() : array
-    {
-        return [
-            'from' => $this->from,
-            'to' => $this->to,
-            'status' => $this->status->toArray()
-        ];
     }
 }

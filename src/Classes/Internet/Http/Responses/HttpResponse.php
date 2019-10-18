@@ -61,7 +61,6 @@ class HttpResponse
 
     public function getOriginalRequest() : HttpRequest
     {
-        if(is_null($this->originalRequest)) throw new \Exception("Original message is not set");
         return $this->originalRequest;
     }
 

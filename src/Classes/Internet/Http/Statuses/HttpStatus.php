@@ -4,7 +4,6 @@ namespace Nonetallt\Helpers\Internet\Http\Statuses;
 
 use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
 
-/* TODO rename HttpStatusCode */
 class HttpStatus
 {
     use ConstructedFromArray;
@@ -24,27 +23,8 @@ class HttpStatus
         $this->standard = $standard;
     }
 
-    public static function arrayValidationRules()
-    {
-        return [ 
-            'code'        => 'integer|min:100|max:599',
-            'name'        => 'string',
-            'description' => 'string',
-            'shouldRetry' => 'boolean',
-            'standard'    => 'string',
-        ];
-    }
-
-    public static function arrayToConstructorMapping()
-    {
-        return [
-            'should_retry' => 'shouldRetry'
-        ];
-    }
-
     public function __toString() : string
     {
-        /* TODO expected functionality should return code as string? */
         return "$this->code $this->name";
     }
 
@@ -71,15 +51,5 @@ class HttpStatus
     public function getStandard()
     {
         return $this->standard;
-    }
-
-    public function toArray()
-    {
-        return [
-            'code' => $this->code,
-            'name' => $this->name,
-            'description' => $this->description,
-            'standard' => $this->standard,
-        ];
     }
 }
