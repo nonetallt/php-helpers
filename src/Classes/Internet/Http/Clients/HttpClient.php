@@ -17,8 +17,7 @@ use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequestCollection;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponseCollection;
-use Nonetallt\Helpers\Internet\Http\Responses\Processors\HttpResponseProcessorCollection;
-use Nonetallt\Helpers\Internet\Http\Responses\Processors\CreateConnectionExceptions;
+
 use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatusRepository;
 use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirection;
 
@@ -29,17 +28,39 @@ use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirection;
 class HttpClient
 {
     private $guzzle;
-    private $responseProcessors;
 
     public function __construct()
     {
-        $this->responseProcessors = new HttpResponseProcessorCollection([
-            new CreateConnectionExceptions()
-        ]);
+        $this->guzzle = $this->createGuzzleClient();
+    }
 
-        $this->guzzle = new Client([
+    /**
+     * Avoid serializing guzzle client since it contains closures
+     *
+     */
+    public function __sleep()
+    {
+        return [];
+    }
+
+    /**
+     * Recreate client after deserialization
+     *
+     */
+    public function __wakeup()
+    {
+        $this->guzzle = $this->createGuzzleClient();
+    }
+
+    /**
+     * Create the guzzle client instance
+     *
+     */
+    private function createGuzzleClient() : Client
+    {
+        return new Client([
             'handler' => HandlerStack::create(new CurlMultiHandler()),
-            'timeout' => 10,
+            'timeout' => 10
         ]);
     }
 
@@ -97,13 +118,6 @@ class HttpClient
 
     /**
      * Handle response from GuzzleHttp library and create a HttpResponse
-     * wrapper object
-     *
-     * @param Nonetallt\Helpers\Internet\Http\Requests\HttpRequest $request Original request that was sent
-     * @param GuzzleHttp\Psr7\Response $response Response received from Guzzlehttp
-     * @param GuzzleHttp\Exception\RequestException $exception Exception received from Guzzlehttp
-     *
-     * @return Nonetallt\Helpers\Internet\Http\Responses\HttpResponse $response 
      *
      */
     protected function createResponse(HttpRequest $request, ?Response $guzzleResponse, ?RequestException $exception = null) : HttpResponse
@@ -115,21 +129,23 @@ class HttpClient
 
         $response = new HttpResponse($request, $guzzleResponse);
 
-        foreach($this->responseProcessors as $processor) {
+        foreach($request->getResponseProcessors() as $processor) {
             $response = $processor->processHttpResponse($response, $exception);
         }
 
         return $response;
     }
 
-    public function getRequestOptions(HttpRequest $request) : array
+    /**
+     * Get request options for guzzle from a request object
+     *
+     */
+    private function getRequestOptions(HttpRequest $request) : array
     {
         $onRedirect = function(RequestInterface $guzzleRequest, ResponseInterface $response, UriInterface $uri) use($request) {
-            $from = (string)$guzzleRequest->getUri();
-            $to = (string)$uri;
-            $code = $response->getStatusCode();
-            $status = HttpStatusRepository::getInstance()->getByCode($code);
-            $request->getRedirections()->push(new HttpRedirection($from, $to, $status));
+            $status = HttpStatusRepository::getInstance()->getByCode($response->getStatusCode());
+            $redirection = new HttpRedirection((string)$guzzleRequest->getUri(), (string)$uri, $status);
+            $request->getRedirections()->push($redirection);
         };
 
         $requestOptions = [

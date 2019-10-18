@@ -9,6 +9,7 @@ use Nonetallt\Helpers\Internet\Http\Clients\HttpClient;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequestCollection;
 use Nonetallt\Helpers\Internet\Http\Common\HttpHeader;
+use Nonetallt\Helpers\Internet\Http\Responses\Processors\CreateConnectionExceptions;
 
 class HttpClientTest extends TestCase
 {
@@ -177,7 +178,7 @@ class HttpClientTest extends TestCase
     {
         $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 400]);
         $request = new HttpRequest('GET', $url);
-        $request->ignoreErrorCodes([400]);
+        $request->getResponseProcessors()->get(CreateConnectionExceptions::class)->ignoreErrorCodes([400]);
         $response = $this->client->sendRequest($request);
 
         $this->assertEmpty($response->getErrors());
@@ -198,5 +199,11 @@ class HttpClientTest extends TestCase
         $expected = ['custom' => $headerValue];
 
         $this->assertEquals($expected, json_decode($response->getBody(), true));
+    }
+
+    public function testClientCanBeSerialized()
+    {
+        $serialized = serialize($this->client);
+        $this->assertEquals($this->client, unserialize($serialized));
     }
 }

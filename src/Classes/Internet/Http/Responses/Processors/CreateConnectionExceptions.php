@@ -13,6 +13,7 @@ use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestException;
 
 class CreateConnectionExceptions implements HttpResponseProcessor
 {
+    private $ignoredErrorCodes = [];
     
     public function processHttpResponse(HttpResponse $response, ?RequestException $previous = null) : HttpResponse
     {
@@ -44,7 +45,7 @@ class CreateConnectionExceptions implements HttpResponseProcessor
             $statuses = HttpStatusRepository::getInstance();
 
             /* Do not create exception if code is ignored */
-            if($request->isCodeIgnored($statusCode)) {
+            if($this->isCodeIgnored($statusCode)) {
                 return null;
             }
 
@@ -59,5 +60,22 @@ class CreateConnectionExceptions implements HttpResponseProcessor
         }
 
         return null;
+    }
+
+    public function ignoreErrorCodes(array $codes)
+    {
+        foreach($codes as $code) {
+            $this->ignoreErrorCode($code);
+        }
+    }
+
+    public function ignoreErrorCode(int $code, bool $ignore = true)
+    {
+        $this->ignoredErrorCodes[$code] = $ignore;
+    }
+
+    public function isCodeIgnored(int $code) : bool
+    {
+        return in_array($code, array_keys($this->ignoredErrorCodes));
     }
 }

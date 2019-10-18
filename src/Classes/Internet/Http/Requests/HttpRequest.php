@@ -5,9 +5,9 @@ namespace Nonetallt\Helpers\Internet\Http\Requests;
 use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
 use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirectionCollection;
 use Nonetallt\Helpers\Internet\Http\Common\HttpHeaderCollection;
-use Nonetallt\Helpers\Internet\Http\Common\HttpHeader;
 use Nonetallt\Helpers\Internet\Http\HttpQuery;
-
+use Nonetallt\Helpers\Internet\Http\Responses\Processors\HttpResponseProcessorCollection;
+use Nonetallt\Helpers\Internet\Http\Responses\Processors\CreateConnectionExceptions;
 
 /**
  * Wrapper class for http request information
@@ -29,7 +29,7 @@ class HttpRequest
     private $query;
     private $body;
     private $redirections;
-    private $ignoredErrorCodes;
+    private $responseProcessors;
 
     public function __construct(string $method, string $url, array $query = [], string $body = null, $headers = null)
     {
@@ -39,7 +39,15 @@ class HttpRequest
         $this->setBody($body);
         $this->setHeaders($headers);
         $this->redirections = new HttpRedirectionCollection();
-        $this->ignoredErrorCodes = [];
+
+        $this->responseProcessors = new HttpResponseProcessorCollection([
+            new CreateConnectionExceptions()
+        ]);
+    }
+
+    public function getResponseProcessors() : HttpResponseProcessorCollection
+    {
+        return $this->responseProcessors;
     }
 
     public function setMethod(string $method)
@@ -126,26 +134,5 @@ class HttpRequest
     public function getRedirections() : HttpRedirectionCollection
     {
         return $this->redirections;
-    }
-
-    public function ignoreErrorCodes(array $codes)
-    {
-        foreach($codes as $code) {
-            $this->ignoreErrorCode($code);
-        }
-    }
-
-    public function ignoreErrorCode(int $code, bool $ignore = true)
-    {
-        if($code < 400 || $code > 499) {
-            $msg = "Codes can only be ignored from the 4xx range, $code given";
-            throw new \InvalidArgumentException($msg);
-        }
-        $this->ignoredErrorCodes[$code] = $ignore;
-    }
-
-    public function isCodeIgnored(int $code) : bool
-    {
-        return in_array($code, array_keys($this->ignoredErrorCodes));
     }
 }

@@ -6,6 +6,7 @@ use GuzzleHttp\Psr7\Response;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestException;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
+use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatus;
 
 class HttpResponse
 {
@@ -23,7 +24,6 @@ class HttpResponse
 
     public function setExceptions(HttpRequestExceptionCollection $exceptions)
     {
-        if($exceptions === null) $exceptions = new HttpRequestExceptionCollection();
         $this->exceptions = $exceptions;
     }
 
@@ -65,6 +65,13 @@ class HttpResponse
     public function getHeaders() : array
     {
         return $this->response->getHeaders();
+    }
+
+    public function getStatus() : HttpStatus
+    {
+        $code = $this->response->getStatusCode();
+        $status = HttpStatusRepository::getInstance()->getByCode($code);
+        return $status;
     }
 
     /**
