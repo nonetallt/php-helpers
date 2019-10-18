@@ -67,4 +67,11 @@ class HttpHeaderCollection extends Collection
             $this->push($header);
         }
     }
+
+    public function toArray() : array
+    {
+        return $this->map(function($item) {
+            return $this->item;
+        });
+    }
 }

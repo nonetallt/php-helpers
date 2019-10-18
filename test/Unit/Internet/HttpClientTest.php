@@ -109,7 +109,7 @@ class HttpClientTest extends TestCase
 
         $request = new HttpRequest('POST', $url, $query->toArray());
         $response = $this->client->sendRequest($request);
-        $trace = $response->getOriginalRequest()->getRedirections()->getUrlTrace();
+        $trace = $response->getRequest()->getRedirections()->getUrlTrace();
 
         $firstUrl = $url . (string)(new HttpQuery(['times' => 2, 'destination' => $destination]));
         $secondUrl = $url . (string)(new HttpQuery(['times' => 1, 'destination' => $destination]));

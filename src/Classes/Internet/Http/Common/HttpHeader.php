@@ -2,8 +2,12 @@
 
 namespace Nonetallt\Helpers\Internet\Http\Common;
 
+use Nonetallt\Helpers\Arrays\Traits\Arrayable;
+
 class HttpHeader
 {
+    use Arrayable;
+
     private $name;
     private $value;
 

@@ -6,12 +6,8 @@ use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
 use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirectionCollection;
 use Nonetallt\Helpers\Internet\Http\Common\HttpHeaderCollection;
 use Nonetallt\Helpers\Internet\Http\Common\HttpHeader;
-use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatusRepository;
-use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirection;
 use Nonetallt\Helpers\Internet\Http\HttpQuery;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
+
 
 /**
  * Wrapper class for http request information
@@ -151,31 +147,5 @@ class HttpRequest
     public function isCodeIgnored(int $code) : bool
     {
         return in_array($code, array_keys($this->ignoredErrorCodes));
-    }
-
-    public function getRequestOptions() : array
-    {
-        $onRedirect = function(RequestInterface $request, ResponseInterface $response, UriInterface $uri) {
-            $from = (string)$request->getUri();
-            $to = (string)$uri;
-            $code = $response->getStatusCode();
-            $status = HttpStatusRepository::getInstance()->getByCode($code);
-            $this->getRedirections()->push(new HttpRedirection($from, $to, $status));
-        };
-
-        $requestOptions = [
-            'body' => $this->getBody(),
-            'query' => $this->getQuery()->toArray(),
-            'allow_redirects' => [
-                'on_redirect' => $onRedirect
-            ]
-        ];
-
-        /* Set all custom headers */
-        foreach($this->getHeaders() as $header) {
-            $requestOptions['headers'][$header->getName()] = $header->getValue();
-        }
-
-        return $requestOptions;
     }
 }

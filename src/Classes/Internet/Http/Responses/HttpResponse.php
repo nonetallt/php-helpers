@@ -10,30 +10,18 @@ use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 class HttpResponse
 {
     private $body;
-    private $originalRequest;
+    private $request;
     private $response;
     protected $exceptions;
 
-    /**
-     * @param App\Domain\Api\HttpRequest $originalRequest Request that got this
-     * response.
-     *
-     * @param GuzzleHttp\Psr7\Response $response can be null for unfulfilled
-     * requests.
-     */
-    public function __construct(HttpRequest $originalRequest, ?Response $response, HttpRequestExceptionCollection $exceptions)
+    public function __construct(HttpRequest $request, ?Response $response)
     {
-        $this->originalRequest = $originalRequest;
+        $this->request = $request;
         $this->response = $response;
-        $this->setExceptions($exceptions);
+        $this->exceptions = new HttpRequestExceptionCollection();
     }
 
-    public function addException(HttpRequestException $exception)
-    {
-        $this->exceptions->push($exception);
-    }
-
-    public function setExceptions(?HttpRequestExceptionCollection $exceptions)
+    public function setExceptions(HttpRequestExceptionCollection $exceptions)
     {
         if($exceptions === null) $exceptions = new HttpRequestExceptionCollection();
         $this->exceptions = $exceptions;
@@ -59,9 +47,9 @@ class HttpResponse
         return $this->exceptions;
     }
 
-    public function getOriginalRequest() : HttpRequest
+    public function getRequest() : HttpRequest
     {
-        return $this->originalRequest;
+        return $this->request;
     }
 
     public function getBody() : string
