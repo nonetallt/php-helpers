@@ -5,7 +5,7 @@ namespace Nonetallt\Helpers\Internet\Http\Exceptions\Factory;
 use Nonetallt\Helpers\Generic\Exceptions\Factory\ExceptionFactory;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestResponseException;
 use Nonetallt\Helpers\Generic\Exceptions\ExceptionCollection;
-use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestResponseExceptionCollection;
+use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
 
 class HttpRequestResponseExceptionFactory extends ExceptionFactory
 {
@@ -14,7 +14,7 @@ class HttpRequestResponseExceptionFactory extends ExceptionFactory
      */
     protected function createExceptionCollection() : ExceptionCollection
     {
-        return new HttpRequestResponseExceptionCollection();
+        return new HttpRequestExceptionCollection();
     }
 
     protected function handleStringException(string $exceptionData, $exceptions)

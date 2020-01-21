@@ -1,9 +1,8 @@
 <?php
 
-namespace Test\Unit;
+namespace Test\Unit\Internet\Http;
 
 use PHPUnit\Framework\TestCase;
-use Test\Unit\Internet\TestsHttpClient;
 use Nonetallt\Helpers\Internet\Http\HttpQuery;
 use Nonetallt\Helpers\Internet\Http\Clients\HttpClient;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
@@ -178,7 +177,7 @@ class HttpClientTest extends TestCase
     {
         $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 400]);
         $request = new HttpRequest('GET', $url);
-        $request->getResponseProcessors()->get(CreateConnectionExceptions::class)->ignoreErrorCodes([400]);
+        $request->getResponseSettings()->ignoreErrorCodes([400]);
         $response = $this->client->sendRequest($request);
 
         $this->assertEmpty($response->getErrors());

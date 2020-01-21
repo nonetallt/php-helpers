@@ -2,44 +2,31 @@
 
 namespace Nonetallt\Helpers\Internet\Http\Responses;
 
-use GuzzleHttp\Psr7\Response;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
-use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestException;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatus;
+use Nonetallt\Helpers\Internet\Http\Common\HttpHeaderCollection;
 
 class HttpResponse
 {
-    private $body;
     private $request;
-    private $response;
+    private $body;
+    private $status;
+    private $headers;
     protected $exceptions;
 
-    public function __construct(HttpRequest $request, ?Response $response)
+    public function __construct(HttpRequest $request, HttpResponseBody $body = null, HttpStatus $status = null, HttpHeaderCollection $headers = null)
     {
         $this->request = $request;
-        $this->response = $response;
+        $this->body = $body;
+        $this->headers = $headers;
+        $this->status = $status;
         $this->exceptions = new HttpRequestExceptionCollection();
     }
 
-    public function setExceptions(HttpRequestExceptionCollection $exceptions)
-    {
-        $this->exceptions = $exceptions;
-    }
-
-    /**
-     * Proxy for getExceptionMessages()
-     */
     public function getErrors() : array 
     {
-        return $this->getExceptionMessages();
-    }
-
-    public function getExceptionMessages() : array
-    {
-        return $this->exceptions->map(function($exception) {
-            return $exception->getMessage();
-        });
+        return $this->exceptions->getMessages();
     }
 
     public function getExceptions() : HttpRequestExceptionCollection
@@ -52,31 +39,21 @@ class HttpResponse
         return $this->request;
     }
 
-    public function getBody() : string
+    public function getBody() : ?HttpResponseBody
     {
-        if($this->body === null) {
-            if($this->response !== null) $this->body = (string)$this->response->getBody();
-            else $this->body = '';
-        }
-
-        return  $this->body;
+        return $this->body;
     }
 
-    public function getHeaders() : array
+    public function getHeaders() : ?HttpHeaderCollection
     {
-        return $this->response->getHeaders();
+        return $this->headers;
     }
 
-    public function getStatus() : HttpStatus
+    public function getStatus() : ?HttpStatus
     {
-        $code = $this->response->getStatusCode();
-        $status = HttpStatusRepository::getInstance()->getByCode($code);
-        return $status;
+        return $this->status;
     }
 
-    /**
-     * Proxy for hasExceptions()
-     */
     public function hasErrors() : bool
     {
         return $this->hasExceptions();

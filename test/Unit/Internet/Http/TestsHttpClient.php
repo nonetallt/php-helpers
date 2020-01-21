@@ -1,10 +1,11 @@
 <?php
 
-namespace Test\Unit\Internet;
+namespace Test\Unit\Internet\Http;
 
 use Nonetallt\Helpers\Filesystem\Json\JsonParser;
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
 use Nonetallt\Helpers\Internet\Routing\Router;
+use Nonetallt\Helpers\Filesystem\Reflections\ReflectionClass;
 
 trait TestsHttpClient
 {
@@ -19,8 +20,11 @@ trait TestsHttpClient
 
     public function initializeRouter()
     {
+        $ref = new ReflectionClass($this);
+        $rootPath = dirname($ref->getPsr4NamespaceRoot());
+
         /* Load testing conf */
-        $configPath = dirname(dirname(dirname(__DIR__))) . '/testing_config.json';
+        $configPath =  "$rootPath/testing_config.json";
         $parser = new JsonParser();
         $this->config = $parser->decodeFile($configPath, true);
         $this->configAccessor = new RecursiveAccessor('.');

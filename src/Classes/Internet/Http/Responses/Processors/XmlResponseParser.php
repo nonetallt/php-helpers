@@ -4,7 +4,7 @@ namespace Nonetallt\Helpers\Internet\Http\Responses\Processors;
 
 use Nonetallt\Helpers\Filesystem\Xml\XmlParser;
 
-class ParseXmlResponse extends ParseResponse implements HttpResponseProcessor
+class XmlResponseParser implements ResponseParser
 {
     /**
      * @throws Nonetallt\Helpers\Filesystem\Xml\Exceptions\XmlParsingException

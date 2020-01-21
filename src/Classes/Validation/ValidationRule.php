@@ -4,9 +4,14 @@ namespace Nonetallt\Helpers\Validation;
 
 use Nonetallt\Helpers\Validation\Parameters\ValidationRuleParameterDefinitions;
 use Nonetallt\Helpers\Validation\Parameters\SimpleContainer;
+use Nonetallt\Helpers\Arrays\Traits\Arrayable;
+use Nonetallt\Helpers\Generic\Traits\LazyLoadsProperties;
+use Nonetallt\Helpers\Strings\Str;
 
 abstract class ValidationRule
 {
+    use Arrayable, LazyLoadsProperties;
+
     private $name;
     protected $parameters;
 
@@ -41,19 +46,9 @@ abstract class ValidationRule
         return $result;
     }
 
-    protected function resolveName() : string
+    public function lazyLoadName() : string
     {
-        $ref = new ValidationRuleReflection($this);
-        return $ref->getAlias();
-    }
-
-    public function getName() : string
-    {
-        if($this->name === null) {
-            $this->name = $this->resolveName();
-        }
-
-        return $this->name;
+        return static::resolveName(new \ReflectionClass($this));
     }
 
     public function getParameters()
@@ -61,12 +56,16 @@ abstract class ValidationRule
         return $this->parameters;
     }
 
-    public function toArray() : array
+    public static function resolveName(\ReflectionClass $ref)
     {
-        return [
-            'name' => $this->name,
-            'parameters' => $this->parameters->toArray()
-        ];
+        $alias = Str::removePrefix($ref->getShortName(), 'ValidationRule');
+
+        $converter = new \CaseConverter\CaseConverter();
+        $alias = $converter->convert($alias)
+            ->from('camel')
+            ->to('snake');
+
+        return $alias;
     }
 
     /**

@@ -10,48 +10,16 @@ use Nonetallt\Helpers\Filesystem\Exceptions\FileNotFoundException;
 use Nonetallt\Helpers\Filesystem\Exceptions\TargetNotDirectoryException;
 
 /**
- * A collection of reflection classes from a directory and namespace
- *
- * TODO: reload classes when dir or namespace changes
+ * A loadable collection of reflection classes
  *
  */
 class ReflectionClassRepository extends Collection
 {
     use FindsReflectionClasses;
 
-    protected $reflectionClass;
-    protected $reflectionNamespace;
-    protected $reflectionDir;
-
-    public function __construct(string $class, ?string $dir = null, ?string $namespace = null, string $collectionType = \ReflectionClass::class)
+    public function __construct(string $collectionType = \ReflectionClass::class)
     {
         parent::__construct([], $collectionType);
-
-        $this->setReflectionDir($dir);
-        $this->setReflectionNamespace($namespace);
-        $this->reflectionClass = $class;
-        $this->loadReflections();
-    }
-
-    /**
-     * @throws Nonetallt\Helpers\Filesystem\Exceptions\FilesystemException
-     */
-    public function setReflectionDir(?string $dir)
-    {
-        /* Default null values to directory of the subclass */
-        if($dir === null) $dir = dirname((new \ReflectionClass($this))->getFileName()); 
-
-        if(! file_exists($dir)) throw new FileNotFoundException($dir); 
-        if(! is_dir($dir))  throw new TargetNotDirectoryException($dir); 
-
-        $this->reflectionDir = $dir;
-    }
-
-    public function setReflectionNamespace(?string $namespace)
-    {
-        /* Default null values to namespace of the caller */
-        if($namespace === null) $namespace = (new \ReflectionClass($this))->getNamespaceName(); 
-        $this->reflectionNamespace = $namespace;
     }
 
     /**
@@ -59,16 +27,51 @@ class ReflectionClassRepository extends Collection
      * namespace
      *
      */
-    public function loadReflections() : void
+    public function loadReflections(string $class = null, string $dir = null, string $namespace = null) : void
     {
+        $dir = $dir ?? $this->getDefaultReflectionDir();
+        $this->validateReflectionDir($dir);
+
+        $namespace = $namespace ?? $this->getDefaultReflectionNamespace();
+
         $this->items = [];
-        $refs = $this->findReflectionClasses($this->reflectionNamespace, $this->reflectionDir, $this->reflectionClass);
+        $refs = $this->findReflectionClasses($dir, $namespace, $class);
 
         foreach($refs as $ref) {
             if(! $this->filterClass($ref)) continue;
             $key = $this->resolveAlias($ref);
             $this->items[$key] = $this->resolveClass($ref);
         }
+    }
+
+    /**
+     * @throws Nonetallt\Helpers\Filesystem\Exceptions\FilesystemException
+     */
+    private function validateReflectionDir(?string $dir)
+    {
+        if(! file_exists($dir)) throw new FileNotFoundException($dir); 
+        if(! is_dir($dir))  throw new TargetNotDirectoryException($dir); 
+    }
+
+    /**
+     * Get the directory that should be used for loading when one is not
+     * provided to loadReflections()
+     * 
+     */
+    public function getDefaultReflectionDir() : string
+    {
+        return dirname((new \ReflectionClass($this))->getFileName()); 
+    }
+
+    /**
+     * Get the namespace that should be used for loading when one is not
+     * provided to loadReflections()
+     *
+     */
+    public function getDefaultReflectionNamespace() : string
+    {
+        /* Default null values to namespace of the caller */
+        return (new \ReflectionClass($this))->getNamespaceName(); 
     }
 
     /**
@@ -99,21 +102,6 @@ class ReflectionClassRepository extends Collection
     protected function resolveClass(\ReflectionClass $ref)
     {
         return $ref;
-    }
-
-    public function getReflectionNamespace() : string
-    {
-        return $this->reflectionNamespace;
-    }
-
-    public function getReflectionDir() : string
-    {
-        return $this->reflectionDir;
-    }
-
-    public function getReflectionClass() : string
-    {
-        return $this->reflectionClass;
     }
 
     public function getAliases() : array

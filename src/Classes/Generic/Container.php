@@ -8,6 +8,9 @@ use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
 
 /**
  * Key value pair storage. Perfect for settings.
+ *
+ * TODO rename to Settings
+ *
  */
 class Container implements \ArrayAccess
 {
@@ -54,12 +57,13 @@ class Container implements \ArrayAccess
     /**
      *  Checks if option name is a reserved property name and modifies the name
      *  so both properties can be accessed at the same time.
+     *
      */
     public function transformOptionName(string $name)
     {
         /* Not a reserved key, no modification neccesary */
         if(! in_array($name, $this->propNames)) return $name;
-        return self::prefixOptionName($name);
+        return static::prefixOptionName($name);
     }
 
     public function validateOptionName(string $name)
@@ -199,7 +203,7 @@ class Container implements \ArrayAccess
         /* Check if variable name is a reserved key */
         if(in_array($name, $this->propNames)) {
             /* Check if variable exists in option container with transformed name */
-            $value = $this->options[self::prefixOptionName($name)] ?? null;
+            $value = $this->options[static::prefixOptionName($name)] ?? null;
             return $value;
         }
 

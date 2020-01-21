@@ -4,7 +4,7 @@ namespace Test\Unit\Laravel\Api;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
-use Test\Unit\Internet\TestsHttpClient;
+use Test\Unit\Internet\Http\TestsHttpClient;
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
 use Nonetallt\Helpers\Laravel\Api\LaravelApiClient;
 

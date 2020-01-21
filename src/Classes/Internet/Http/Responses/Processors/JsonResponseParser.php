@@ -4,7 +4,7 @@ namespace Nonetallt\Helpers\Internet\Http\Responses\Processors;
 
 use Nonetallt\Helpers\Filesystem\Json\JsonParser;
 
-class ParseJsonResponse extends ParseResponse implements HttpResponseProcessor
+class JsonResponseParser implements ResponseParser
 {
     /**
      * @throws Nonetallt\Helpers\Filesystem\Json\Exceptions\JsonParsingException

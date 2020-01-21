@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Internet\Dns;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Internet\Dns\Domain;

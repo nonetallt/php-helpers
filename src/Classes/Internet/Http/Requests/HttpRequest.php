@@ -6,8 +6,8 @@ use Nonetallt\Helpers\Arrays\Traits\ConstructedFromArray;
 use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirectionCollection;
 use Nonetallt\Helpers\Internet\Http\Common\HttpHeaderCollection;
 use Nonetallt\Helpers\Internet\Http\HttpQuery;
-use Nonetallt\Helpers\Internet\Http\Responses\Processors\HttpResponseProcessorCollection;
 use Nonetallt\Helpers\Internet\Http\Responses\Processors\CreateConnectionExceptions;
+use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
 
 /**
  * Wrapper class for http request information
@@ -29,7 +29,7 @@ class HttpRequest
     private $query;
     private $body;
     private $redirections;
-    private $responseProcessors;
+    private $settings;
 
     public function __construct(string $method, string $url, array $query = [], string $body = null, $headers = null)
     {
@@ -39,15 +39,7 @@ class HttpRequest
         $this->setBody($body);
         $this->setHeaders($headers);
         $this->redirections = new HttpRedirectionCollection();
-
-        $this->responseProcessors = new HttpResponseProcessorCollection([
-            new CreateConnectionExceptions()
-        ]);
-    }
-
-    public function getResponseProcessors() : HttpResponseProcessorCollection
-    {
-        return $this->responseProcessors;
+        $this->settings = new HttpRequestSettings();
     }
 
     public function setMethod(string $method)
@@ -90,6 +82,11 @@ class HttpRequest
         }
 
         $this->headers = $headers;
+    }
+
+    public function getSettings() : HttpRequestSettings
+    {
+        return $this->settings;
     }
 
     public function getQuery() : HttpQuery

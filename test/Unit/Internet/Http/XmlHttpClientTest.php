@@ -1,14 +1,13 @@
 <?php
 
-namespace Test\Unit;
+namespace Test\Unit\Internet\Http;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Internet\Http\Clients\JsonHttpClient;
+use Nonetallt\Helpers\Internet\Http\Clients\XmlHttpClient;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
-use Test\Unit\Internet\TestsHttpClient;
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
 
-class JsonHttpClientTest extends TestCase
+class XmlClientTest extends TestCase
 {
     use TestsHttpClient;
 
@@ -17,7 +16,7 @@ class JsonHttpClientTest extends TestCase
     public function setUp()
     {
         $this->initializeRouter();
-        $this->client = new JsonHttpClient();
+        $this->client = new XmlHttpClient();
     }
 
     /**
@@ -25,10 +24,8 @@ class JsonHttpClientTest extends TestCase
      */
     public function testSendRequestWorks()
     {
-        $url = $this->router->parseUrl($this->config('http.echo_url'));
-        $response = $this->client->sendRequest(new HttpRequest('POST', $url, [
-            'data' => json_encode(['foo' => 'bar'])
-        ]));
+        $url = $this->router->parseUrl($this->config('http.xml_url'));
+        $response = $this->client->sendRequest(new HttpRequest('GET', $url));
         $this->assertTrue($response->isSuccessful());
     }
 
@@ -37,11 +34,11 @@ class JsonHttpClientTest extends TestCase
      */
     public function testResponseIsParsed()
     {
-        $url = $this->router->parseUrl($this->config('http.json_url'));
+        $url = $this->router->parseUrl($this->config('http.xml_url'));
         $response = $this->client->sendRequest(new HttpRequest('GET', $url));
 
         $accessor = new RecursiveAccessor('.');
-        $this->assertTrue($accessor->isset('slideshow.title', $response->getParsed()));
+        $this->assertEquals('Sample Slide Show', $accessor->getNestedValue('@attributes.title', $response->getParsed()));
     }
 
     /**
@@ -49,8 +46,8 @@ class JsonHttpClientTest extends TestCase
      */
     public function testExceptionsAreCreatedWhenWhenErrorAccessorIsSet()
     {
-        $this->client->setErrorAccessors('slideshow->slides', 'title');
-        $url = $this->router->parseUrl($this->config('http.json_url'));
+        $this->client->setErrorAccessors('slide', 'title');
+        $url = $this->router->parseUrl($this->config('http.xml_url'));
         $response = $this->client->sendRequest(new HttpRequest('GET', $url));
 
         $expected = [
@@ -66,17 +63,7 @@ class JsonHttpClientTest extends TestCase
      */
     public function testExceptionIsCreatedIfParsingFails()
     {
-        $data = json_encode([
-            'errors' => [
-                ['message' => 'error_1'],
-                ['message' => 'error_2']
-            ]
-        ]);
-
-        $request = new HttpRequest('POST', $this->config('http.echo_url'), [
-            'data' => substr($data, 15)
-        ]);
-
+        $request = new HttpRequest('GET', $this->config('http.json_url'));
         $response = $this->client->sendRequest($request);
         $expected = ['Response could not be parsed'];
 

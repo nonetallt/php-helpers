@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Unit\Internet;
+namespace Test\Unit\Internet\Http;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatusRepository;

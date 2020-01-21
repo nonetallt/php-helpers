@@ -13,34 +13,33 @@ trait ProxiesMethodCalls
      */
     private $proxies = [];
 
-    private function initializeProxy(string $name)
+    private function initializeProxy(string $class, string $method)
     {
-        if(! method_exists($this, $name)) {
-            $class = get_class($this);
-            $msg = "Cannot proxy for non-existent method {$class}::{$name}()";
+        if(! method_exists($this, $method)) {
+            $msg = "Cannot proxy for non-existent method {$class}::{$method}()";
             throw new \InvalidArgumentException($msg);
         }
 
-        $this->proxies[$name] = new \ReflectionMethod($this, $name);
+        $this->proxies[$class][$method] = new \ReflectionMethod($class, $method);
     }
 
-    private function getProxy(string $methodName) : \ReflectionMethod
+    private function getProxy(string $class, string $method) : \ReflectionMethod
     {
-        if(! isset($this->proxies[$methodName])) {
-            $this->initializeProxy($methodName);
+        if(! isset($this->proxies[$class][$method])) {
+            $this->initializeProxy($class, $method);
         }
 
-        return $this->proxies[$methodName];
+        return $this->proxies[$class][$method];
     }
 
     /**
      * Handle method call as if it the proxy was called instead of the actually
      * called method
      */
-    private function proxyForMethod(string $proxy, string $method, array $parameters)
+    private function proxyForMethod(string $proxy, string $class, string $method, array $parameters)
     {
-        $callerMethod = $this->getProxy($proxy);
-        $calledMethod = $this->getProxy($method);
+        $callerMethod = $this->getProxy(static::class, $proxy);
+        $calledMethod = $this->getProxy($class, $method);
 
         $mapping = new MethodParameterMapping($calledMethod);
 
@@ -48,6 +47,10 @@ trait ProxiesMethodCalls
         $mappedParameters = $mapping->mapMethod($parameters, 2, $callerMethod);
         $methodName = $calledMethod->name;
 
-        return $this->$methodName(...$mappedParameters);
+        if($method === '__construct') {
+            return new $class(...$mappedParameters);
+        }
+
+        return $class->$methodName(...$mappedParameters);
     }
 }

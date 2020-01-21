@@ -17,9 +17,9 @@ use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequestCollection;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponseCollection;
-
 use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatusRepository;
 use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirection;
+use Nonetallt\Helpers\Internet\Http\Responses\GuzzleHttpResponseFactory;
 
 /**
  * Wrapper class for common API usage that utilizes GuzzleHttp client for
@@ -27,11 +27,13 @@ use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirection;
  */
 class HttpClient
 {
-    private $guzzle;
+    protected $guzzle;
+    protected $factory;
 
     public function __construct()
     {
         $this->guzzle = $this->createGuzzleClient();
+        $this->factory = new GuzzleHttpResponseFactory();
     }
 
     /**
@@ -40,7 +42,7 @@ class HttpClient
      */
     public function __sleep()
     {
-        return [];
+        return array_diff(array_keys(get_object_vars($this)), ['guzzle']);
     }
 
     /**
@@ -56,7 +58,7 @@ class HttpClient
      * Create the guzzle client instance
      *
      */
-    private function createGuzzleClient() : Client
+    protected function createGuzzleClient() : Client
     {
         return new Client([
             'handler' => HandlerStack::create(new CurlMultiHandler()),
@@ -80,7 +82,7 @@ class HttpClient
             $exception = $e;
         }
 
-        return $this->createResponse($request, $response, $exception);
+        return $this->factory->createResponse($request, $response, $exception);
     }
 
     /**
@@ -101,11 +103,11 @@ class HttpClient
         $pool = new \GuzzleHttp\Pool($this->guzzle, $guzzleRequests, [
             'concurrency' => $concurrency ?? $requests->count(),
             'fulfilled' => function($response, $index) use ($requests, &$responses) {
-                $response = $this->createResponse($requests[$index], $response);
+                $response = $this->factory->createResponse($requests[$index], $response);
                 $responses->push($response);
             },
             'rejected' => function($exception, $index) use ($requests, &$responses) {
-                $response = $this->createResponse($requests[$index], null, $exception);
+                $response = $this->factory->createResponse($requests[$index], null, $exception);
                 $responses->push($response);
             }
         ]);
@@ -117,30 +119,10 @@ class HttpClient
     }
 
     /**
-     * Handle response from GuzzleHttp library and create a HttpResponse
-     *
-     */
-    protected function createResponse(HttpRequest $request, ?Response $guzzleResponse, ?RequestException $exception = null) : HttpResponse
-    {
-        /* Attempt to get response from exception if response is not set */
-        if($guzzleResponse === null && $exception !== null) {
-            $guzzleResponse = $exception->getResponse();
-        }
-
-        $response = new HttpResponse($request, $guzzleResponse);
-
-        foreach($request->getResponseProcessors() as $processor) {
-            $response = $processor->processHttpResponse($response, $exception);
-        }
-
-        return $response;
-    }
-
-    /**
      * Get request options for guzzle from a request object
      *
      */
-    private function getRequestOptions(HttpRequest $request) : array
+    protected function getRequestOptions(HttpRequest $request) : array
     {
         $onRedirect = function(RequestInterface $guzzleRequest, ResponseInterface $response, UriInterface $uri) use($request) {
             $status = HttpStatusRepository::getInstance()->getByCode($response->getStatusCode());
