@@ -44,23 +44,33 @@ class Collection implements \Iterator, \ArrayAccess
 
     public function setItems(array $items)
     {
-        if(! is_null($this->type)) {
+        if($this->type !== null) {
             $items = TypedArray::create($this->type, $items);
         }
 
         $this->items = $items;
     }
 
-    // Functionality methods
-    public function push($item)
+    public function validateItem($item)
     {
-        if(! is_null($this->type) && ! is_a($item, $this->type)) {
+        if($this->type !== null && ! is_a($item, $this->type)) {
             $given = (new DescribeObject($item))->describeType();
             $msg = "Pushed item must be of type $this->type, $given given";
             throw new \InvalidArgumentException($msg);
-        }       
+        }
+    }
+
+    // Functionality methods
+    public function push($item)
+    {
+        $this->validateItem($item)       ;
 
         $this->items[] = $item;
+    }
+
+    public function unshift($item)
+    {
+
     }
 
     public function pushAll(\Iterator $items)
@@ -122,7 +132,7 @@ class Collection implements \Iterator, \ArrayAccess
         $result = [];
         foreach($this->items as $index => $item) {
             $returned = $cb($item, $index);
-            if(is_null($returned)) continue;
+            if($returned === null) continue;
             $result[] = $returned;
         }
 
@@ -179,9 +189,10 @@ class Collection implements \Iterator, \ArrayAccess
     // ArrayAccess methods
     public function offsetSet($offset, $value) 
     {
-        if (is_null($offset)) {
+        if ($offset === null) {
             $this->items[] = $value;
-        } else {
+        } 
+        else {
             $this->items[$offset] = $value;
         }
     }
