@@ -17,4 +17,9 @@ class ValidationRuleCollection extends SerializableCollection
             return $rule->getName();
         });
     }
+
+    public function hasRule(string $name) : bool
+    {
+        return in_array($name, $this->getNames());
+    }
 }

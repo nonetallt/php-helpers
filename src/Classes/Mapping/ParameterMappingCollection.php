@@ -12,9 +12,12 @@ use Nonetallt\Helpers\Mapping\ParameterMapping;
 use Nonetallt\Helpers\Validation\Exceptions\ValidationExceptionCollection;
 use Nonetallt\Helpers\Mapping\Exceptions\MethodMappingException;
 use Nonetallt\Helpers\Describe\DescribeObject;
+use Nonetallt\Helpers\Arrays\Traits\Arrayable;
 
 class ParameterMappingCollection extends Collection
 {
+    use Arrayable;
+
     public function __construct(array $items = [])
     {
         parent::__construct($items, ParameterMapping::class);

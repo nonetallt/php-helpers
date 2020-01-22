@@ -1,6 +1,7 @@
 * dotenv for filesystem based testing
 * complete file iterator tests
 * array schema validation rule factory use singleton
+* refactor validator namespaces to /Validators
 
 
 # Method mapping
