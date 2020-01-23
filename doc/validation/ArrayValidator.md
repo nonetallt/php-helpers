@@ -3,7 +3,8 @@
 ArrayValidator is a validator class that can be used for validating complex
 multilevel arrays using the available validation rules. 
 
-Common use cases:
+## Common use cases
+
 * Validating complex json object schema after decoding to array
 * Constructing objects from multilevel arrays with a forced schema
 
