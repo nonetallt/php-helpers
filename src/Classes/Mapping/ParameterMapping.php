@@ -12,7 +12,7 @@ class ParameterMapping
     private $validator;
     private $isRequired;
 
-    public function __construct(string $name, $default = null, ValueValidator $validator = null, bool $isRequired = true)
+    public function __construct(string $name, $default = MissingValue, ValueValidator $validator = null, bool $isRequired = true)
     {
         $this->setName($name);
         $this->setDefaultValue($default);
@@ -42,6 +42,11 @@ class ParameterMapping
     public function getName() : string
     {
         return $this->name;
+    }
+
+    public function hasDefaultValue() : bool
+    {
+        return ! is_a($this->default, MissingValue::class);
     }
 
     public function getDefaultValue()
