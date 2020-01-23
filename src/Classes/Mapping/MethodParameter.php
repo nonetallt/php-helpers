@@ -2,7 +2,7 @@
 
 namespace Nonetallt\Helpers\Mapping;
 
-use Nonetallt\Helpers\Validation\ValueValidator;
+use Nonetallt\Helpers\Validation\Validators\ValueValidator;
 use Nonetallt\Helpers\Validation\ValidationRuleCollection;
 use Nonetallt\Helpers\Validation\ValidationRule;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleInteger;

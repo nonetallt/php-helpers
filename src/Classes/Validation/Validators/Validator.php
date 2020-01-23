@@ -1,8 +1,10 @@
 <?php
 
-namespace Nonetallt\Helpers\Validation;
+namespace Nonetallt\Helpers\Validation\Validators;
 
 use Nonetallt\Helpers\Arrays\TypedArray;
+use Nonetallt\Helpers\Validation\ValidationRuleFactory;
+use Nonetallt\Helpers\Validation\ValidationRuleCollection;
 
 class Validator
 {

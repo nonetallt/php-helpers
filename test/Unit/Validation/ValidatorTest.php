@@ -3,7 +3,7 @@
 namespace Test\Unit\Validation;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Validation\Validator;
+use Nonetallt\Helpers\Validation\Validators\Validator;
 use Nonetallt\Helpers\Validation\ValidationRuleFactory;
 
 class ValidatorTest extends TestCase

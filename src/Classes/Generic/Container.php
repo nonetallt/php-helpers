@@ -3,7 +3,7 @@
 namespace Nonetallt\Helpers\Generic;
 
 use Nonetallt\Helpers\Arrays\TypedArray;
-use Nonetallt\Helpers\Validation\Validator;
+use Nonetallt\Helpers\Validation\Validators\Validator;
 use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
 
 /**

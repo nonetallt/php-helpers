@@ -2,7 +2,7 @@
 
 namespace Nonetallt\Helpers\Mapping;
 
-use Nonetallt\Helpers\Validation\ValueValidator;
+use Nonetallt\Helpers\Validation\Validators\ValueValidator;
 use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
 
 class ParameterMapping
@@ -49,6 +49,14 @@ class ParameterMapping
         return ! is_a($this->default, MissingValue::class);
     }
 
+    /**
+     * Get the default value for this parameter
+     * Returns the default value or Nonetallt\Helpers\Generic\MissingValue
+     * when no default value is available
+     *
+     * @return mixed $default
+     *
+     */
     public function getDefaultValue()
     {
         return $this->default;

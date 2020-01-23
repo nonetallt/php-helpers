@@ -2,7 +2,7 @@
 
 namespace Nonetallt\Helpers\Mapping;
 
-use Nonetallt\Helpers\Validation\ValueValidator;
+use Nonetallt\Helpers\Validation\Validators\ValueValidator;
 
 class OrderedParameterMapping extends ParameterMapping
 {

@@ -1,10 +1,11 @@
 <?php
 
-namespace Nonetallt\Helpers\Validation;
+namespace Nonetallt\Helpers\Validation\Validators;
 
 use Nonetallt\Helpers\Arrays\TypedArray;
 use Nonetallt\Helpers\Validation\Exceptions\ValidationExceptionCollection;
 use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
+use Nonetallt\Helpers\Validation\ValidationRuleCollection;
 
 /**
  * Validator that can validate a single value against a set of rules
