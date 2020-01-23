@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Test\Unit\Validation;
 
@@ -10,10 +10,11 @@ class ArrayValidatorTest extends TestCase
     public function testValidateCanValidateSelf()
     {
         $schema = [
+            'path' => 'schema',
             'validate' => 'string'
         ];
 
-        $validator = new ArrayValidator($schema, 'schema');
+        $validator = ArrayValidator::fromArray($schema);
         $result = $validator->validate(true);
 
         $expected = [
@@ -38,7 +39,7 @@ class ArrayValidatorTest extends TestCase
             ]
         ];
 
-        $validator = new ArrayValidator($schema);
+        $validator = ArrayValidator::fromArray($schema);
         $result = $validator->validate([
             'foo' => [
                 'bar' => 'string'
@@ -59,7 +60,7 @@ class ArrayValidatorTest extends TestCase
             'validate_items' => 'string'
         ];
 
-        $validator = new ArrayValidator($schema);
+        $validator = ArrayValidator::fromArray($schema);
         $result = $validator->validate([ 'foo', 'bar', 'baz', 1 ]);
 
         $expected = [
@@ -76,7 +77,7 @@ class ArrayValidatorTest extends TestCase
             'validate_items' => 'string'
         ];
 
-        $validator = new ArrayValidator($schema);
+        $validator = ArrayValidator::fromArray($schema);
         $result = $validator->validate([ 'foo', 'bar', 'baz']);
 
         $this->assertEquals(0, $result->getExceptions()->count());
@@ -96,7 +97,7 @@ class ArrayValidatorTest extends TestCase
             ]
         ];
 
-        $validator = new ArrayValidator($schema);
+        $validator = ArrayValidator::fromArray($schema);
         
         $result = $validator->validate([
             'active' => true,
@@ -113,10 +114,11 @@ class ArrayValidatorTest extends TestCase
     public function testArrayValidationIsDoneAutomaticallyIfValidateItemsIsUsed()
     {
         $schema = [
+            'path' => 'schema',
             'validate_items' => 'string'
         ];
 
-        $validator = new ArrayValidator($schema, 'schema');
+        $validator = ArrayValidator::fromArray($schema);
         $result = $validator->validate(true);
 
         $expected = [
@@ -126,8 +128,53 @@ class ArrayValidatorTest extends TestCase
         $this->assertEquals($expected, $result->getExceptions()->getMessages());
     }
 
-    /* TODO check required values */
-    /* TODO strict validation mode, errors for unexpected fields */
-    /* TODO extend validation rules if neccesary */
-    /* TODO refactor constructor + fromArray() */
+    /**
+     * @group new
+     */
+    public function testErrorIsCreatedWhenRequiredValueIsMissing()
+    {
+        $schema = [
+            'properties' => [
+                'foo' => [
+                    'required' => true
+                ]
+            ]
+        ];
+
+        $validator = ArrayValidator::fromArray($schema);
+        $result = $validator->validate([]);
+        $expected = [
+            'Value foo is required'
+        ];
+
+        $this->assertEquals($expected, $result->getExceptions()->getMessages());
+    }
+
+    public function testStrictModeCreatesErrorsForMissingAndExtraFields()
+    {
+        $schema = [
+            'path' => 'schema',
+            'properties' => [
+                'foo' => [
+                    'validate' => 'boolean'
+                ],
+                'bar' => [
+                    'validate' => 'boolean'
+                ]
+            ]
+        ];
+
+        $validator = ArrayValidator::fromArray($schema);
+        $result = $validator->validate([
+            'foo' => true,
+            'baz' => false
+        ], true);
+
+        $expected = [
+            'Value schema->bar is required',
+            'Value schema->baz not expected'
+        ];
+
+        $this->assertEquals($expected, $result->getExceptions()->getMessages());
+    }
 }
