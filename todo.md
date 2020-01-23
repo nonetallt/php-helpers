@@ -1,13 +1,6 @@
 * dotenv for filesystem based testing
 * complete file iterator tests
 * array schema validation rule factory use singleton
-* refactor validator namespaces to /Validators
-
-
-# Method mapping
-* isOptional() reflection parameter method returns false when there are
-  required values after that parameter, make sure that parameters can be
-  written  in any order as long as they have default values
 
 # Reflections
 * validate parameters in reflection factory / method mapping
