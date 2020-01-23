@@ -1,8 +1,7 @@
 <?php
 
-namespace Test\Unit\Validation;
+namespace Test\Unit\Validation\Rules;
 
-use Test\ValidationRuleTest;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleString;
 
 class ValidationRuleStringTest extends ValidationRuleTest

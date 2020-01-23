@@ -1,8 +1,6 @@
 <?php
 
-namespace Test\Unit\Validation;
-
-use Test\ValidationRuleTest;
+namespace Test\Unit\Validation\Rules;
 
 class ValidationRuleBooleanTest extends ValidationRuleTest
 {

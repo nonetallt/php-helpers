@@ -1,9 +1,6 @@
 <?php
 
-namespace Test\Unit\Validation;
-
-use Test\ValidationRuleTest;
-use Nonetallt\Helpers\Validation\Rules\ValidationRuleInteger;
+namespace Test\Unit\Validation\Rules;
 
 class ValidationRuleIntegerTest extends ValidationRuleTest
 {
