@@ -14,7 +14,7 @@ class XmlClientTest extends TestCase
 
     private $client;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->initializeRouter();
         $this->client = new XmlHttpClient();

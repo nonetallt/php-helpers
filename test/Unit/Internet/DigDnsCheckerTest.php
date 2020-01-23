@@ -9,7 +9,7 @@ class DigDnsCheckerTest extends TestCase
 {
     private $dns;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->dns = new DigDnsChecker();

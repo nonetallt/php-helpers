@@ -10,7 +10,7 @@ class PlaceholderFormatTest extends TestCase
 {
     private $format;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->format = new PlaceholderFormat('{{$}}');
     }

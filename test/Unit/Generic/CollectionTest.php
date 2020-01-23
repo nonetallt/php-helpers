@@ -10,7 +10,7 @@ class CollectionTest extends TestCase
 {
     private $collection;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->collection = new Collection;

@@ -9,7 +9,7 @@ class HttpStatusRepositoryTest extends TestCase
 {
     private $repo;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->repo = new HttpStatusRepository();
     }

@@ -17,7 +17,7 @@ abstract class ValidationRuleTest extends TestCase
 
     protected abstract function expectations();
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $factory = new ValidationRuleFactory();

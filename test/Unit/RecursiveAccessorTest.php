@@ -10,7 +10,7 @@ class RecursiveAccessorTest extends TestCase
 {
     private $accessor;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->accessor = new RecursiveAccessor('->');
     }
