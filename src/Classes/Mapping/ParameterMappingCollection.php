@@ -138,7 +138,8 @@ class ParameterMappingCollection extends Collection
                 throw $this->requiredValueMissing($mapping, $e);
             } 
 
-            return new MissingValue;
+            /* Can return Nonetallt\Helpers\Generic\MissingValue */
+            return $mapping->getDefaultValue();
         }
 
         /* Add validation exceptions */
