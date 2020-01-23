@@ -38,6 +38,9 @@
     "autoload-dev": {
         "psr-4": {
             "Test\\": "test/"
-        }
+        },
+        "files": [
+            "test/bootstrap.php"
+        ]
     }
 }
