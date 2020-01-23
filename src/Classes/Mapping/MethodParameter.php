@@ -19,14 +19,14 @@ use Nonetallt\Helpers\Validation\Rules\ValidationRuleObject;
 class MethodParameter extends OrderedParameterMapping
 {
     CONST RULES = [
-        'int' => ValidationRuleInteger::class,
-        'bool' => ValidationRuleBoolean::class,
-        'string' => ValidationRuleString::class,
-        'float' => ValidationRuleFloat::class,
-        'array' => ValidationRuleArray::class,
-        'callable' => ValidationRuleCallable::class,
+        'int'        => ValidationRuleInteger::class,
+        'bool'       => ValidationRuleBoolean::class,
+        'string'     => ValidationRuleString::class,
+        'float'      => ValidationRuleFloat::class,
+        'array'      => ValidationRuleArray::class,
+        'callable'   => ValidationRuleCallable::class,
         'iteratable' => ValidationRuleIterable::class,
-        'object' => ValidationRuleObject::class
+        'object'     => ValidationRuleObject::class
     ];
 
     private $reflection;
@@ -41,9 +41,8 @@ class MethodParameter extends OrderedParameterMapping
         $default = $reflection->isDefaultValueAvailable() ? $reflection->getDefaultValue() : null;
         $validator = new ValueValidator(self::resolveParameterRules($reflection));
         $isRequired  = ! $reflection->isOptional();
-        $type = (string)$reflection->getType();
-
-        $this->type = $type;
+        $this->setType($reflection->getType());
+        
         parent::__construct($name, $position, $default, $validator, $isRequired);
     }
 
@@ -109,12 +108,17 @@ class MethodParameter extends OrderedParameterMapping
         return $this->reflection;
     }
 
-    public function setType(?string $type)
+    public function setType(?\ReflectionType $type)
     {
-        $this->type = $type;
+        if($type instanceof \ReflectionNamedType) {
+            $this->type = $type->getName();
+        }
+        else {
+            $this->type = null;
+        }
     }
 
-    public function getType() : string
+    public function getType() : ?string
     {
         return $this->type;
     }

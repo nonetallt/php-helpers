@@ -62,6 +62,13 @@ class ReflectionMethodFactory extends ReflectionMethodRepository
      */
     protected function resolveAlias(\ReflectionMethod $method) : string
     {
-         return (string)$method->getParameters()[0]->getType();
+        $type = $method->getParameters()[0]->getType();
+
+        if($type instanceof \ReflectionNamedType) {
+            return $type->getName();
+        }
+
+        $msg = "Unnamed reflection type";
+        throw new \Exception($msg);
     }
 }

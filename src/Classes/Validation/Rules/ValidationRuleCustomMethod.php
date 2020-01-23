@@ -92,7 +92,14 @@ class ValidationRuleCustomMethod extends ValidationRule
             }
 
             $param = $params[$index];
-            $type = (string)$param->getType();
+            $type = $param->getType();
+
+            if($type instanceof \ReflectionType) {
+                $type = $type->getName();
+            }   
+            else {
+                $type = '';
+            }
 
             if($type !== $expectedType && $type !== null) {
                 $errors[] = "Argument $position for method $signature should be declared one of the following: ($declaration), declared $type instead";
