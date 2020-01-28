@@ -1,79 +1,133 @@
 # ArrayValidator
 
 ArrayValidator is a validator class that can be used for validating complex
-multilevel arrays using the available validation rules. 
-
-## Common use cases
-
-* Validating complex json object schema after decoding to array
-* Constructing objects from multilevel arrays with a forced schema
+multilevel arrays 
 
 ## Features
 
+### Validation
+* Validate a base value using multiple validation rules
+* Validate nested properties using nested schemas
+* Validate each item in an array using multiple validation rules
+* Validate each item in an array using a nested schema
+
+### Clear error handling
 * Validation result has a collection of all validation exceptions
-* Exceptions contain array paths
+* Exceptions contain array paths and values validated
+
+### Matching schema structure
 * Optionally require that given array keys must exist
-* Validate a base value using a list of validation rules
-* Validate a nested property using a list of validation rules
-* Validate each item in an array using a list of validation rules
-* Nested validation can be done recursively on deep arrays
-* Strict mode validation to force exact match of the schema
+* Strict mode validation to force exact match of the schema, where errors are
+  created for all unexpected elements and all values are required
 
-## Options
 
-* required (bool), wether this key must exist in the validation data
-* validate (string), validation rules string to validate base value
-* validate_items (string), validation rules string to validate each value in an array
-* properties (array), array of nested property validators
-* path (string), base path for level 1 validation, for example "schema", used only for display purposes
+## Schema
 
-## Notes
-* When setting validate_items with no validate option, the validate is automatically set as an array validator
+### required (bool)
+Whether this item must exist in the validation data
+
+### validate (string)
+String of validation rules used to validate item
+
+### validate_items (string)
+String of validation rules used to validate each item within this array 
+
+**Using this option automatically assumes that item should be a valid array**
+
+### validate_items (array)
+Nested schema that will be used to validate each item within this array
+
+**Using this option automatically assumes that item should be a valid array**
+
+### properties (array)
+Array where each key is the name of the property and the value is a nested schema used to validate the item
+
 
 ## Examples
 
+### Validating a base value
 ```php
 $schema = [
-    'path' => 'schema',
-    'properties' => [
-        'foo' => [
-            'validate' => 'string'
-        ],
-        'bar' => [
-            'validate' => array,
-            'properties' => [
-                'baz' => [
-                    'validate_items' => 'string'
-                ]
+    'validate' => 'boolean'
+];
+
+$validator = ArrayValidator::fromArray($schema);
+
+// key is used as a base path for error messages, it is set as 'schema' by default
+$key = 'test';
+
+$result = $validator->validate('string', $key);
+
+/*
+    Messages:
+   [
+        'Value test must be a string'
+   ]
+*/
+```
+
+### Using validation results
+
+```php
+// Get validation exception messages
+$messages = $result->getExceptions()->getMessages();
+
+// Check if validation passed
+$result->passed();
+
+// Check if validation failed
+$result->failed();
+```
+
+### Validating array items using nested schemas
+
+```php
+$schema = [
+    'validate_items' => [
+        'validate' => 'array',
+        'properties' => [
+            'product_name' => [
+                'required' => true,
+                'validate' => 'string'
+            ],
+            'amount_sold' => [
+                'required' => true,
+                'validate' => 'integer|min:1'
             ]
         ]
     ]
 ];
 
-$strict = false;
-$validator = ArrayValidator::fromArray($schema, $strict);
+$validator = ArrayValidator::fromArray($schema);
 
 $result = $validator->validate([
-    'foo' => 'string_value',
-    'bar' => [
-        'baz' => [
-            'value1' => 'string_value_1',
-            'value2' => 'string_value_2',
-            'value3' => 3
+        [
+            'product_name' => 'orange',
+            'amount_sold' => 3
+        ],
+        [
+            'product_name' => true,
+            'amount_sold' => 1
+        ],
+        [
+            'product_name' => 'banana',
+            'amount_sold' => 'foo'
+        ],
+        [
+            'product_name' => 'kiwi'
         ]
-    ]
 ]);
-
-$messages = $result->getExceptions()->getMessages();
 
 /*
     Messages:
    [
-        'Value schema->bar->baz->value3 must be a string'
+        'Value transactions->1->product_name must be a string',
+        'Value transactions->2->amount_sold must be an integer',
+        'Value transactions->3->amount_sold is required',
    ]
 */
 
-$result->passed(); // false
-$result->failed(); // true
-
 ```
+
+
+Note that strict mode should not be used when validating items with arbitary amount of keys
