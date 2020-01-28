@@ -174,4 +174,52 @@ class ArrayValidatorTest extends TestCase
 
         $this->assertEquals($expected, $result->getExceptions()->getMessages());
     }
+
+    /**
+     * @group new
+     *
+     */
+    public function testPropertiesOfItemsCanBeValidated()
+    {
+        $schema = [
+            'path' => 'schema',
+            'properties' => [
+                'items' => [
+                    'validate_items' => [
+                        'properties' => [
+                            'name' => [
+                                'required' => true,
+                                'validate' => 'string'
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $validator = ArrayValidator::fromArray($schema);
+        $result = $validator->validate([
+            'items' => [
+                [
+                    'name' => 'foo'
+                ],
+                [
+                    'name' => true
+                ],
+[
+                    'name' => false
+                ],
+                [],
+            ]
+        ], true);
+
+        $expected = [
+            'Value schema->items->1->name must be a string',
+            'Value schema->items->2->name must be a string',
+            'Value schema->items->3->name is required',
+        ];
+
+
+        $this->assertEquals($expected, $result->getExceptions()->getMessages());
+    }
 }

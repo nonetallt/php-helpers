@@ -25,11 +25,11 @@ class ArrayValidator
 
     public function __construct(bool $required = false, string $validate = null, $validateItems = null, array $properties = [], string $path = '')
     {
+        $this->setPath($path);
         $this->setIsRequired($required);
+        $this->setProperties($properties);
         $this->setValueValidator($validate);
         $this->setItemValidationRules($validateItems);
-        $this->setPath($path);
-        $this->setProperties($properties);
     }
 
     public function __toString() : string
@@ -55,7 +55,7 @@ class ArrayValidator
         $exceptions = $exceptions->merge($valueExceptions);
 
         if(is_array($value) && $valueExceptions->isEmpty()) {
-            $result = $this->validateItems($value);
+            $result = $this->validateItems($value, $strict);
             $exceptions = $exceptions->merge($result->getExceptions());
 
             $result = $this->validateProperties($value, $strict);
@@ -75,18 +75,23 @@ class ArrayValidator
         return new ValidationResult();
     }
 
-    public function validateItems(array $items) : ValidationResult
+    public function validateItems(array $items, bool $strict = false) : ValidationResult
     {
-        $exceptions = new ValidationExceptionCollection();
+        $result = new ValidationResult();
 
-        if($this->itemValidator !== null) {
-            foreach($items as $key => $value) {
-                $newExceptions = $this->itemValidator->validate($this->getPath($key), $value);
-                $exceptions = $exceptions->merge($newExceptions);
-            }
+        if($this->itemValidator === null) {
+            return $result;
         }
 
-        return new ValidationResult($exceptions);
+        $path = $this->itemValidator->getPath();
+
+        foreach($items as $key => $value) {
+            $this->itemValidator->setPath($key);
+            $newExceptions = $this->itemValidator->validate($value, $strict)->getExceptions();
+            $result->getExceptions()->pushAll($newExceptions);
+        }
+
+        return $result;
     }
 
     public function validateProperties(array $items, bool $strict = false) : ValidationResult
@@ -151,18 +156,34 @@ class ArrayValidator
         $this->valueValidator = new ValueValidator($rules);
     }
 
-    public function setItemValidationRules(?string $rules)
+    public function setItemValidationRules($rules)
     {
         if($rules === null) return;
-
-        $factory = new ValidationRuleFactory();
-        $rules = $factory->makeRulesFromString($rules);
-        $this->itemValidator = new ValueValidator($rules);
 
         /* Automatically expect that the value should be an array */
         if($this->valueValidator === null) {
             $this->setValueValidator('array');
         }
+
+        if(is_array($rules)) {
+            $rules['path'] = $this->getPath();
+            $this->itemValidator = self::fromArray($rules);
+            return;
+        }
+
+        if(is_string($rules)) {
+            $data = ['validate' => $rules];
+            $data['path'] = $this->getPath();
+            $this->itemValidator = self::fromArray($data);
+
+            /* $factory = new ValidationRuleFactory(); */
+            /* $rules = $factory->makeRulesFromString($rules); */
+            /* $this->itemValidator = new ValueValidator($rules); */
+            return;
+        }
+
+        $msg = "Item validation rules must be either a string or an array";
+        throw new \InvalidArgumentException($msg);
     }
 
     public function getPropertyName() : ?string
