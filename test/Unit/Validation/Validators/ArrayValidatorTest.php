@@ -10,12 +10,11 @@ class ArrayValidatorTest extends TestCase
     public function testValidateCanValidateSelf()
     {
         $schema = [
-            'path' => 'schema',
             'validate' => 'string'
         ];
 
         $validator = ArrayValidator::fromArray($schema);
-        $result = $validator->validate(true);
+        $result = $validator->validate(true, 'schema');
 
         $expected = [
             'Value schema must be a string'
@@ -44,7 +43,7 @@ class ArrayValidatorTest extends TestCase
             'foo' => [
                 'bar' => 'string'
             ]
-        ]);
+        ], '');
 
         $expected = [
             'Value foo->bar must be boolean'
@@ -61,7 +60,7 @@ class ArrayValidatorTest extends TestCase
         ];
 
         $validator = ArrayValidator::fromArray($schema);
-        $result = $validator->validate([ 'foo', 'bar', 'baz', 1 ]);
+        $result = $validator->validate([ 'foo', 'bar', 'baz', 1 ], '');
 
         $expected = [
             'Value 3 must be a string'
@@ -78,7 +77,7 @@ class ArrayValidatorTest extends TestCase
         ];
 
         $validator = ArrayValidator::fromArray($schema);
-        $result = $validator->validate([ 'foo', 'bar', 'baz']);
+        $result = $validator->validate([ 'foo', 'bar', 'baz'], '');
 
         $this->assertEquals(0, $result->getExceptions()->count());
     }
@@ -102,7 +101,7 @@ class ArrayValidatorTest extends TestCase
         $result = $validator->validate([
             'active' => true,
             'whitelisted' => ['192.168.0.254'],
-        ]);
+        ], '');
 
         $expected = [
             'Value whitelisted must be a string',
@@ -114,12 +113,11 @@ class ArrayValidatorTest extends TestCase
     public function testArrayValidationIsDoneAutomaticallyIfValidateItemsIsUsed()
     {
         $schema = [
-            'path' => 'schema',
             'validate_items' => 'string'
         ];
 
         $validator = ArrayValidator::fromArray($schema);
-        $result = $validator->validate(true);
+        $result = $validator->validate(true, 'schema');
 
         $expected = [
             'Value schema must be an array',
@@ -139,7 +137,7 @@ class ArrayValidatorTest extends TestCase
         ];
 
         $validator = ArrayValidator::fromArray($schema);
-        $result = $validator->validate([]);
+        $result = $validator->validate([], '');
         $expected = [
             'Value foo is required'
         ];
@@ -150,7 +148,6 @@ class ArrayValidatorTest extends TestCase
     public function testStrictModeCreatesErrorsForMissingAndExtraFields()
     {
         $schema = [
-            'path' => 'schema',
             'properties' => [
                 'foo' => [
                     'validate' => 'boolean'
@@ -165,7 +162,7 @@ class ArrayValidatorTest extends TestCase
         $result = $validator->validate([
             'foo' => true,
             'baz' => false
-        ], true);
+        ], 'schema', true);
 
         $expected = [
             'Value schema->bar is required',
@@ -175,14 +172,9 @@ class ArrayValidatorTest extends TestCase
         $this->assertEquals($expected, $result->getExceptions()->getMessages());
     }
 
-    /**
-     * @group new
-     *
-     */
     public function testPropertiesOfItemsCanBeValidated()
     {
         $schema = [
-            'path' => 'schema',
             'properties' => [
                 'items' => [
                     'validate_items' => [
@@ -211,7 +203,7 @@ class ArrayValidatorTest extends TestCase
                 ],
                 [],
             ]
-        ], true);
+        ], 'schema');
 
         $expected = [
             'Value schema->items->1->name must be a string',
@@ -219,6 +211,35 @@ class ArrayValidatorTest extends TestCase
             'Value schema->items->3->name is required',
         ];
 
+
+        $this->assertEquals($expected, $result->getExceptions()->getMessages());
+    }
+
+    public function testStrictModeFailsItemValidation()
+    {
+        $schema = [
+            'validate_items' => [
+                'properties' => [
+                    'name' => [
+                        'validate' => 'string'
+                    ]
+                ]
+            ]
+        ];
+
+        $validator = ArrayValidator::fromArray($schema);
+        $result = $validator->validate([
+            ['name' => 'foo'],
+            ['name' => 'bar'],
+            ['name' => 'baz'],
+        ], 'schema', true);
+
+
+        $expected = [
+            'Value schema->0 not expected',
+            'Value schema->1 not expected',
+            'Value schema->2 not expected',
+        ];
 
         $this->assertEquals($expected, $result->getExceptions()->getMessages());
     }

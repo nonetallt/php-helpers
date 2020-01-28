@@ -16,22 +16,22 @@ class ArrayValidator
     private $isRequired;
     private $valueValidator;
     private $itemValidator;
-    private $properyValidators;
+    private $properties;
 
-    /**
-     * Used to debug multilevel recursion exceptions
-     */
-    private $path;
-
-    public function __construct(bool $required = false, string $validate = null, $validateItems = null, array $properties = [], string $path = '')
+    public function __construct(bool $required = false, string $validate = null, $validateItems = null, array $properties = [])
     {
-        $this->setPath($path);
         $this->setIsRequired($required);
         $this->setProperties($properties);
         $this->setValueValidator($validate);
         $this->setItemValidationRules($validateItems);
     }
 
+    /**
+     * Get a prettified version of the validation tree
+     *
+     * @return string $tree
+     *
+     */
     public function __toString() : string
     {
         return json_encode($this->getTree(), JSON_PRETTY_PRINT);
@@ -46,36 +46,36 @@ class ArrayValidator
      * @return Nonetallt\Helpers\Validation\Results\ValidationResult $result
      *
      */
-    public function validate($value, bool $strict = false) : ValidationResult
+    public function validate($value, string $path = 'schema', bool $strict = false) : ValidationResult
     {
         $exceptions = new ValidationExceptionCollection();
 
-        $result = $this->validateValue($value);
+        $result = $this->validateValue($path, $value);
         $valueExceptions = $result->getExceptions();
         $exceptions = $exceptions->merge($valueExceptions);
 
         if(is_array($value) && $valueExceptions->isEmpty()) {
-            $result = $this->validateItems($value, $strict);
+            $result = $this->validateItems($path, $value, $strict);
             $exceptions = $exceptions->merge($result->getExceptions());
 
-            $result = $this->validateProperties($value, $strict);
+            $result = $this->validateProperties($path, $value, $strict);
             $exceptions = $exceptions->merge($result->getExceptions());
         }
 
         return new ValidationResult($exceptions);
     }
 
-    public function validateValue($value) : ValidationResult
+    private function validateValue(string $path, $value, bool $strict = false) : ValidationResult
     {
         if($this->valueValidator !== null) {
-            $exceptions = $this->valueValidator->validate($this->getPath(), $value);
+            $exceptions = $this->valueValidator->validate($path, $value, $strict);
             return new ValidationResult($exceptions);
         }
 
         return new ValidationResult();
     }
 
-    public function validateItems(array $items, bool $strict = false) : ValidationResult
+    private function validateItems(string $path, array $items, bool $strict = false) : ValidationResult
     {
         $result = new ValidationResult();
 
@@ -83,42 +83,41 @@ class ArrayValidator
             return $result;
         }
 
-        $path = $this->itemValidator->getPath();
-
         foreach($items as $key => $value) {
-            $this->itemValidator->setPath($key);
-            $newExceptions = $this->itemValidator->validate($value, $strict)->getExceptions();
+            $newPath = $this->createPath($path, $key);
+            $newExceptions = $this->itemValidator->validate($value, $newPath, $strict)->getExceptions();
             $result->getExceptions()->pushAll($newExceptions);
         }
 
         return $result;
     }
 
-    public function validateProperties(array $items, bool $strict = false) : ValidationResult
+    private function validateProperties(string $path, array $items, bool $strict = false) : ValidationResult
     {
         $exceptions = new ValidationExceptionCollection();
 
-        foreach($this->properyValidators as $validator) {
-            if(($validator->isRequired() || $strict) && $validator->getPropertyName() !== null && ! isset($items[$validator->getPropertyName()])) {
-                $msg = "Value {$validator->getPath()} is required";
-                $exception = new ValidationException($validator->getPropertyName(), null, $msg);
+        foreach($this->properties as $key => $validator) {
+            if(($validator->isRequired() || $strict) && $key !== null && ! isset($items[$key])) {
+                $msg = "Value {$this->createPath($path, $key)} is required";
+                $exception = new ValidationException($key, null, $msg);
                 $exceptions->push($exception);
             }
         }
 
         foreach($items as $key => $value) {
 
-            if(isset($this->properyValidators[$key])) {
-                $result = $this->properyValidators[$key]->validate($value);
+            if(isset($this->properties[$key])) {
+                $newPath = $this->createPath($path, $key);
+                $result = $this->properties[$key]->validate($value, $newPath, $strict);
                 $exceptions = $exceptions->merge($result->getExceptions());
                 continue;
             }
 
             /* Value does not exist in schema... */
             if($strict) {
-                $path = $this->getPath($key);
-                $msg = "Value $path not expected";
-                $exception = new ValidationException($path, $value, $msg);
+                $newPath = $this->createPath($path, $key);
+                $msg = "Value $newPath not expected";
+                $exception = new ValidationException($newPath, $value, $msg);
                 $exceptions->push($exception);
             }
             continue;
@@ -127,18 +126,12 @@ class ArrayValidator
         return new ValidationResult($exceptions);
     }
 
-    public function setPath(string $path)
-    {
-        $this->path = $path;
-    }
-
     public function setProperties(array $properties)
     {
-        $this->properyValidators = [];
+        $this->properties = [];
 
         foreach($properties as $key => $property) {
-            $property['path'] = $this->getPath($key);
-            $this->properyValidators[$key] = self::fromArray($property); 
+            $this->properties[$key] = self::fromArray($property); 
         }
     }
 
@@ -166,19 +159,13 @@ class ArrayValidator
         }
 
         if(is_array($rules)) {
-            $rules['path'] = $this->getPath();
             $this->itemValidator = self::fromArray($rules);
             return;
         }
 
         if(is_string($rules)) {
             $data = ['validate' => $rules];
-            $data['path'] = $this->getPath();
             $this->itemValidator = self::fromArray($data);
-
-            /* $factory = new ValidationRuleFactory(); */
-            /* $rules = $factory->makeRulesFromString($rules); */
-            /* $this->itemValidator = new ValueValidator($rules); */
             return;
         }
 
@@ -197,34 +184,48 @@ class ArrayValidator
         return $this->isRequired;
     }
 
-    public function getPath(string $key = null) : string
+    public function createPath(...$parts) : string
     {
+        $path = '';
         $separator = '->';
 
-        if($this->path === '' || $key === null) {
-            $separator = '';
+        foreach($parts as $part) {
+            if(! is_string($part) && ! is_numeric($part)) continue;
+            if($path !== '') $path .= "$separator$part";
+            else $path .= $part;
         }
 
-        return "$this->path{$separator}$key";
+        return $path;
     }
 
-    public function getTree() : array
+    /**
+     * Get an array representation of the validation logic
+     *
+     * @param string $path Name of the top level variable used in paths
+     * @param string $indexPlaceholder String used to represent unknown iterable array keys
+     *
+     * @return array $data Array representation of the validation logic
+     *
+     */
+    public function getTree(string $path = 'schema', string $indexPlaceholder = '[ITEM_INDEX]') : array
     {
         $data = [
-            'path' => $this->getPath(),
+            'path' => $path,
             'is_required' => $this->isRequired
         ];
-
-        $data['properties'] = array_map(function($validator) {
-            return $validator->getTree();
-        }, $this->properyValidators);
 
         if($this->valueValidator !== null) {
             $data['validate'] = $this->valueValidator->toArray();
         }
 
         if($this->itemValidator !== null) {
-            $data['validate_items'] = $this->itemValidator->toArray();
+            $newPath = $this->createPath($path, $indexPlaceholder);
+            $data['validate_items'] = $this->itemValidator->getTree($newPath);
+        }
+
+        foreach($this->properties as $key => $validator) {
+            $newPath = $this->createPath($path, $key);
+            $data['properties'][] = $validator->getTree($newPath);
         }
 
         return $data;
