@@ -128,9 +128,6 @@ class ArrayValidatorTest extends TestCase
         $this->assertEquals($expected, $result->getExceptions()->getMessages());
     }
 
-    /**
-     * @group new
-     */
     public function testErrorIsCreatedWhenRequiredValueIsMissing()
     {
         $schema = [
