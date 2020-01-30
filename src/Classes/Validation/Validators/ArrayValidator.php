@@ -133,6 +133,11 @@ class ArrayValidator
         foreach($properties as $key => $property) {
             $this->properties[$key] = self::fromArray($property); 
         }
+
+        /* Automatically expect that the value should be an array */
+        if($this->valueValidator === null) {
+            $this->setValueValidator('array');
+        }
     }
 
     public function setIsRequired(bool $isRequired)

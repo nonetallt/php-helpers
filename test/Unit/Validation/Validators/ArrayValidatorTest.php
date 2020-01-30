@@ -215,6 +215,42 @@ class ArrayValidatorTest extends TestCase
         $this->assertEquals($expected, $result->getExceptions()->getMessages());
     }
 
+    public function testItemsWithPropertiesShouldBeArraysByDefault()
+    {
+        $schema = [
+            'properties' => [
+                'blacklisted' => [
+                    'validate_items' => [
+                        'properties' => [
+                            'name' => [
+                                'required' => true,
+                                'validate' => 'string'
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $validator = ArrayValidator::fromArray($schema);
+        $result = $validator->validate([
+            'blacklisted' => [
+                'foo',
+                [],
+                ['name' => true]
+            ]
+        ], 'filters');
+
+        $expected = [
+            'Value filters->blacklisted->0 must be an array',
+            'Value filters->blacklisted->1->name is required',
+            'Value filters->blacklisted->2->name must be a string',
+        ];
+
+
+        $this->assertEquals($expected, $result->getExceptions()->getMessages());
+    }
+
     public function testStrictModeFailsItemValidation()
     {
         $schema = [
