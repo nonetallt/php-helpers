@@ -7,6 +7,7 @@ use Nonetallt\Helpers\Mapping\MethodParameter;
 use Nonetallt\Helpers\Generic\Exceptions\NotFoundException;
 use Nonetallt\Helpers\Mapping\Exceptions\MappingException;
 use Nonetallt\Helpers\Filesystem\Reflections\ReflectionClass;
+use Jawira\CaseConverter\Convert;
 
 /**
  *
@@ -89,8 +90,8 @@ trait ConstructedFromArray
      */
     protected static function mutateConstructorArrayKey(string $key) : string
     {
-        $converter = new \CaseConverter\CaseConverter();
-        return $converter->convert($key)->from('snake')->to('camel');
+        $converter = new Convert($key);
+        return $converter->fromSnake()->toCamel();
     }
 
     /**

@@ -3,9 +3,9 @@
 namespace Nonetallt\Helpers\Filesystem\Reflections;
 
 use Nonetallt\Helpers\Filesystem\Reflections\Exceptions\AliasNotFoundException;
-use CaseConverter\CaseConverter;
 use Nonetallt\Helpers\Generic\Traits\ProxiesMethodCalls;
 use Nonetallt\Helpers\Filesystem\Reflections\ReflectionClassRepository;
+use Jawira\CaseConverter\Convert;
 
 /**
  * A class for constructing classes from reflections classes.
@@ -72,10 +72,8 @@ class ReflectionFactory extends ReflectionClassRepository
         }
 
         /* Change class name from studly case to snake */
-        $case = new CaseConverter();
-        $alias = $case->convert($alias)
-            ->from('studly')
-            ->to('snake');
+        $case = new Convert($alias);
+        $alias = $case->fromPascal($alias)->toSnake();
 
         return $alias;
     }

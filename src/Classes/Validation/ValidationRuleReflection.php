@@ -3,7 +3,7 @@
 namespace Nonetallt\Helpers\Validation;
 
 use Nonetallt\Helpers\Filesystem\Traits\FindsReflectionClasses;
-use CaseConverter\CaseConverter;
+use Jawira\CaseConverter\Convert;
 
 class ValidationRuleReflection extends \ReflectionClass
 {
@@ -30,12 +30,8 @@ class ValidationRuleReflection extends \ReflectionClass
             $alias = substr($alias, strlen(self::CLASS_PREFIX));
         }
 
-        $converter = new CaseConverter();
-        $alias = $converter->convert($alias)
-            ->from('camel')
-            ->to('snake');
-
-        return $alias;
+        $converter = new Convert($alias);
+        return $converter->fromCamel()->toSnake();
     }
 
     public function getAlias() : string

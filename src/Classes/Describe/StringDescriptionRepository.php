@@ -3,7 +3,7 @@
 namespace Nonetallt\Helpers\Describe;
 
 use Nonetallt\Helpers\Filesystem\Traits\FindsReflectionClasses;
-use CaseConverter\CaseConverter;
+use Jawira\CaseConverter\Convert;
 
 class StringDescriptionRepository
 {
@@ -20,8 +20,8 @@ class StringDescriptionRepository
 
         foreach($refs as $ref) {
             $class = $ref->getShortName();
-            $converter = new CaseConverter();
-            $alias = $converter->convert($class)->from('studly')->to('snake');
+            $converter = new Convert($class);
+            $alias = $converter->fromPascal()->toSnake();
             $alias = str_before($alias, '_');
              
             $this->mapping[$alias] = $ref->name;
