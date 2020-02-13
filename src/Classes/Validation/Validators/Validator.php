@@ -2,16 +2,16 @@
 
 namespace Nonetallt\Helpers\Validation\Validators;
 
-use Nonetallt\Helpers\Arrays\TypedArray;
 use Nonetallt\Helpers\Validation\ValidationRuleFactory;
 use Nonetallt\Helpers\Validation\ValidationRuleCollection;
+use Nonetallt\Helpers\Validation\Results\ValidationResult;
+use Nonetallt\Helpers\Describe\DescribeObject;
 
 class Validator
 {
-    private $rules;
-    private $rulesStrings;
-    private $errors;
     private $factory;
+    private $ruleStrings;
+    private $valueValidators;
 
     public function __construct(array $rules)
     {
@@ -19,57 +19,60 @@ class Validator
         $ruleParamDelimiter = ':';
         $paramDelimiter     = ',';
 
-        $this->ruleStrings = TypedArray::create('string', $rules);
+        $this->valueValidators = [];
+        $this->setRuleStrings($rules);
         $this->factory = new ValidationRuleFactory($ruleDelimiter, $ruleParamDelimiter, $paramDelimiter);
-        $this->errors = [];
     }
 
-    public function validate(array $data)
+    public function setRuleStrings(array $rules)
     {
-        $this->errors = [];
+        foreach($rules as $rule) {
+            if(! is_string($rule)) {
+                $type = (new DescribeObject($rule))->describeType();
+                $msg = "Given rules must be strings, $type given";
+                throw new \InvalidArgumentException($msg);
+            }
+        }
+
+        $this->ruleStrings = $rules;
+    }
+
+    public function validate(array $data) : ValidationResult
+    {
+        $result = new ValidationResult();
 
         foreach($data as $key => $value) {
-            $this->validateValue($key, $value);
+            $exceptions = $this->validateValue($key, $value)->getExceptions();
+            $result->getExceptions()->pushAll($exceptions);
         }
 
-        if(empty($this->errors)) return true;
-        return false;
+        return $result;
     }
 
-    public function validateValue(string $key, $value)
+    public function validateValue(string $key, $value) : ValidationResult
     {
-        foreach($this->getRulesFor($key) as $rule) {
-            $validation = $rule->validate($value, $key);
+        $validator = $this->getValueValidator($key);
+        return $validator->validate($key, $value);
+    }
 
-            if($validation->passed()) {
-                if($validation->shouldContinue()) continue;
-                else break;
-            } 
-            $this->errors[$key][] = $validation->getMessage();
+    public function getValueValidator(string $key) : ValueValidator
+    {
+        if(! isset($this->valueValidators[$key])) {
+            $this->valueValidators[$key] = $this->resolveValidator($key);
         }
+
+        return $this->valueValidators[$key];
     }
 
-    private function resolveRules()
+    private function resolveValidator(string $key) : ValueValidator
     {
-        $this->rules = [];
-        foreach($this->ruleStrings as $key => $string) {
-            $this->rules[$key] = $this->factory->makeRulesFromString($string);
-        }
+        $string = $this->ruleStrings[$key] ?? '';
+        return new ValueValidator($this->factory->makeRulesFromString($string));
     }
 
-    public function passes(array $data)
+    public function hasValidatorFor(string $key) : bool
     {
-        return $this->validate($data) === true;
-    }
-
-    public function fails(array $data)
-    {
-        return $this->validate($data) === false;
-    }
-
-    public function getErrors() : array
-    {
-        return $this->errors;
+        return isset($this->ruleStrings[$key]);
     }
 
     public function getRuleStrings() : array
@@ -77,22 +80,8 @@ class Validator
         return $this->ruleStrings;
     }
 
-    public function getAllRules() : array
-    {
-        if($this->rules === null) $this->resolveRules(); 
-        return $this->rules;
-    }
-
-    public function getFieldNames() : array
+    public function getValidatedFields() : array
     {
         return array_keys($this->ruleStrings);
-    }
-
-    public function getRulesFor(string $fieldName) : ValidationRuleCollection
-    {
-        foreach($this->getAllRules() as $field => $rules) {
-            if($field === $fieldName) return $rules;
-        }
-        return new ValidationRuleCollection();
     }
 }

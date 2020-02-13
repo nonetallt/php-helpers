@@ -68,8 +68,7 @@ class ArrayValidator
     private function validateValue(string $path, $value, bool $strict = false) : ValidationResult
     {
         if($this->valueValidator !== null) {
-            $exceptions = $this->valueValidator->validate($path, $value, $strict);
-            return new ValidationResult($exceptions);
+            return $this->valueValidator->validate($path, $value, $strict);
         }
 
         return new ValidationResult();

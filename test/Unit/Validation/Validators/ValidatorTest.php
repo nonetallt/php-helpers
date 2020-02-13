@@ -19,7 +19,7 @@ class ValidatorTest extends TestCase
         ];
 
         $validator = new Validator($rules);
-        $this->assertTrue($validator->passes($data));
+        $this->assertTrue($validator->validate($data)->passed());
     }
 
     public static function isFive($value, string $name, callable $cb)
@@ -40,6 +40,6 @@ class ValidatorTest extends TestCase
         ];
 
         $validator = new Validator($rules);
-        $this->assertTrue($validator->passes($data));
+        $this->assertTrue($validator->validate($data)->passed());
     }
 }

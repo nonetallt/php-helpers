@@ -3,9 +3,9 @@
 namespace Nonetallt\Helpers\Validation\Validators;
 
 use Nonetallt\Helpers\Arrays\TypedArray;
-use Nonetallt\Helpers\Validation\Exceptions\ValidationExceptionCollection;
 use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
 use Nonetallt\Helpers\Validation\ValidationRuleCollection;
+use Nonetallt\Helpers\Validation\Results\ValidationResult;
 
 /**
  * Validator that can validate a single value against a set of rules
@@ -36,13 +36,12 @@ class ValueValidator
      *
      * @param mixed $value Value to validate
      *
-     * @return Nonetallt\Helpers\Validation\Exceptions\ValidationExceptionCollection $exceptions
-     * All validation exceptions encountered
+     * @return Nonetallt\Helpers\Validation\Results\ValidationResult $result 
      *
      */
-    public function validate(string $name, $value) : ValidationExceptionCollection
+    public function validate(string $name, $value) : ValidationResult
     {
-        $exceptions = new ValidationExceptionCollection();
+        $result = new ValidationResult();
 
         foreach($this->rules as $rule) {
             $validation = $rule->validate($value, $name);
@@ -53,11 +52,10 @@ class ValueValidator
             } 
 
             $msg = $validation->getMessage();
-            $exception = new ValidationException($name, $value, $msg);
-            $exceptions->push($exception);
+            $result->getExceptions()->push(new ValidationException($name, $value, $msg));
         }
 
-        return $exceptions;
+        return $result;
     }
 
     public function getRules() : ValidationRuleCollection

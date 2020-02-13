@@ -143,10 +143,10 @@ class ParameterMappingCollection extends Collection
         }
 
         /* Add validation exceptions */
-        $exceptions = $mapping->getValidator()->validate($mapping->getName(), $value);
+        $result = $mapping->getValidator()->validate($mapping->getName(), $value);
 
-        if(! $exceptions->isEmpty()) {
-            $msg = (string)$exceptions;
+        if($result->failed()) {
+            $msg = (string)$result->getExceptions();
             throw new ParameterValueMappingException($mapping, $value, $msg);
         }
 

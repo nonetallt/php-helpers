@@ -73,21 +73,11 @@ class Container implements \ArrayAccess
 
     public function validateOptionValue(string $key, $value)
     {
-        $rules = $this->validator->getRulesFor($key);
+        $validator = $this->validator->getValueValidator($key);
+        $result = $validator->validate($key, $value);
 
-        /* No validator exists for key, skip validation */
-        if(empty($rules)) return;
-
-        $errors = [];
-
-        foreach($rules as $rule) {
-            $result = $rule->validate($value, $key);
-            if($result->passed()) continue;
-            $errors[] = $result->getMessage();
-        }
-
-        if(! empty($errors)) {
-            $err = implode(PHP_EOL, $errors);
+        if($result->failed()) {
+            $err = (string)$result->getExceptions();
             $msg = "Value validation failed with errors:" . PHP_EOL . $err;
             throw new ValidationException($key, $value, $msg);
         }
