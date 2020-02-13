@@ -10,6 +10,9 @@ class ValidationRuleRequired extends ValidationRule
 {
     public function validate($value, string $name) : ValidationRuleResult
     {
-        return $this->createResult($this, ! ($value instanceof MissingValue), "Value $name is required");
+        /* Validation should continue only if value exists */
+        $passed = ! ($value instanceof MissingValue);
+
+        return $this->createResult($this, $passed, "Value $name is required", $passed);
     }
 }
