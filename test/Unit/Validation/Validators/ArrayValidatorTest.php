@@ -131,7 +131,7 @@ class ArrayValidatorTest extends TestCase
         $schema = [
             'properties' => [
                 'foo' => [
-                    'required' => true
+                    'validate' => 'required'
                 ]
             ]
         ];
@@ -180,8 +180,7 @@ class ArrayValidatorTest extends TestCase
                     'validate_items' => [
                         'properties' => [
                             'name' => [
-                                'required' => true,
-                                'validate' => 'string'
+                                'validate' => 'required|string'
                             ]
                         ]
                     ]
@@ -223,8 +222,7 @@ class ArrayValidatorTest extends TestCase
                     'validate_items' => [
                         'properties' => [
                             'name' => [
-                                'required' => true,
-                                'validate' => 'string'
+                                'validate' => 'required|string'
                             ]
                         ]
                     ]

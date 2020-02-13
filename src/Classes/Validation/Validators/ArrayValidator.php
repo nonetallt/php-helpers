@@ -8,19 +8,20 @@ use Nonetallt\Helpers\Validation\Exceptions\ValidationException;
 use Nonetallt\Helpers\Validation\Exceptions\ValidationExceptionCollection;
 use Nonetallt\Helpers\Validation\Validators\ValueValidator;
 use Nonetallt\Helpers\Validation\Results\ValidationResult;
+use Nonetallt\Helpers\Generic\MissingValue;
+use Nonetallt\Helpers\Validation\ValidationRuleCollection;
+use Nonetallt\Helpers\Validation\Rules\ValidationRuleRequired;
 
 class ArrayValidator
 {
     use ConstructedFromArray;
 
-    private $isRequired;
     private $valueValidator;
     private $itemValidator;
     private $properties;
 
-    public function __construct(bool $required = false, string $validate = null, $validateItems = null, array $properties = [])
+    public function __construct(string $validate = null, $validateItems = null, array $properties = [])
     {
-        $this->setIsRequired($required);
         $this->setProperties($properties);
         $this->setValueValidator($validate);
         $this->setItemValidationRules($validateItems);
@@ -50,7 +51,7 @@ class ArrayValidator
     {
         $exceptions = new ValidationExceptionCollection();
 
-        $result = $this->validateValue($path, $value);
+        $result = $this->validateValue($path, $value, $strict);
         $valueExceptions = $result->getExceptions();
         $exceptions = $exceptions->merge($valueExceptions);
 
@@ -68,6 +69,11 @@ class ArrayValidator
     private function validateValue(string $path, $value, bool $strict = false) : ValidationResult
     {
         if($this->valueValidator !== null) {
+
+            if($strict && ! $this->valueValidator->getRules()->hasRule('required'))  {
+                $this->valueValidator->prependRules(new ValidationRuleCollection([new ValidationRuleRequired()]));
+            }
+
             return $this->valueValidator->validate($path, $value, $strict);
         }
 
@@ -83,6 +89,7 @@ class ArrayValidator
         }
 
         foreach($items as $key => $value) {
+
             $newPath = $this->createPath($path, $key);
             $newExceptions = $this->itemValidator->validate($value, $newPath, $strict)->getExceptions();
             $result->getExceptions()->pushAll($newExceptions);
@@ -95,33 +102,25 @@ class ArrayValidator
     {
         $exceptions = new ValidationExceptionCollection();
 
+        /* Run all validators */
         foreach($this->properties as $key => $validator) {
-            if(($validator->isRequired() || $strict) && $key !== null && ! isset($items[$key])) {
-                $msg = "Value {$this->createPath($path, $key)} is required";
-                $exception = new ValidationException($key, null, $msg);
-                $exceptions->push($exception);
-            }
+            $value = $items[$key] ?? new MissingValue;
+            $newPath = $this->createPath($path, $key);
+            $result = $validator->validate($value, $newPath, $strict);
+            $exceptions->pushAll($result->getExceptions());
+            continue;
         }
 
-        foreach($items as $key => $value) {
-
-            if(isset($this->properties[$key])) {
-                $newPath = $this->createPath($path, $key);
-                $result = $this->properties[$key]->validate($value, $newPath, $strict);
-                $exceptions = $exceptions->merge($result->getExceptions());
-                continue;
-            }
-
-            /* Value does not exist in schema... */
-            if($strict) {
+        if($strict) {
+            /* Find all values that do not exist in schema */
+            foreach(array_diff_key($items, $this->properties) as $key => $value) {
                 $newPath = $this->createPath($path, $key);
                 $msg = "Value $newPath not expected";
                 $exception = new ValidationException($newPath, $value, $msg);
                 $exceptions->push($exception);
             }
-            continue;
         }
-
+        
         return new ValidationResult($exceptions);
     }
 
@@ -137,11 +136,6 @@ class ArrayValidator
         if($this->valueValidator === null) {
             $this->setValueValidator('array');
         }
-    }
-
-    public function setIsRequired(bool $isRequired)
-    {
-        $this->isRequired = $isRequired;
     }
 
     public function setValueValidator(?string $rules)
@@ -183,11 +177,6 @@ class ArrayValidator
         return $parts[count($parts) -1];
     }
 
-    public function isRequired() : bool
-    {
-        return $this->isRequired;
-    }
-
     public function createPath(...$parts) : string
     {
         $path = '';
@@ -214,8 +203,7 @@ class ArrayValidator
     public function getTree(string $path = 'schema', string $indexPlaceholder = '[ITEM_INDEX]') : array
     {
         $data = [
-            'path' => $path,
-            'is_required' => $this->isRequired
+            'path' => $path
         ];
 
         if($this->valueValidator !== null) {
