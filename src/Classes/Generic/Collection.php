@@ -63,14 +63,7 @@ class Collection implements \Iterator, \ArrayAccess
     // Functionality methods
     public function push($item)
     {
-        $this->validateItem($item)       ;
-
-        $this->items[] = $item;
-    }
-
-    public function unshift($item)
-    {
-
+        $this[] = $item;
     }
 
     public function pushAll(\Iterator $items)
@@ -189,6 +182,8 @@ class Collection implements \Iterator, \ArrayAccess
     // ArrayAccess methods
     public function offsetSet($offset, $value) 
     {
+        $this->validateItem($value);
+
         if ($offset === null) {
             $this->items[] = $value;
         } 
