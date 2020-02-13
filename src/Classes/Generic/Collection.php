@@ -13,15 +13,13 @@ use Nonetallt\Helpers\Describe\DescribeObject;
  * TODO Iterator should work with string keys
  *
  */
-class Collection implements \Iterator, \ArrayAccess
+class Collection implements \IteratorAggregate, \ArrayAccess
 {
     protected $items;
     private $type;
-    private $position;
 
     public function __construct(array $items = [], ?string $type = null)
     {
-        $this->position = 0;
         $this->type = $type;
         $this->setItems($items);
     }
@@ -66,7 +64,7 @@ class Collection implements \Iterator, \ArrayAccess
         $this[] = $item;
     }
 
-    public function pushAll(\Iterator $items)
+    public function pushAll(\Traversable $items)
     {
         foreach($items as $item) {
             $this->push($item);
@@ -207,29 +205,8 @@ class Collection implements \Iterator, \ArrayAccess
         return isset($this->items[$offset]) ? $this->items[$offset] : null;
     }
 
-    // Iterator methods
-    public function rewind() 
+    public function getIterator()
     {
-        $this->position = 0;
-    }
-
-    public function current() 
-    {
-        return $this->items[$this->position];
-    }
-
-    public function key() 
-    {
-        return $this->position;
-    }
-
-    public function next() 
-    {
-        ++$this->position;
-    }
-
-    public function valid() 
-    {
-        return isset($this->items[$this->position]);
+        return new \ArrayIterator($this->items);
     }
 }
