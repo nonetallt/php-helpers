@@ -10,8 +10,9 @@ abstract class ValidationRule
 {
     private $name;
     protected $parameters;
+    protected $isReversed;
 
-    public function __construct(array $parameters = [])
+    public function __construct(array $parameters = [], bool $isReversed = false)
     {
         $definition = new ValidationRuleParameterDefinitions([]);
 
@@ -33,10 +34,15 @@ abstract class ValidationRule
 
         $parameters = array_merge($unmappedParameters, $mappedParameters);
         $this->parameters = new SimpleContainer('validation rule parameters', $parameters);
+        $this->setReversed($isReversed);
     }
 
     protected function createResult(ValidationRule $rule, bool $success, string $message, bool $continue = true)
     {
+        if($this->isReversed) {
+            $success = ! $success;
+        }
+
         if($success) $message = null;
         $result = new ValidationRuleResult($rule, $message, $continue);
         return $result;
@@ -62,11 +68,22 @@ abstract class ValidationRule
         return $this->parameters;
     }
 
+    public function setReversed(bool $reverse)
+    {
+        $this->isReversed = $reverse;
+    }
+
+    public function isReversed() : bool
+    {
+        return $this->isReversed;
+    }
+
     public function toArray() : array
     {
         return [
             'name' => $this->name,
-            'parameters' => $this->parameters->toArray()
+            'parameters' => $this->parameters->toArray(),
+            'is_reversed' => $this->isReversed
         ];
     }
 

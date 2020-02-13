@@ -42,4 +42,36 @@ class ValidatorTest extends TestCase
         $validator = new Validator($rules);
         $this->assertTrue($validator->validate($data)->passed());
     }
+
+    public function testValidatorCanFail()
+    {
+        $data = [
+            'foo' => 'string',
+            'bar' => 'string',
+            'baz' => 'string'
+        ];
+
+        $rules = [
+            'foo' => 'integer',
+            'bar' => 'string',
+            'baz' => 'integer'
+        ];
+
+        $validator = new Validator($rules);
+        $this->assertTrue($validator->validate($data)->failed());
+    }
+
+    public function testValidationRulesCanBeReversed()
+    {
+        $data = [
+            'test' => 5
+        ];
+
+        $rules = [
+            'test' => "! integer"
+        ];
+
+        $validator = new Validator($rules);
+        $this->assertTrue($validator->validate($data)->failed());
+    }
 }
