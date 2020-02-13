@@ -23,9 +23,6 @@ multilevel arrays
 
 ## Schema
 
-### required (bool)
-Whether this item must exist in the validation data
-
 ### validate (string)
 String of validation rules used to validate item
 
@@ -87,12 +84,10 @@ $schema = [
         'validate' => 'array',
         'properties' => [
             'product_name' => [
-                'required' => true,
-                'validate' => 'string'
+                'validate' => 'required|string'
             ],
             'amount_sold' => [
-                'required' => true,
-                'validate' => 'integer|min:1'
+                'validate' => 'required|integer|min:1'
             ]
         ]
     ]
