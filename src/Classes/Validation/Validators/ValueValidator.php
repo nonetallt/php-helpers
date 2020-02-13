@@ -16,10 +16,14 @@ use Nonetallt\Helpers\Validation\Results\ValidationResult;
 class ValueValidator
 {
     private $rules;
+    private $prependedRules;
+    private $appendedRules;
 
     public function __construct(ValidationRuleCollection $rules = null)
     {
         $this->setRules($rules);
+        $this->prependedRules = null;
+        $this->appendedRules = null;
     }
 
     public function setRules(?ValidationRuleCollection $rules)
@@ -42,25 +46,68 @@ class ValueValidator
     public function validate(string $name, $value) : ValidationResult
     {
         $result = new ValidationResult();
-
-        foreach($this->rules as $rule) {
+        
+        foreach($this->getEffectiveRules() as $rule) {
             $ruleResult = $rule->validate($value, $name);
 
-            if($ruleResult->passed()) {
-                if($ruleResult->shouldContinue()) continue;
-                else break;
-            } 
+            if($ruleResult->failed()) {
+                $msg = $ruleResult->getErrorMessage();
+                $result->getExceptions()->push(new ValidationException($name, $value, $msg));
+            }
 
-            $msg = $ruleResult->getErrorMessage();
-            $result->getExceptions()->push(new ValidationException($name, $value, $msg));
+            if(! $ruleResult->shouldContinue()) {
+                break;
+            }
         }
 
+        $this->prependedRules = null;
+        $this->appendedRules = null;
+
         return $result;
+    }
+
+    /**
+     * Run the given rules before other validation rules for the next
+     * validation only
+     *
+     */
+    public function prependRules(ValidationRuleCollection $rules)
+    {
+        $this->prependedRules = $rules;
+        return $this;
+    }
+
+    /**
+     * Rune the given rules after other validation rules for the next
+     * validation only
+     *
+     */
+    public function appendRules(ValidationRuleCollection $rules)
+    {
+        $this->appendedRules = $rules;
+        return $this;
     }
 
     public function getRules() : ValidationRuleCollection
     {
         return $this->rules;
+    }
+
+    public function getEffectiveRules() : ValidationRuleCollection
+    {
+        $rules = new ValidationRuleCollection();
+
+        if($this->prependedRules !== null) {
+            $rules->pushAll($this->prependedRules);
+        }
+
+        $rules->pushAll($this->rules);
+
+        if($this->appendedRules !== null) {
+            $rules->pushAll($this->appendedRules);
+        }
+
+        return $rules;
     }
 
     public function toArray()
