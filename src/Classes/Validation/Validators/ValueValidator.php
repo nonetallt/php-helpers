@@ -44,14 +44,14 @@ class ValueValidator
         $result = new ValidationResult();
 
         foreach($this->rules as $rule) {
-            $validation = $rule->validate($value, $name);
+            $ruleResult = $rule->validate($value, $name);
 
-            if($validation->passed()) {
-                if($validation->shouldContinue()) continue;
+            if($ruleResult->passed()) {
+                if($ruleResult->shouldContinue()) continue;
                 else break;
             } 
 
-            $msg = $validation->getMessage();
+            $msg = $ruleResult->getErrorMessage();
             $result->getExceptions()->push(new ValidationException($name, $value, $msg));
         }
 

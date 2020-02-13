@@ -11,7 +11,7 @@ use Nonetallt\Helpers\Validation\Rules\ValidationRuleString;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleFloat;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleArray;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleCallable;
-use Nonetallt\Helpers\Validation\Rules\ValidationRuleOptional;
+use Nonetallt\Helpers\Validation\Rules\ValidationRuleNullable;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleIs;
 use Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleObject;
@@ -57,7 +57,7 @@ class MethodParameter extends OrderedParameterMapping
         $rules = new ValidationRuleCollection();
 
         if($parameter->allowsNull()) {
-            $rules->push(new ValidationRuleOptional());
+            $rules->push(new ValidationRuleNullable());
         }
 
         if($parameter->hasType()) {

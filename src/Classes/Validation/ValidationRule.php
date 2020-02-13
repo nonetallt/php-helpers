@@ -4,6 +4,7 @@ namespace Nonetallt\Helpers\Validation;
 
 use Nonetallt\Helpers\Validation\Parameters\ValidationRuleParameterDefinitions;
 use Nonetallt\Helpers\Validation\Parameters\SimpleContainer;
+use Nonetallt\Helpers\Validation\Results\ValidationRuleResult;
 
 abstract class ValidationRule
 {

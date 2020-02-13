@@ -2,6 +2,8 @@
 
 namespace Test\Unit\Validation\Rules;
 
+use Nonetallt\Helpers\Generic\MissingValue;
+
 class ValidationRuleRequiredTest extends ValidationRuleTest
 {
     protected function ruleName()
@@ -17,8 +19,8 @@ class ValidationRuleRequiredTest extends ValidationRuleTest
     protected function expectations()
     {
         return [
-            'pass' => [1, -3, 'Kappa', []],
-            'fail' => [null]
+            'pass' => [1, -3, 'Kappa', [], null],
+            'fail' => [new MissingValue]
         ];
     }
 }

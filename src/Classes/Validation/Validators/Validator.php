@@ -6,6 +6,7 @@ use Nonetallt\Helpers\Validation\ValidationRuleFactory;
 use Nonetallt\Helpers\Validation\ValidationRuleCollection;
 use Nonetallt\Helpers\Validation\Results\ValidationResult;
 use Nonetallt\Helpers\Describe\DescribeObject;
+use Nonetallt\Helpers\Generic\MissingValue;
 
 class Validator
 {
@@ -19,7 +20,7 @@ class Validator
         $ruleParamDelimiter = ':';
         $paramDelimiter     = ',';
 
-        $this->valueValidators = [];
+        $this->valueValidators = new ValueValidatorCollection();
         $this->setRuleStrings($rules);
         $this->factory = new ValidationRuleFactory($ruleDelimiter, $ruleParamDelimiter, $paramDelimiter);
     }
@@ -41,8 +42,9 @@ class Validator
     {
         $result = new ValidationResult();
 
-        foreach($data as $key => $value) {
-            $exceptions = $this->validateValue($key, $value)->getExceptions();
+        foreach($this->getValueValidators() as $key => $validator) {
+            $value = $data[$key] ?? new MissingValue;
+            $exceptions = $validator->validate($key, $value)->getExceptions();
             $result->getExceptions()->pushAll($exceptions);
         }
 
@@ -53,6 +55,17 @@ class Validator
     {
         $validator = $this->getValueValidator($key);
         return $validator->validate($key, $value);
+    }
+
+    public function getValueValidators() : ValueValidatorCollection
+    {
+        foreach($this->ruleStrings as $key => $string) {
+            if(! $this->valueValidators->offsetExists($key)) {
+                $this->valueValidators[$key] = $this->resolveValidator($key);
+            }
+        }
+
+        return $this->valueValidators;
     }
 
     public function getValueValidator(string $key) : ValueValidator
