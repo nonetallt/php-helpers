@@ -88,6 +88,6 @@ class UrlTest extends TestCase
     {
         $string = 'foo.bar';
         $url = Url::fromString($string);
-        $this->assertEquals('', $url->getPath());
+        $this->assertFalse($url->getSetting('path')->hasValue());
     }
 }

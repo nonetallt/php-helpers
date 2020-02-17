@@ -6,10 +6,7 @@ use Nonetallt\Helpers\Generic\Collection;
 
 class DnsRecordCollection extends Collection
 {
-    public function __construct(array $items = [])
-    {
-        parent::__construct($items, DnsRecord::class);
-    }
+    CONST COLLECTION_TYPE = DnsRecord::class;
 
     public function add(DnsRecord $record) 
     {

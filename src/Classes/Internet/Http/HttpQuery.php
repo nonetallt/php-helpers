@@ -2,13 +2,13 @@
 
 namespace Nonetallt\Helpers\Internet\Http;
 
-use Nonetallt\Helpers\Generic\Container;
-
-class HttpQuery extends Container
+class HttpQuery
 {
+    private $parameters;
+
     public function __construct(array $parameters)
     {
-        parent::__construct($parameters);
+        $this->parameters = $parameters;
     }
 
     public static function fromString(string $value) : self
@@ -33,7 +33,7 @@ class HttpQuery extends Container
     public function __toString()
     {
         $string = '';
-        foreach($this->options as $key => $value) {
+        foreach($this->parameters as $key => $value) {
             $key = urlencode($key);
             $value = urlencode($value);
             $leader = $string === '' ? '?' : '&';
@@ -51,5 +51,15 @@ class HttpQuery extends Container
     public function getQueryString() : string
     {
         return (string) $this;
+    }
+
+    public function toArray() : array
+    {
+        return $this->parameters;
+    }
+
+    public function add(array $data)
+    {
+        $this->parameters += $data;
     }
 }

@@ -28,8 +28,7 @@ class HttpApiClient
     {
         $dir = $dir ?? __DIR__;
         $namespace = $namespace ?? __NAMESPACE__;
-
-        $this->factory->loadReflections(HttpApiCommand::class, $dir, $namespace);
+        $this->factory->loadReflections($dir, $namespace);
     }
 
     /**
@@ -39,7 +38,7 @@ class HttpApiClient
     public function getApiCommand(string $name, array $params) : HttpApiCommand
     {
         try {
-            $command = $this->factory->make($name, $params);
+            $command = $this->factory->make($name, ...$params);
             return $command;
         }
         catch(AliasNotFoundException $e) {

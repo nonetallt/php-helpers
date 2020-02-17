@@ -4,15 +4,15 @@
     "keywords": ["helpers"],
     "type": "library",
     "require": {
-        "php": ">=7.0.0",
-        "elleyeayeme/case-converter": "^1.0",
+        "php": "^7.2",
         "guzzlehttp/guzzle": "^6.3",
         "jakeasmith/http_build_url": "^1",
-        "psr/http-message": "^1.0"
+        "psr/http-message": "^1.0",
+        "jawira/case-converter": "^3.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6",
-        "spatie/phpunit-watcher": "^1.8"
+        "phpunit/phpunit": "^8.0",
+        "spatie/phpunit-watcher": "^1.22"
     },
     "suggest": {
         "ext-libxml": "Required to use XmlParser class and dependent classes like XmlHttpClient"
@@ -39,6 +39,9 @@
     "autoload-dev": {
         "psr-4": {
             "Test\\": "test/"
-        }
+        },
+        "files": [
+            "test/bootstrap.php"
+        ]
     }
 }

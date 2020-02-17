@@ -2,48 +2,52 @@
 
 namespace Nonetallt\Helpers\Internet\Http;
 
-use Nonetallt\Helpers\Generic\Container;
+use Nonetallt\Helpers\Common\Settings;
 
-class Url
+class Url extends Settings
 {
-    const OPTIONS = [
-        'scheme',
-        'host',
-        'port',
-        'user',
-        'pass',
-        'path',
-        'query',
-        'fragment',
-    ];
-
-    const DEFAULTS = [
-        'scheme' => 'http',
-        'path' => '',
-        'query' => ''
-    ];
-
-    CONST VALIDATORS = [
-        'scheme'   => 'in:http,https',
-        'host'     => 'string',
-        'port'     => 'integer|min:1|max:65535',
-        'user'     => 'string',
-        'pass'     => 'string',
-        'path'     => 'string',
-        'query'    => 'string',
-        'fragment' => 'string'
-    ];
-
-    private $attributes;
-
-    public function __construct(array $options)
+    protected static function defineSettings() : array
     {
-        $this->attributes = new Container($options, self::DEFAULTS, self::VALIDATORS, self::OPTIONS);
+        return [
+            [
+                'name' => 'scheme',
+                'default' => 'http',
+                'validate' => 'in:http,https'
+            ],
+            [
+                'name' => 'host',
+                'validate' => 'string'
+            ],
+            [
+                'name' => 'port',
+                'validate' => 'integer|min:1|max:65535'
+            ],
+            [
+                'name' => 'user',
+                'validate' => 'string'
+            ],
+            [
+                'name' => 'pass',
+                'validate' => 'string'
+            ],
+            [
+                'name' => 'path',
+                'validate' => 'string'
+            ],
+            [
+                'name' => 'query',
+                'validate' => 'string'
+            ],
+            [
+                'name' => 'fragment',
+                'validate' => 'string'
+            ]
+        ];
     }
 
     public function __toString()
     {
-        $data = $this->attributes->toArray();
+        $data = $this->toArray(true);
         return http_build_url($data);
     }
 
@@ -73,56 +77,41 @@ class Url
 
     public function getScheme()
     {
-        return $this->attributes->scheme;
+        return $this->scheme;
     }
 
     public function getUser()
     {
-        return $this->attributes->user;
+        return $this->user;
     }
 
     public function getPassword()
     {
-        return $this->attributes->pass;
+        return $this->pass;
     }
 
     public function getHost()
     {
-        return $this->attributes->host;
+        return $this->host;
     }
 
     public function getPort()
     {
-        return $this->attributes->port;
+        return $this->port;
     }
 
     public function getPath()
     {
-        return $this->attributes->path;
+        return $this->path;
     }
 
     public function getQueryString()
     {
-        return $this->attributes->query;
+        return $this->query;
     }
 
     public function getQuery() : HttpQuery
     {
-        return HttpQuery::fromString($this->attributes->query);
-    }
-
-    public function toArray() : array
-    {
-        return [
-            'scheme'       => $this->attributes->scheme,
-            'host'         => $this->attributes->host,
-            'port'         => $this->attributes->port,
-            'user'         => $this->attributes->user,
-            'password'     => $this->attributes->pass,
-            'path'         => $this->attributes->path,
-            'query'        => $this->getQuery()->toArray(),
-            'query_string' => $this->attributes->query,
-            'fragment'     => $this->attributes->fragment
-        ];
+        return HttpQuery::fromString($this->query);
     }
 }

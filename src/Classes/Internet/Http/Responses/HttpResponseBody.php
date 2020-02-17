@@ -5,6 +5,7 @@ namespace Nonetallt\Helpers\Internet\Http\Responses;
 use Psr\Http\Message\StreamInterface;
 use Nonetallt\Helpers\Internet\Http\Responses\Processors\ResponseParser;
 use Nonetallt\Helpers\Generic\Traits\LazyLoadsProperties;
+use Nonetallt\Helpers\Generic\Exceptions\ParsingException;
 
 class HttpResponseBody
 {
@@ -34,6 +35,10 @@ class HttpResponseBody
         return (string)$this->raw;
     }
 
+    /**
+     * @throws ParsingException
+     *
+     */
     public function lazyLoadParsed()
     {
         $content = $this->getContent();
@@ -43,5 +48,16 @@ class HttpResponseBody
         }
 
         return $content;
+    }
+
+    public function canBeParsed() : bool
+    {
+        try {
+            $this->getParsed();
+            return true;
+        }
+        catch(ParsingException $e) {
+            return false;
+        }
     }
 }

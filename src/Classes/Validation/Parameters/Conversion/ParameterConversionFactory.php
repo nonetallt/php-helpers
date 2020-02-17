@@ -13,7 +13,7 @@ class ParameterConversionFactory
     public function __construct()
     {
         $this->conversionMapping = [];
-        $refs = $this->findReflectionClasses(__NAMESPACE__, __DIR__, ParameterTypeConverter::class);
+        $refs = $this->findReflectionClasses(__DIR__, __NAMESPACE__, ParameterTypeConverter::class);
 
         foreach($refs as $ref) {
             $alias = strtolower(str_before($ref->getShortName(), 'ParameterTypeConverter'));

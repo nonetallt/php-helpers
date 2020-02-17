@@ -6,6 +6,8 @@ use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
 use Nonetallt\Helpers\Internet\Http\Exceptions\Factory\HttpRequestResponseExceptionFactory;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
+use Nonetallt\Helpers\Generic\Exceptions\ParsingException;
+use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestResponseException;
 
 class CreateResponseExceptions
 {
@@ -25,10 +27,19 @@ class CreateResponseExceptions
         $exceptions = new HttpRequestExceptionCollection();
         $body = $response->getBody();
 
-        if($body !== null) {
-            $body = $response->getBody()->getParsed();
+        if($body === null) {
+            return $exceptions;
         }
 
+        try {
+            $body = $body->getParsed();
+        }
+        catch(ParsingException $e) {
+            $class = get_class($response->getRequest()->getSettings()->response_parser);
+            $msg = "Response could not be parsed using $class";
+            $exceptions->push(new HttpRequestResponseException($msg, 0, $e));
+        }
+        
         if(is_array($body)) {
             $exceptionData = $this->accessResponseExceptions($body);
 

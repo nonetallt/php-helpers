@@ -6,16 +6,8 @@ use Nonetallt\Helpers\Generic\Collection;
 
 class ExceptionCollection extends Collection
 {
-    public function __construct(array $items = [], string $type = \Exception::class)
-    {
-        if(! is_a($type, \Exception::class, true)) {
-            $msg = "Given class type must extend Exception";
-            throw new \InvalidArgumentException($msg);
-        }
-
-        parent::__construct($items, $type);
-    }
-
+    CONST COLLECTION_TYPE = \Exception::class;
+    
     public function getMessages() : array
     {
         return $this->map(function($e) {
@@ -48,7 +40,7 @@ class ExceptionCollection extends Collection
             $cb();
         }
         catch(\Exception $e) {
-            if(is_a($e, $this->getType())) {
+            if(is_a($e, static::COLLECTION_TYPE)) {
                 $this->push($e);
             }
             else {

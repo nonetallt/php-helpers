@@ -1,0 +1,6 @@
+{
+    "name": "Too Many Requests",
+    "description": "The user has sent too many requests in a given amount of time (rate limiting)",
+    "standard": "RFC6585",
+    "should_retry": true
+}

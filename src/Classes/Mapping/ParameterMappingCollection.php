@@ -12,13 +12,13 @@ use Nonetallt\Helpers\Mapping\ParameterMapping;
 use Nonetallt\Helpers\Validation\Exceptions\ValidationExceptionCollection;
 use Nonetallt\Helpers\Mapping\Exceptions\MethodMappingException;
 use Nonetallt\Helpers\Describe\DescribeObject;
+use Nonetallt\Helpers\Arrays\Traits\Arrayable;
 
 class ParameterMappingCollection extends Collection
 {
-    public function __construct(array $items = [])
-    {
-        parent::__construct($items, ParameterMapping::class);
-    }
+    use Arrayable;
+
+    CONST COLLECTION_TYPE = ParameterMapping::class;
 
     public function getRequiredParameters() : ParameterMappingCollection
     {
@@ -64,7 +64,10 @@ class ParameterMappingCollection extends Collection
 
         foreach($this->items as $mapping) {
             $key = is_string($parameter) ? $mapping->getName() : $mapping->getPosition();
-            if($key === $parameter) return $mapping;
+
+            if($key === $parameter) {
+                return $mapping;
+            }
         }
 
         $keyType = is_string($parameter) ? 'name' : 'position';
@@ -105,7 +108,7 @@ class ParameterMappingCollection extends Collection
             /* Catch all parameter mapping exceptions */
             $exceptions->catch(function() use($mapping, $array, $requireDefaultValues, &$result) {
                 $value = $this->mapValue($mapping, $array, $requireDefaultValues);
-                if(! is_a($value, MissingValue::class)) $result[$mapping->getPosition()] = $value;
+                $result += $this->mapPositions($mapping, $value);
             });
         }
 
@@ -114,6 +117,32 @@ class ParameterMappingCollection extends Collection
         }
 
         return $result;
+    }
+
+    /**
+     * Map the given value to correct arg position
+     *
+     */
+    private function mapPositions(ParameterMapping $mapping, $value) : array
+    {
+        /* Do not try map missing values */
+        if(is_a($value, MissingValue::class)) {
+            return [];
+        }
+
+        $position = $mapping->getPosition();
+
+        /* If arg is variadic, occupy positions beginning from arg position */
+        if($mapping->getReflection()->isVariadic() && is_array($value)) {
+            $result = [];
+            foreach($value as $itemValue) {
+                $result[$position] = $itemValue;
+                $position++;
+            }
+            return $result;
+        }
+
+        return [$position => $value];
     }
 
     /**
@@ -135,14 +164,15 @@ class ParameterMappingCollection extends Collection
                 throw $this->requiredValueMissing($mapping, $e);
             } 
 
-            return new MissingValue;
+            /* Can return Nonetallt\Helpers\Generic\MissingValue */
+            return $mapping->getDefaultValue();
         }
 
         /* Add validation exceptions */
-        $exceptions = $mapping->getValidator()->validate($mapping->getName(), $value);
+        $result = $mapping->getValidator()->validate($mapping->getName(), $value);
 
-        if(! $exceptions->isEmpty()) {
-            $msg = (string)$exceptions;
+        if($result->failed()) {
+            $msg = (string)$result->getExceptions();
             throw new ParameterValueMappingException($mapping, $value, $msg);
         }
 

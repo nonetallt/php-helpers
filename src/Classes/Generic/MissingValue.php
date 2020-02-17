@@ -7,4 +7,8 @@ namespace Nonetallt\Helpers\Generic;
  */
 class MissingValue
 {
+    public function __toString() : string
+    {
+        return '[missing value]';
+    }
 }

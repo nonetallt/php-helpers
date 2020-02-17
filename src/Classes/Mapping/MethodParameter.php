@@ -2,7 +2,7 @@
 
 namespace Nonetallt\Helpers\Mapping;
 
-use Nonetallt\Helpers\Validation\ValueValidator;
+use Nonetallt\Helpers\Validation\Validators\ValueValidator;
 use Nonetallt\Helpers\Validation\ValidationRuleCollection;
 use Nonetallt\Helpers\Validation\ValidationRule;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleInteger;
@@ -11,22 +11,23 @@ use Nonetallt\Helpers\Validation\Rules\ValidationRuleString;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleFloat;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleArray;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleCallable;
-use Nonetallt\Helpers\Validation\Rules\ValidationRuleOptional;
+use Nonetallt\Helpers\Validation\Rules\ValidationRuleNullable;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleIs;
 use Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException;
 use Nonetallt\Helpers\Validation\Rules\ValidationRuleObject;
+use Nonetallt\Helpers\Validation\Rules\ValidationRuleCustomMethod;
 
 class MethodParameter extends OrderedParameterMapping
 {
     CONST RULES = [
-        'int' => ValidationRuleInteger::class,
-        'bool' => ValidationRuleBoolean::class,
-        'string' => ValidationRuleString::class,
-        'float' => ValidationRuleFloat::class,
-        'array' => ValidationRuleArray::class,
-        'callable' => ValidationRuleCallable::class,
+        'int'        => ValidationRuleInteger::class,
+        'bool'       => ValidationRuleBoolean::class,
+        'string'     => ValidationRuleString::class,
+        'float'      => ValidationRuleFloat::class,
+        'array'      => ValidationRuleArray::class,
+        'callable'   => ValidationRuleCallable::class,
         'iteratable' => ValidationRuleIterable::class,
-        'object' => ValidationRuleObject::class
+        'object'     => ValidationRuleObject::class
     ];
 
     private $reflection;
@@ -41,9 +42,8 @@ class MethodParameter extends OrderedParameterMapping
         $default = $reflection->isDefaultValueAvailable() ? $reflection->getDefaultValue() : null;
         $validator = new ValueValidator(self::resolveParameterRules($reflection));
         $isRequired  = ! $reflection->isOptional();
-        $type = (string)$reflection->getType();
-
-        $this->type = $type;
+        $this->setType($reflection->getType());
+        
         parent::__construct($name, $position, $default, $validator, $isRequired);
     }
 
@@ -58,7 +58,7 @@ class MethodParameter extends OrderedParameterMapping
         $rules = new ValidationRuleCollection();
 
         if($parameter->allowsNull()) {
-            $rules->push(new ValidationRuleOptional());
+            $rules->push(new ValidationRuleNullable());
         }
 
         if($parameter->hasType()) {
@@ -85,6 +85,14 @@ class MethodParameter extends OrderedParameterMapping
     {
         $class = $parameter->getClass();
 
+        if($parameter->isVariadic()) {
+            return new ValidationRuleCustomMethod([
+                'class' => static::class,
+                'method' => 'validateVariadic',
+                'extra' => $class->name ?? $parameter->getType()->getName()
+            ]);
+        }
+
         /* If parameter has class use class rule. This also catches "self" declaration */
         if($class !== null) {
             return new ValidationRuleIs([
@@ -104,17 +112,44 @@ class MethodParameter extends OrderedParameterMapping
         return new $ruleClass;
     }
 
+    static public function validateVariadic($value, string $name, callable $callback, string $extra)
+    {
+        $msg = "Value $name must be variadic array containing items of type $extra";
+
+        if(! is_array($value)) {
+            return $callback($msg);
+        }
+
+        foreach($value as $itemValue) {
+            $type = gettype($itemValue);
+
+            if($type === 'object') {
+                if(! is_a($itemValue, $extra)) return $callback(false, $msg);
+            }
+            else {
+                if($type !== $extra) return $callback(false, $msg);
+            }
+        }
+
+        return $callback(true, $msg);
+    }
+
     public function getReflection() : \ReflectionParameter
     {
         return $this->reflection;
     }
 
-    public function setType(?string $type)
+    public function setType(?\ReflectionType $type)
     {
-        $this->type = $type;
+        if($type instanceof \ReflectionNamedType) {
+            $this->type = $type->getName();
+        }
+        else {
+            $this->type = null;
+        }
     }
 
-    public function getType() : string
+    public function getType() : ?string
     {
         return $this->type;
     }

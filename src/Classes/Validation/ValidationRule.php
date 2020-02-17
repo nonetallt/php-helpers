@@ -3,10 +3,12 @@
 namespace Nonetallt\Helpers\Validation;
 
 use Nonetallt\Helpers\Validation\Parameters\ValidationRuleParameterDefinitions;
-use Nonetallt\Helpers\Validation\Parameters\SimpleContainer;
+use Nonetallt\Helpers\Validation\Parameters\ParameterContainer;
 use Nonetallt\Helpers\Arrays\Traits\Arrayable;
 use Nonetallt\Helpers\Generic\Traits\LazyLoadsProperties;
 use Nonetallt\Helpers\Strings\Str;
+use Nonetallt\Helpers\Validation\Results\ValidationRuleResult;
+use Jawira\CaseConverter\Convert;
 
 abstract class ValidationRule
 {
@@ -14,14 +16,22 @@ abstract class ValidationRule
 
     private $name;
     protected $parameters;
+    protected $isReversed;
 
-    public function __construct(array $parameters = [])
+    public function __construct(array $parameters = [], bool $isReversed = false)
     {
-        $definition = new ValidationRuleParameterDefinitions([]);
+        $this->setParameters($parameters);
+        $this->setReversed($isReversed);
+    }
 
-        if(method_exists($this, 'defineParameters')) {
-            $definition = ValidationRuleParameterDefinitions::fromArray($this->defineParameters());
+    public function setParameters(array $parameters)
+    {
+        if(! method_exists($this, 'defineParameters')) {
+            $this->parameters = new ParameterContainer([]);
+            return;
         }
+
+        $definition = ValidationRuleParameterDefinitions::fromArray($this->defineParameters());
 
         /* Maps values from array to parameter definition, given parameters can
            be keyed by index order or associative array where key name is
@@ -36,11 +46,15 @@ abstract class ValidationRule
         }
 
         $parameters = array_merge($unmappedParameters, $mappedParameters);
-        $this->parameters = new SimpleContainer('validation rule parameters', $parameters);
+        $this->parameters = new ParameterContainer($parameters);
     }
 
     protected function createResult(ValidationRule $rule, bool $success, string $message, bool $continue = true)
     {
+        if($this->isReversed) {
+            $success = ! $success;
+        }
+
         if($success) $message = null;
         $result = new ValidationRuleResult($rule, $message, $continue);
         return $result;
@@ -59,13 +73,27 @@ abstract class ValidationRule
     public static function resolveName(\ReflectionClass $ref)
     {
         $alias = Str::removePrefix($ref->getShortName(), 'ValidationRule');
+        $converter = new Convert($alias);
+        return $converter->fromCamel()->toSnake();
+    }
 
-        $converter = new \CaseConverter\CaseConverter();
-        $alias = $converter->convert($alias)
-            ->from('camel')
-            ->to('snake');
+    public function setReversed(bool $reverse)
+    {
+        $this->isReversed = $reverse;
+    }
 
-        return $alias;
+    public function isReversed() : bool
+    {
+        return $this->isReversed;
+    }
+
+    public function toArray() : array
+    {
+        return [
+            'name' => $this->name,
+            'parameters' => $this->parameters->toArray(),
+            'is_reversed' => $this->isReversed
+        ];
     }
 
     /**

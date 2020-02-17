@@ -12,7 +12,7 @@ class FileLineIteratorTest extends TestCase
 
     private $file;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->file = new File($this->getTestInputPath('10-lines.txt'));

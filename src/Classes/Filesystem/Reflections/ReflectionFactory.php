@@ -4,6 +4,8 @@ namespace Nonetallt\Helpers\Filesystem\Reflections;
 
 use Nonetallt\Helpers\Filesystem\Reflections\Exceptions\AliasNotFoundException;
 use Nonetallt\Helpers\Filesystem\Reflections\ReflectionClassRepository;
+use Jawira\CaseConverter\Convert;
+use Nonetallt\Helpers\Generic\Traits\ProxiesMethodCalls;
 
 /**
  * A class for constructing classes from reflections classes.
@@ -11,6 +13,8 @@ use Nonetallt\Helpers\Filesystem\Reflections\ReflectionClassRepository;
  */
 class ReflectionFactory extends ReflectionClassRepository
 {
+    use ProxiesMethodCalls;
+
     /**
      * @throws Nonetallt\Helpers\Filesystem\Reflections\Exceptions\AliasNotFoundException
      */
@@ -24,15 +28,11 @@ class ReflectionFactory extends ReflectionClassRepository
             throw new AliasNotFoundException($msg);
         }
 
-        return $this->makeItem($reflection, ...$parameters);
-    }
+        if(method_exists($this, 'makeItem')) {
+            array_unshift($parameters, $reflection);
+            return $this->proxyForMethod('make', $this, 'makeItem', $parameters);
+        }
 
-    /**
-     * Create a class in response to factory make
-     *
-     */
-    protected function makeItem(\ReflectionClass $reflection, array $parameters)
-    {
         $class = $reflection->name;
         return new $class(...$parameters);
     }
@@ -40,8 +40,8 @@ class ReflectionFactory extends ReflectionClassRepository
     /**
      * @override
      */
-    protected function filterClasses(\ReflectionClass $class) : bool
+    protected function filterClass(\ReflectionClass $ref) : bool
     {
-        return ! $class->isAbstract();
+        return parent::filterClass($ref) && ! $ref->isAbstract();
     }
 }

@@ -63,12 +63,12 @@ class HttpRedirection
         $this->status = $status;
     }
 
-    public function getFrom() : string
+    public function getFrom() : Url
     {
         return $this->from;
     }
 
-    public function getTo() : string
+    public function getTo() : Url
     {
         return $this->to;
     }

@@ -14,10 +14,10 @@ class JsonFileRepository extends Collection
 
     private $dirPath;
 
-    public function __construct(string $dirPath, ?string $itemClass = null)
+    public function __construct(string $dirPath)
     {
+        parent::__construct();
         $this->setDirPath($dirPath);
-        parent::__construct([], $itemClass);
         $this->loadInformation();
     }
 

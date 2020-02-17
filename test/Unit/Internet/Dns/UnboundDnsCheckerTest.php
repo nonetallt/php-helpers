@@ -9,7 +9,7 @@ class UnboundDnsCheckerTest extends TestCase
 {
     private $dns;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->dns = new UnboundDnsChecker();
@@ -17,6 +17,7 @@ class UnboundDnsCheckerTest extends TestCase
 
     /**
      * @group remote
+     * @group dns
      */
     public function testRecordExistsReturnsFalseWhenQueryingUsingNonExistentDomain()
     {
@@ -25,6 +26,7 @@ class UnboundDnsCheckerTest extends TestCase
 
     /**
      * @group remote
+     * @group dns
      */
     public function testRecordExistsReturnsTrueWhenRecordExists()
     {

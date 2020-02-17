@@ -6,12 +6,13 @@ use Nonetallt\Helpers\Filesystem\Common\File;
 
 class CsvFile extends File
 {
-    private $options;
+    private $settings;
 
-    public function __construct(string $path, array $options = [])
+    public function __construct(string $path, array $settings = [])
     {
         parent::__construct($path);
-        $this->setOptions($options);
+        $this->settings = new CsvSettings();
+        $this->settings->setAll($settings);
     }
 
     /**
@@ -32,13 +33,13 @@ class CsvFile extends File
      */
     public function getHeaders(bool $renameDuplicates = true, string $renameEmpty = null, bool $trimHeaders = true) : array
     {
-        /* If options has no delimiter set, make a guess */
-        if(! $this->options->has('delimiter')) {
-            $this->options->delimiter = $this->guessDelimiter();
+        /* If settings has no delimiter set, make a guess */
+        if(! $this->settings->getSetting('delimiter')->hasValue()) {
+            $this->settings->delimiter = $this->guessDelimiter();
         }
 
         $line = $this->getLines()->get(0, 1)[0] ?? [];
-        $headers = str_getcsv($line, $this->options->delimiter, $this->options->enclosure, $this->options->escape);
+        $headers = str_getcsv($line, $this->settings->delimiter, $this->settings->enclosure, $this->settings->escape);
 
         $headers = array_map(function($header) use ($renameEmpty, $trimHeaders) {
             /* Rename empty lines if arg is in use */
@@ -102,7 +103,7 @@ class CsvFile extends File
 
         /* If there is only 1 value, guess should be accurate */
         if(count($highestValues) === 1) {
-            $this->options->delimiter = $highestValues[0];
+            $this->settings->delimiter = $highestValues[0];
             return $highestValues[0];  
         }
 
@@ -110,7 +111,7 @@ class CsvFile extends File
 
         /* Use default delimiter if set */
         if($defaultDelimiter !== null) {
-            $this->options->delimiter = $defaultDelimiter;
+            $this->settings->delimiter = $defaultDelimiter;
             return $defaultDelimiter;
         }
 
@@ -119,13 +120,8 @@ class CsvFile extends File
         throw new \Exception($msg);
     }
 
-    public function setOptions(array $options)
+    public function getSettings() : CsvSettings
     {
-        $this->options = new Options($options);
-    }
-
-    public function getOptions() : Options
-    {
-        return $this->options;
+        return $this->settings;
     }
 }

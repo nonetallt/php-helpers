@@ -36,8 +36,10 @@ trait ProxiesMethodCalls
      * Handle method call as if it the proxy was called instead of the actually
      * called method
      */
-    private function proxyForMethod(string $proxy, string $class, string $method, array $parameters)
+    private function proxyForMethod(string $proxy, $target, string $method, array $parameters)
     {
+        $class = $target === 'string' ? $target : get_class($target);
+
         $callerMethod = $this->getProxy(static::class, $proxy);
         $calledMethod = $this->getProxy($class, $method);
 
@@ -51,6 +53,10 @@ trait ProxiesMethodCalls
             return new $class(...$mappedParameters);
         }
 
-        return $class->$methodName(...$mappedParameters);
+        if(is_string($target)) {
+            return $target::$methodName(...$mappedParameters);
+        }
+
+        return $target->$methodName(...$mappedParameters);
     }
 }

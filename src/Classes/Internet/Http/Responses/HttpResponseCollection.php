@@ -7,10 +7,7 @@ use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
 
 class HttpResponseCollection extends Collection
 {
-    public function __construct(array $items = [])
-    {
-        parent::__construct($items, HttpResponse::class);
-    }
+    CONST COLLECTION_TYPE = HttpResponse::class;
 
     public function getExceptions() : HttpRequestExceptionCollection
     {

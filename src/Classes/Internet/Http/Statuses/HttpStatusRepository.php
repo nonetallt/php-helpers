@@ -7,6 +7,8 @@ use Nonetallt\Helpers\Internet\Http\Exceptions\HttpCodeNotFoundException;
 
 class HttpStatusRepository extends JsonFileRepository
 {
+    CONST COLLECTION_TYPE = HttpStatus::class;
+
     private static $instance;
 
     public static function getInstance() : self
@@ -21,7 +23,7 @@ class HttpStatusRepository extends JsonFileRepository
     public function __construct()
     {
         $filepath = dirname(dirname(dirname(dirname(dirname(__DIR__))))) . '/resources/internet/http/status_codes';
-        parent::__construct($filepath, HttpStatus::class);
+        parent::__construct($filepath);
     }
 
     public function getByCode(int $code) : HttpStatus

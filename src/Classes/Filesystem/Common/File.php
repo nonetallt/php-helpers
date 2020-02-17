@@ -2,20 +2,20 @@
 
 namespace Nonetallt\Helpers\Filesystem\Common;
 
-use Nonetallt\Helpers\Generic\Container;
 use Nonetallt\Helpers\Filesystem\Exceptions\FilesystemException;
 use Nonetallt\Helpers\Filesystem\Exceptions\FileNotFoundException;
 use Nonetallt\Helpers\Filesystem\Exceptions\TargetNotFileException;
 use Nonetallt\Helpers\Filesystem\Permissions\FilePermissions;
+use Nonetallt\Helpers\Generic\Traits\LazyLoadsProperties;
 
 class File
 {
+    use LazyLoadsProperties;
+
     private $path;
-    private $cache;
 
     public function __construct(string $path)
     {
-        $this->cache = new Container();
         $this->setPath($path);
     }
 
@@ -44,7 +44,7 @@ class File
     public function setPath(string $path)
     {
         /* Reset cache if path has changed */
-        if($path !== $this->path) $this->cache->reset();
+        if($path !== $this->path) $this->forgetLazyLoadedProperties();
         $this->path = $path;
     }
 
@@ -93,13 +93,13 @@ class File
      * @return int $size filesize in bytes
      *
      */
-    public function getSize() : int
+    public function lazyLoadSize() : int
     {
-        if(! $this->cache->has('size')) {
-            if(! $this->exists()) throw new FileNotFoundException($this->path);
-            $this->cache->size = filesize($this->path);
+        if(! $this->exists()) {
+            throw new FileNotFoundException($this->path);
         }
-        return $this->cache->size;
+
+        return filesize($this->path);
     }
 
     public function getLines() : FileLineIterator
@@ -112,19 +112,15 @@ class File
         return new FilePermissions($this->path);
     }
 
-    public function getExtension() : string
+    public function lazyLoadExtension() : string
     {
-        if(! $this->cache->has('extension')) {
-            $parts = explode('.', $this->path);
-            $partsCount = count($parts);
+        $parts = explode('.', $this->path);
+        $partsCount = count($parts);
 
-            /* File does not have an extension */
-            if($partsCount < 2) return '';
+        /* File does not have an extension */
+        if($partsCount < 2) return '';
 
-            $this->cache->extension = $parts[$partsCount - 1];
-        }
-        
-        return $this->cache->extension;
+        return $parts[$partsCount - 1];
     }
 
     public function getPath() : string

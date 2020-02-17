@@ -9,7 +9,7 @@ class FilePermissionsTest extends TestCase
 {
     private $permissions;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->permissions = new FilePermissions(__FILE__);

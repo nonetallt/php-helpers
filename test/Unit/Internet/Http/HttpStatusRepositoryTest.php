@@ -9,7 +9,7 @@ class HttpStatusRepositoryTest extends TestCase
 {
     private $repo;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->repo = new HttpStatusRepository();
     }
@@ -20,7 +20,8 @@ class HttpStatusRepositoryTest extends TestCase
             'code' => 200,
             'name' => 'OK',
             'description' => 'The request has succeeded',
-            'standard' => ''
+            'standard' => '',
+            'shouldRetry' => false
         ];
         $this->assertEquals($expected, $this->repo->getByCode(200)->toArray());
     }

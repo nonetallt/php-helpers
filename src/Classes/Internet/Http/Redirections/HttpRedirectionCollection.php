@@ -6,10 +6,7 @@ use Nonetallt\Helpers\Generic\Collection;
 
 class HttpRedirectionCollection extends Collection
 {
-    public function __construct(array $items = [])
-    {
-        parent::__construct($items, HttpRedirection::class);
-    }
+    CONST COLLECTION_TYPE = HttpRedirection::class;
 
     public function getUrlTrace() : array
     {

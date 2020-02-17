@@ -1,6 +1,12 @@
 * dotenv for filesystem based testing
 * complete file iterator tests
 
+* array schema validation rule factory use singleton
+
+# Reflections
+* validate parameters in reflection factory / method mapping
+
+# Validation
 
 # Describe
 * Describe string, describesCharacters method that lists all characters example: a, space, tab

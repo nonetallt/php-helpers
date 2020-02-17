@@ -6,6 +6,8 @@ use Nonetallt\Helpers\Filesystem\Reflections\ReflectionClassRepository;
 
 class ValidationRuleRepository extends ReflectionClassRepository
 {
+    CONST COLLECTION_TYPE = ValidationRule::class;
+
     private static $instance;
 
     public static function getInstance()
@@ -23,7 +25,7 @@ class ValidationRuleRepository extends ReflectionClassRepository
 
         $dir = __DIR__ . '/Rules';
         $namespace = __NAMESPACE__ . '\\Rules';
-        $this->loadReflections(ValidationRule::class, $dir, $namespace);
+        $this->loadReflections($dir, $namespace);
     }
 
     /**

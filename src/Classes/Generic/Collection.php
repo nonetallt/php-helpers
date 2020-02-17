@@ -7,63 +7,47 @@ use Nonetallt\Helpers\Describe\DescribeObject;
 
 /**
  * Array style storage with inbuilt array functions.
- * Does not support string keys, if you need strings as keys use 
- * Nonetallt\Helpers\Generic\Container instead.
- *
- * TODO Iterator should work with string keys
  *
  */
-class Collection implements \Iterator, \ArrayAccess
+class Collection implements \IteratorAggregate, \ArrayAccess, \Countable
 {
+    CONST COLLECTION_TYPE = null;
+
     protected $items;
-    private $type;
-    private $position;
 
-    public function __construct(array $items = [], ?string $type = null)
+    public function __construct(array $items = [])
     {
-        $this->position = 0;
-        $this->type = $type;
-        $this->setItems($items);
+        $this->items = [];  
+        $this->pushAll($items);
     }
 
-    // Getters and setters
-    public function getType()
+    public function validateItem($item)
     {
-        return $this->type;
-    }
-
-    public function setType(string $type)
-    {
-        if($this->type !== null && ! $this->isEmpty()) {
-            $msg = "Can't change type to $type from current $this->type when there are already items";
-            throw new \Exception($msg);
+        if(static::COLLECTION_TYPE === null) {
+            return;
         }
 
-        $this->type = $type;
-    }
+        $type = gettype($item);
 
-    public function setItems(array $items)
-    {
-        if(! is_null($this->type)) {
-            $items = TypedArray::create($this->type, $items);
+        if($type === 'object') {
+            if(is_a($item, static::COLLECTION_TYPE)) return;
         }
-
-        $this->items = $items;
+        else {
+            if($type === static::COLLECTION_TYPE) return;
+        }
+            
+        $given = (new DescribeObject($item))->describeType();
+        $type = static::COLLECTION_TYPE;
+        $msg = "Pushed item must be of type $type, $given given";
+        throw new \InvalidArgumentException($msg);
     }
 
-    // Functionality methods
     public function push($item)
     {
-        if(! is_null($this->type) && ! is_a($item, $this->type)) {
-            $given = (new DescribeObject($item))->describeType();
-            $msg = "Pushed item must be of type $this->type, $given given";
-            throw new \InvalidArgumentException($msg);
-        }       
-
-        $this->items[] = $item;
+        $this[] = $item;
     }
 
-    public function pushAll(\Iterator $items)
+    public function pushAll(iterable $items)
     {
         foreach($items as $item) {
             $this->push($item);
@@ -122,7 +106,7 @@ class Collection implements \Iterator, \ArrayAccess
         $result = [];
         foreach($this->items as $index => $item) {
             $returned = $cb($item, $index);
-            if(is_null($returned)) continue;
+            if($returned === null) continue;
             $result[] = $returned;
         }
 
@@ -141,10 +125,10 @@ class Collection implements \Iterator, \ArrayAccess
 
     public function merge(Collection $items)
     {
-        $actual = $items->getType();
-        $expected = $this->type;
+        $actual = $items::COLLECTION_TYPE ?? 'null';
+        $expected = static::COLLECTION_TYPE ?? 'null';
 
-        if($actual !== null && $expected !== null && ! is_a($actual, $expected, true)) {
+        if($actual !== $expected && ! is_a($actual, $expected, true)) {
             $msg = "Can't merge collections of type $expected and $actual";
             throw new \InvalidArgumentException($msg);
         }
@@ -179,9 +163,12 @@ class Collection implements \Iterator, \ArrayAccess
     // ArrayAccess methods
     public function offsetSet($offset, $value) 
     {
-        if (is_null($offset)) {
+        $this->validateItem($value);
+
+        if ($offset === null) {
             $this->items[] = $value;
-        } else {
+        } 
+        else {
             $this->items[$offset] = $value;
         }
     }
@@ -201,29 +188,8 @@ class Collection implements \Iterator, \ArrayAccess
         return isset($this->items[$offset]) ? $this->items[$offset] : null;
     }
 
-    // Iterator methods
-    public function rewind() 
+    public function getIterator()
     {
-        $this->position = 0;
-    }
-
-    public function current() 
-    {
-        return $this->items[$this->position];
-    }
-
-    public function key() 
-    {
-        return $this->position;
-    }
-
-    public function next() 
-    {
-        ++$this->position;
-    }
-
-    public function valid() 
-    {
-        return isset($this->items[$this->position]);
+        return new \ArrayIterator($this->items);
     }
 }

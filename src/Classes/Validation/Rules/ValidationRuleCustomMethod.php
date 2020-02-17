@@ -3,7 +3,7 @@
 namespace Nonetallt\Helpers\Validation\Rules;
 
 use Nonetallt\Helpers\Validation\ValidationRule;
-use Nonetallt\Helpers\Validation\ValidationRuleResult;
+use Nonetallt\Helpers\Validation\Results\ValidationRuleResult;
 use Nonetallt\Helpers\Describe\DescribeObject;
 
 class ValidationRuleCustomMethod extends ValidationRule
@@ -21,6 +21,11 @@ class ValidationRuleCustomMethod extends ValidationRule
                 'name' => 'method',
                 'type' => 'string',
                 'is_required' => true
+            ],
+            [
+                'name' => 'extra',
+                'type' => 'string',
+                'is_required' => false
             ]
         ];
     }
@@ -52,7 +57,7 @@ class ValidationRuleCustomMethod extends ValidationRule
 
         $result = $class::$method($value, $name, function($success, $message) {
             return $this->createResult($this, $success, $message);
-        });
+        }, $this->parameters->extra);
 
         /* Make sure the method returns correct type */
         $expected = ValidationRuleResult::class;
@@ -92,7 +97,14 @@ class ValidationRuleCustomMethod extends ValidationRule
             }
 
             $param = $params[$index];
-            $type = (string)$param->getType();
+            $type = $param->getType();
+
+            if($type instanceof \ReflectionType) {
+                $type = $type->getName();
+            }   
+            else {
+                $type = '';
+            }
 
             if($type !== $expectedType && $type !== null) {
                 $errors[] = "Argument $position for method $signature should be declared one of the following: ($declaration), declared $type instead";

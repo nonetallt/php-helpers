@@ -11,6 +11,7 @@ class ValidationRuleFactory
     private $ruleDelimiter;
     private $ruleParamDelimiter;
     private $paramDelimiter;
+    private $reverseNotation;
     private $validatorClasses;
 
     public function __construct(string $ruleDelimiter = '|', string $ruleParamDelimiter = ':', string $paramDelimiter = ',')
@@ -19,6 +20,7 @@ class ValidationRuleFactory
         $this->ruleParamDelimiter  = $ruleParamDelimiter;
         $this->paramDelimiter  = $paramDelimiter;
         $this->validatorClasses = ValidationRuleRepository::getInstance();
+        $this->reverseNotation = '!';
     }
 
     public function getRuleRepository() : ValidationRuleRepository
@@ -70,6 +72,13 @@ class ValidationRuleFactory
      */
     public function makeRule(string $ruleName, array $parameters = []) : ValidationRule
     {
+        $isReversed = false;
+
+        if(starts_with($ruleName, $this->reverseNotation)) {
+            $ruleName = trim(substr($ruleName, strlen($this->reverseNotation)));
+            $isReversed = true;
+        }
+
         $reflection = $this->validatorClasses[$ruleName] ?? null;
 
         if($reflection === null) {
@@ -77,7 +86,7 @@ class ValidationRuleFactory
         }
 
         $className = $reflection->name;
-        return new $className($parameters);
+        return new $className($parameters, $isReversed);
 
     }
 

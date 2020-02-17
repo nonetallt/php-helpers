@@ -20,7 +20,7 @@ class HttpRequestTest extends TestCase
     {
         $parameters = ['param1' => 'foo', 'param2' => 'bar'];
         $request = new HttpRequest('get', 'bar', $parameters);
-        $this->assertEquals($parameters, $request->getQuery());
+        $this->assertEquals($parameters, $request->getQuery()->toArray());
     }
 
     public function testQueryParametersCanBeAdded()
@@ -28,9 +28,9 @@ class HttpRequestTest extends TestCase
         $parameters = ['param1' => 'foo', 'param2' => 'bar'];
         $appended = ['param3' => 'baz'];
         $request = new HttpRequest('get', 'bar', $parameters);
-        $request->addToQuery($appended);
+        $request->getQuery()->add($appended);
 
-        $this->assertEquals(array_merge($parameters, $appended), $request->getQuery());
+        $this->assertEquals(array_merge($parameters, $appended), $request->getQuery()->toArray());
     }
 
     public function testGetUrlReturnsUrlWithoutParameters()

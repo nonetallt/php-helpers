@@ -9,22 +9,31 @@ class DigDnsCheckerTest extends TestCase
 {
     private $dns;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->dns = new DigDnsChecker();
     }
 
+    /**
+     * @group dns
+     */
     public function testRecordExistsReturnsFalseWhenQueryingUsingNonExistentDomain()
     {
         $this->assertFalse($this->dns->recordExists('aaa'));
     }
 
+    /**
+     * @group dns
+     */
     public function testRecordExistsReturnsTrueWhenRecordExists()
     {
         $this->assertTrue($this->dns->recordExists('google.com'));
     }
 
+    /**
+     * @group dns
+     */
     public function testRecordsExistReturnsResultsForEachQueriedEntry()
     {
         $records = [
@@ -42,6 +51,9 @@ class DigDnsCheckerTest extends TestCase
         $this->assertEquals($expected, $this->dns->recordsExist($records));
     }
 
+    /**
+     * @group dns
+     */
     public function testGetRecordsCanCorrectlySerializeResults()
     {
         $hostname = 'nonetallt.com';

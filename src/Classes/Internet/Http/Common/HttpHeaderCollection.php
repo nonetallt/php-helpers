@@ -6,10 +6,7 @@ use Nonetallt\Helpers\Generic\Collection;
 
 class HttpHeaderCollection extends Collection
 {
-    public function __construct(array $items = [])
-    {
-        parent::__construct($items, HttpHeader::class);
-    }
+    CONST COLLECTION_TYPE = HttpHeader::class;
 
     public static function fromArray(array $array) : self
     {

@@ -3,9 +3,10 @@
 namespace Test\Unit\Internet\Http;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Internet\Http\Clients\XmlHttpClient;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
+use Nonetallt\Helpers\Internet\Http\Clients\XmlHttpClient;
+use Nonetallt\Helpers\Internet\Http\Responses\Processors\XmlResponseParser;
 
 class XmlClientTest extends TestCase
 {
@@ -13,7 +14,7 @@ class XmlClientTest extends TestCase
 
     private $client;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->initializeRouter();
         $this->client = new XmlHttpClient();
@@ -38,7 +39,7 @@ class XmlClientTest extends TestCase
         $response = $this->client->sendRequest(new HttpRequest('GET', $url));
 
         $accessor = new RecursiveAccessor('.');
-        $this->assertEquals('Sample Slide Show', $accessor->getNestedValue('@attributes.title', $response->getParsed()));
+        $this->assertEquals('Sample Slide Show', $accessor->getNestedValue('@attributes.title', $response->getBody()->getParsed()));
     }
 
     /**
@@ -46,9 +47,15 @@ class XmlClientTest extends TestCase
      */
     public function testExceptionsAreCreatedWhenWhenErrorAccessorIsSet()
     {
-        $this->client->setErrorAccessors('slide', 'title');
         $url = $this->router->parseUrl($this->config('http.xml_url'));
-        $response = $this->client->sendRequest(new HttpRequest('GET', $url));
+
+        $request = new HttpRequest('GET', $url);
+        $request->getSettings()->setAll([
+            'error_accessor' => 'slide',
+            'error_message_accessor' => 'title'
+        ]);
+
+        $response = $this->client->sendRequest($request);
 
         $expected = [
             'Wake up to WonderWidgets!',
@@ -65,7 +72,8 @@ class XmlClientTest extends TestCase
     {
         $request = new HttpRequest('GET', $this->config('http.json_url'));
         $response = $this->client->sendRequest($request);
-        $expected = ['Response could not be parsed'];
+        $class = XmlResponseParser::class;
+        $expected = ["Response could not be parsed using $class"];
 
         $this->assertEquals($expected, $response->getErrors());
     }
@@ -79,7 +87,12 @@ class XmlClientTest extends TestCase
         $request = new HttpRequest('GET', $url);
 
         $response = $this->client->sendRequest($request);
-        $expected = ['Server responded with code 404 (Not Found)'];
+        $class = XmlResponseParser::class;
+
+        $expected = [
+            'Server responded with code 404 (Not Found)',
+            "Response could not be parsed using $class"
+        ];
 
         $this->assertEquals($expected, $response->getErrors());
     }

@@ -17,17 +17,14 @@ class ReflectionClassRepository extends Collection
 {
     use FindsReflectionClasses;
 
-    public function __construct(string $collectionType = \ReflectionClass::class)
-    {
-        parent::__construct([], $collectionType);
-    }
+    CONST COLLECTION_TYPE = \ReflectionClass::class;
 
     /**
      * Resets and loads all reflections from the currently set dir and
      * namespace
      *
      */
-    public function loadReflections(string $class = null, string $dir = null, string $namespace = null) : void
+    public function loadReflections(string $dir = null, string $namespace = null) : void
     {
         $dir = $dir ?? $this->getDefaultReflectionDir();
         $this->validateReflectionDir($dir);
@@ -35,7 +32,7 @@ class ReflectionClassRepository extends Collection
         $namespace = $namespace ?? $this->getDefaultReflectionNamespace();
 
         $this->items = [];
-        $refs = $this->findReflectionClasses($dir, $namespace, $class);
+        $refs = $this->findReflectionClasses($dir, $namespace);
 
         foreach($refs as $ref) {
             if(! $this->filterClass($ref)) continue;

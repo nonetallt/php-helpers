@@ -5,9 +5,6 @@ namespace Nonetallt\Helpers\Internet\Dns;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 
-/**
- * TODO not in use because of guzzle dependency
- */
 class UnboundDnsChecker extends DnsChecker  
 {
     private $client;

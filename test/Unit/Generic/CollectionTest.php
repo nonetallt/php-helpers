@@ -5,12 +5,13 @@ namespace Test\Unit\Generic;
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Generic\Collection;
 use Nonetallt\Helpers\Generic\Exceptions\ExceptionCollection;
+use Nonetallt\Helpers\Common\Collections\StringCollection;
 
 class CollectionTest extends TestCase
 {
     private $collection;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->collection = new Collection;
@@ -26,50 +27,35 @@ class CollectionTest extends TestCase
         $this->assertInstanceOf(Collection::class, $this->collection);
     }
 
-    public function testTypeCanBeSetOnce()
-    {
-        $class = self::class;
-        $this->collection->setType($class);
-        $this->assertEquals($class, $this->collection->getType());
-    }
-
-    public function testTypeCanBeSetBeforeCollectionHasItems()
-    {
-        $original = self::class;
-        $new = TestCase::class;
-
-        $this->collection->setType($original);
-        $this->collection->setType($new);
-        $this->assertEquals($new, $this->collection->getType());
-    }
-
-    public function testTypeCannotBeSetAfterCollectionHasItems()
-    {
-        $original = self::class;
-        $new = TestCase::class;
-
-        $this->collection->push($this);
-        $this->collection->setType($original);
-
-        $this->expectExceptionMessage("Can't change type to $new from current $original when there are already items");
-        $this->collection->setType($new);
-    }
-
     public function testPushAddsItemsToCollection()
     {
         $this->collection->push('test');
         $this->assertEquals(['test'], $this->collection->toArray());
     }
 
+    public function testTypeCanBePrimitive()
+    {
+        $collection = new StringCollection();
+        $collection->push('string');
+        $this->assertCount(1, $collection);
+    } 
+
+    public function testPrimitiveTypeCanBeRejected()
+    {
+        $collection = new StringCollection();
+        $this->expectException(\InvalidArgumentException::class);
+        $collection->push(1);
+    }
+
     public function testPushThrowsExceptionWhenTryingToInsertInorrectType()
     {
-        $type = TestCase::class;
-        $push = new \Exception();
+        $type = \Exception::class;
+        $push = $this;
         $given = get_class($push);
 
         $this->expectExceptionMessage("Pushed item must be of type $type, $given given");
-        $this->collection->setType($type);
-        $this->collection->push($push);
+        $collection = new ExceptionCollection();
+        $collection->push($push);
     }
 
     public function testCountReturnsZeroWhenThereAreNoItems()
@@ -93,12 +79,11 @@ class CollectionTest extends TestCase
 
     public function testMergeThrowsErrorWhenMergingWithCollectionOfDifferentType()
     {
-        $expected = self::class;
-        $actual = Collection::class;
-        $this->expectExceptionMessage("Can't merge collections of type $expected and $actual");
+        $actual = \Exception::class;
+        $this->expectExceptionMessage("Can't merge collections of type null and $actual");
 
-        $this->collection->setType($expected);
-        $col = new Collection([], $actual);
+        $this->collection;
+        $col = new ExceptionCollection([]);
         $this->collection->merge($col);
     }
 

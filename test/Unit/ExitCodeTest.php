@@ -24,12 +24,12 @@ class ExitCodeTest extends TestCase
 
     public function testMessageIsNotExecutedWhenCodeIsLessThanZero()
     {
-        $this->assertContains('not executed', $this->code(-1)->getMessage());
+        $this->assertStringContainsString('not executed', $this->code(-1)->getMessage());
     }
 
     public function testMessageIsOutOfRangeWhenCodeIsGreaterThan255()
     {
-        $this->assertContains('out of range', $this->code(256)->getMessage());
+        $this->assertStringContainsString('out of range', $this->code(256)->getMessage());
     }
 
     public function testCodeGreaterThan128ReturnsCorrectFatalError()

@@ -76,6 +76,7 @@ class HttpClient
         $exception = null;
 
         try {
+            $request->getSettings()->setAll($this->getClientSettings());
             $response = $this->guzzle->request($request->getMethod(), $request->getUrl(), $this->getRequestOptions($request));
         } 
         catch(RequestException $e) {
@@ -143,6 +144,15 @@ class HttpClient
             $requestOptions['headers'][$header->getName()] = $header->getValue();
         }
 
+        if($request->getSettings()->getSetting('timeout')->hasUsableValue()) {
+            $requestOptions['timeout'] = $request->getSettings()->timeout;
+        }
+
         return $requestOptions;
+    }
+
+    public function getClientSettings() : array
+    {
+        return [];
     }
 }

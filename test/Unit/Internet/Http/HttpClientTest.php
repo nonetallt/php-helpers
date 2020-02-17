@@ -177,7 +177,7 @@ class HttpClientTest extends TestCase
     {
         $url = $this->router->parseUrl($this->config('http.status_code_url'), ['code' => 400]);
         $request = new HttpRequest('GET', $url);
-        $request->getResponseSettings()->ignoreErrorCodes([400]);
+        $request->getSettings()->ignored_error_codes += [400];
         $response = $this->client->sendRequest($request);
 
         $this->assertEmpty($response->getErrors());

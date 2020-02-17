@@ -11,7 +11,8 @@ class ReflectionClassRepositoryTest extends TestCase
 {
     public function testCallerDirAndNamespaceCanBeUsedAsDefaultValuesToFindTheCallerClass()
     {
-        $repo = new ReflectionClassRepository(TestCase::class, __DIR__, __NAMESPACE__);
+        $repo = new ReflectionClassRepository();
+        $repo->loadReflections(__DIR__, __NAMESPACE__, TestCase::class);
         $tests = $repo->map(function($ref) {
             return $ref->name;
         });
@@ -23,12 +24,14 @@ class ReflectionClassRepositoryTest extends TestCase
     public function testNonExistentPathCantBeSetAsDir()
     {
         $this->expectException(FileNotFoundException::class);
-        $repo = new ReflectionClassRepository(TestCase::class, 'foobar');
+        $repo = new ReflectionClassRepository();
+        $repo->loadReflections('foobar', null, TestCase::class);
     }
 
     public function testFileCannotBeSeAsDir()
     {
         $this->expectException(TargetNotDirectoryException::class);
-        $repo = new ReflectionClassRepository(TestCase::class, __FILE__);
+        $repo = new ReflectionClassRepository();
+        $repo->loadReflections(__FILE__, null, TestCase::class);
     }
 }

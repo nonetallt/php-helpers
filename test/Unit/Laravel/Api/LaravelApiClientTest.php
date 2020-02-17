@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Test\Unit\Internet\Http\TestsHttpClient;
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
-use Nonetallt\Helpers\Laravel\Api\LaravelApiClient;
+use Nonetallt\Helpers\Laravel\Api\LaravelHttpClient;
 
 class LaravelApiClientTest extends TestCase
 {
@@ -14,10 +14,10 @@ class LaravelApiClientTest extends TestCase
 
     private $client;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->initializeRouter();
-        $this->client = new LaravelApiClient();
+        $this->client = new LaravelHttpClient();
     }
 
     /**

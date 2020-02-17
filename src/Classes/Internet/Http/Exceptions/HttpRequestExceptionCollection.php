@@ -6,10 +6,7 @@ use Nonetallt\Helpers\Generic\Exceptions\ExceptionCollection;
 
 class HttpRequestExceptionCollection extends ExceptionCollection
 {
-    public function __construct(array $items = [])
-    {
-        parent::__construct($items, HttpRequestException::class);
-    }
+    CONST COLLECTION_TYPE = HttpRequestException::class;
 
     public function hasConnectionErrors()
     {

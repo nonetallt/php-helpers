@@ -7,12 +7,9 @@ use Nonetallt\Helpers\Generic\Collection;
 
 class DomainCollection extends Collection
 {
-    private $name;
+    CONST COLLECTION_TYPE = Domain::class;
 
-    public function __construct(array $items = [])
-    {
-        parent::__construct($items, Domain::class);
-    }
+    private $name;
 
     /**
      * @override
