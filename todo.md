@@ -1,7 +1,12 @@
+* ArrayValidator should be able to use user provided ValidationFactory
+* ValidatorInterface validate($value, string $name, ValidationSettings $settings) : ValidationResult; implement for all validators
+* Closure based validation for ValidationSettings
+* Make sure that HttpRequestSetting response processors can be added by user
+* Document http classes
+
+
 * dotenv for filesystem based testing
 * complete file iterator tests
-
-* array schema validation rule factory use singleton
 
 # Reflections
 * validate parameters in reflection factory / method mapping
