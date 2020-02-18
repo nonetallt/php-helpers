@@ -67,24 +67,5 @@ class HttpRequestSettings extends Settings
     {
         return in_array($code, $this->ignored_error_codes);
     }
-
-    /**
-     * Use keys in the parsed json to create exceptions for requests when those
-     * keys exist. For example, if accessor is set as 'request->error', 
-     * then the existance of property 'error' of 'request' is checked to see wether there should be an error.
-     *
-     * @param string $errorAccessor Accessor path, '->' is used to access
-     * nested values.
-     *
-     * @param string $messageAccessor Message accessor path, determines which
-     * key should be used for the created exception messages defaults to
-     * errorAccessor if null
-     *
-     */
-    public function setErrorAccessors(?string $errorAccessor, ?string $messageAccessor)
-    {
-        $this->error_accessor = $errorAccessor;
-        $this->error_message_accessor = $messageAccessor;
-    }
 }
 
