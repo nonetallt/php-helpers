@@ -9,17 +9,6 @@ class HttpStatusRepository extends JsonFileRepository
 {
     CONST COLLECTION_TYPE = HttpStatus::class;
 
-    private static $instance;
-
-    public static function getInstance() : self
-    {
-        if(self::$instance === null) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
-
     public function __construct()
     {
         $filepath = dirname(dirname(dirname(dirname(dirname(__DIR__))))) . '/resources/internet/http/status_codes';

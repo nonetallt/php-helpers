@@ -8,6 +8,7 @@ use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestResponseException;
 use Nonetallt\Helpers\Generic\Exceptions\ParsingException;
 use Nonetallt\Helpers\Templating\RecursiveAccessor;
+use Nonetallt\Helpers\Internet\Http\Responses\HttpResponseHandler;
 
 /**
  * Processor that creates exceptions for response data that can't
@@ -16,8 +17,7 @@ use Nonetallt\Helpers\Templating\RecursiveAccessor;
  */
 class CreateResponseExceptions implements HttpResponseProcessor
 {
-    
-    public function process(HttpResponse $response)  : HttpResponse
+    public function process(HttpResponse $response, HttpResponseHandler $handler)  : HttpResponse
     {
         $response->getExceptions()->pushAll($this->createExceptions($response));
         return $response;

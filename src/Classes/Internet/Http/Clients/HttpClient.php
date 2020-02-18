@@ -2,7 +2,6 @@
 
 namespace Nonetallt\Helpers\Internet\Http\Clients;
 
-
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\CurlMultiHandler;
@@ -19,7 +18,7 @@ use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponseCollection;
 use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatusRepository;
 use Nonetallt\Helpers\Internet\Http\Redirections\HttpRedirection;
-use Nonetallt\Helpers\Internet\Http\Responses\GuzzleHttpResponseFactory;
+use Nonetallt\Helpers\Internet\Http\Responses\GuzzleHttpResponseHandler;
 
 /**
  * Wrapper class for common API usage that utilizes GuzzleHttp client for
@@ -27,22 +26,22 @@ use Nonetallt\Helpers\Internet\Http\Responses\GuzzleHttpResponseFactory;
  */
 class HttpClient
 {
-    protected $guzzle;
-    protected $factory;
+    protected $client;
+    protected $statuses;
 
-    public function __construct()
+    public function __construct(HttpStatusRepository $repo = null)
     {
-        $this->guzzle = $this->createGuzzleClient();
-        $this->factory = new GuzzleHttpResponseFactory();
+        $this->client = $this->createClient();
+        $this->statuses = $repo ?? new HttpStatusRepository();
     }
 
     /**
-     * Avoid serializing guzzle client since it contains closures
+     * Avoid serializing client since it might contain closures
      *
      */
     public function __sleep()
     {
-        return array_diff(array_keys(get_object_vars($this)), ['guzzle']);
+        return array_diff(array_keys(get_object_vars($this)), ['client']);
     }
 
     /**
@@ -51,18 +50,17 @@ class HttpClient
      */
     public function __wakeup()
     {
-        $this->guzzle = $this->createGuzzleClient();
+        $this->client = $this->createClient();
     }
 
     /**
-     * Create the guzzle client instance
+     * Create the client instance
      *
      */
-    protected function createGuzzleClient() : Client
+    protected function createClient() : Client
     {
         return new Client([
-            'handler' => HandlerStack::create(new CurlMultiHandler()),
-            'timeout' => 10
+            'handler' => HandlerStack::create(new CurlMultiHandler())
         ]);
     }
 
@@ -76,14 +74,14 @@ class HttpClient
         $exception = null;
 
         try {
-            $request->getSettings()->setAll($this->overrideRequestSettings());
-            $response = $this->guzzle->request($request->getMethod(), $request->getUrl(), $this->getRequestOptions($request));
+            $request = $this->beforeRequest($request);
+            $response = $this->client->request($request->getMethod(), $request->getUrl(), $this->getRequestOptions($request));
         } 
         catch(RequestException $e) {
             $exception = $e;
         }
 
-        return $this->factory->createResponse($request, $response, $exception);
+        return $this->createResponse($request, $response, $exception);
     }
 
     /**
@@ -97,19 +95,19 @@ class HttpClient
         /* Map requests to promises */
         $guzzleRequests = $requests->map(function($request) {
             return function() use ($request) {
-                $request->getSettings()->setAll($this->overrideRequestSettings());
-                return $this->guzzle->requestAsync($request->getMethod(), $request->getUrl(), $this->getRequestOptions($request));
+                $request = $this->beforeRequest($request);
+                return $this->client->requestAsync($request->getMethod(), $request->getUrl(), $this->getRequestOptions($request));
             };
         });
 
-        $pool = new \GuzzleHttp\Pool($this->guzzle, $guzzleRequests, [
+        $pool = new \GuzzleHttp\Pool($this->client, $guzzleRequests, [
             'concurrency' => $concurrency ?? $requests->count(),
             'fulfilled' => function($response, $index) use ($requests, &$responses) {
-                $response = $this->factory->createResponse($requests[$index], $response);
+                $response = $this->createResponse($requests[$index], $response);
                 $responses->push($response);
             },
             'rejected' => function($exception, $index) use ($requests, &$responses) {
-                $response = $this->factory->createResponse($requests[$index], null, $exception);
+                $response = $this->createResponse($requests[$index], null, $exception);
                 $responses->push($response);
             }
         ]);
@@ -124,10 +122,10 @@ class HttpClient
      * Get request options for guzzle from a request object
      *
      */
-    protected function getRequestOptions(HttpRequest $request) : array
+    private function getRequestOptions(HttpRequest $request) : array
     {
         $onRedirect = function(RequestInterface $guzzleRequest, ResponseInterface $response, UriInterface $uri) use($request) {
-            $status = HttpStatusRepository::getInstance()->getByCode($response->getStatusCode());
+            $status = $this->statuses->getByCode($response->getStatusCode());
             $redirection = new HttpRedirection((string)$guzzleRequest->getUri(), (string)$uri, $status);
             $request->getRedirections()->push($redirection);
         };
@@ -152,12 +150,30 @@ class HttpClient
         return $requestOptions;
     }
 
-    /***
-     * Define a key value pair array of request settings to override
+    /**
+     * Create response from guzzlehttp
      *
      */
-    protected function overrideRequestSettings() : array
+    private function createResponse(HttpRequest $request, ?Response $guzzleResponse, RequestException $exception = null) : HttpResponse
     {
-        return [];
+        $handler = new GuzzleHttpResponseHandler($guzzleResponse, $exception);
+        $handler->setHttpStatusRepository($this->statuses);
+        $response = $handler->createResponse($request);
+
+        /* Run all request processors */
+        foreach($request->getSettings()->request_processors as $processor) {
+            $response = $processor->process($response, $handler);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Modify the outgoing request, ment to be overridden by child class
+     *
+     */
+    protected function beforeRequest(HttpRequest $request) : HttpRequest
+    {
+        return $request;
     }
 }

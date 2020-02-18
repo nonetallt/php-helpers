@@ -2,9 +2,12 @@
 
 namespace Nonetallt\Helpers\Internet\Http\Requests;
 
+use Nonetallt\Helpers\Common\Settings;
 use Nonetallt\Helpers\Internet\Http\Exceptions\Factory\HttpRequestResponseExceptionFactory;
 use Nonetallt\Helpers\Internet\Http\Responses\Processors\ResponseParser;
-use Nonetallt\Helpers\Common\Settings;
+use Nonetallt\Helpers\Internet\Http\Responses\Processors\HttpResponseProcessorCollection;
+use Nonetallt\Helpers\Internet\Http\Responses\Processors\CreateConnectionExceptions;
+use Nonetallt\Helpers\Internet\Http\Responses\Processors\CreateResponseExceptions;
 
 class HttpRequestSettings extends Settings
 {
@@ -12,6 +15,7 @@ class HttpRequestSettings extends Settings
     {
         $factoryClass = HttpRequestResponseExceptionFactory::class;
         $parserClass = ResponseParser::class;
+        $processorCollectionClass = HttpResponseProcessorCollection::class;
 
         return [
             [
@@ -46,6 +50,16 @@ class HttpRequestSettings extends Settings
                 },
                 'validate' => "is:$factoryClass"
             ],
+            [
+                'name' => 'request_processors',
+                'default' => function() {
+                    return new HttpResponseProcessorCollection(
+                        new CreateConnectionExceptions(),
+                        new CreateResponseExceptions()
+                    );
+                },
+                'validate' => "is:$processorCollectionClass"
+            ]
         ];
     }
 
