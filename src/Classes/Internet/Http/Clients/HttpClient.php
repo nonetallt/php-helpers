@@ -23,12 +23,19 @@ use Nonetallt\Helpers\Internet\Http\Responses\GuzzleHttpResponseHandler;
 /**
  * Wrapper class for common API usage that utilizes GuzzleHttp client for
  * requests.
+ *
  */
 class HttpClient
 {
     protected $client;
     protected $statuses;
 
+    /***
+     * @param HttpStatusRepository $repo The repository that should be used
+     * for fetching request status codes. Preferably an application wide
+     * singleton saved in application container;
+     *
+     */
     public function __construct(HttpStatusRepository $repo = null)
     {
         $this->client = $this->createClient();
