@@ -3,26 +3,27 @@
 namespace Nonetallt\Helpers\Internet\Http\Responses\Processors;
 
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
-use Nonetallt\Helpers\Templating\RecursiveAccessor;
 use Nonetallt\Helpers\Internet\Http\Exceptions\Factory\HttpRequestResponseExceptionFactory;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
-use Nonetallt\Helpers\Generic\Exceptions\ParsingException;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestResponseException;
+use Nonetallt\Helpers\Generic\Exceptions\ParsingException;
+use Nonetallt\Helpers\Templating\RecursiveAccessor;
 
-class CreateResponseExceptions
+/**
+ * Processor that creates exceptions for response data that can't
+ * be parsed
+ *
+ */
+class CreateResponseExceptions implements HttpResponseProcessor
 {
-    private $errorAccessor;
-    private $messageAccessor;
-    private $factory;
-
-    public function __construct(?string $errorAccessor, ?string $messageAccessor, ?HttpRequestResponseExceptionFactory $factory)
+    
+    public function process(HttpResponse $response)  : HttpResponse
     {
-        $this->errorAccessor   = $errorAccessor;
-        $this->messageAccessor = $messageAccessor;
-        $this->factory         = $factory ?? new HttpRequestResponseExceptionFactory();
+        $response->getExceptions()->pushAll($this->createExceptions($response));
+        return $response;
     }
 
-    public function createExceptions(HttpResponse $response)
+    private function createExceptions(HttpResponse $response)
     {
         $exceptions = new HttpRequestExceptionCollection();
         $body = $response->getBody();
@@ -41,11 +42,12 @@ class CreateResponseExceptions
         }
         
         if(is_array($body)) {
-            $exceptionData = $this->accessResponseExceptions($body);
+            $exceptionData = $this->accessResponseExceptions($response, $body);
 
             /* If response exceptions were found, add them to the request */
             if(! empty($exceptionData)) {
-                $exceptions = $this->factory->createExceptions($exceptionData);
+                $factory = $response->getRequest()->getSettings()->response_exception_factory;
+                $exceptions = $factory->createExceptions($exceptionData);
             }
         }
 
@@ -61,21 +63,25 @@ class CreateResponseExceptions
      * will not be processed by error handlers
      *
      */
-    protected function accessResponseExceptions(array $parsed)
+    private function accessResponseExceptions(HttpResponse $response, array $parsed)
     {
-        if($this->errorAccessor === null || $parsed === null) return;
+        $settings = $response->getRequest()->getSettings();
+        $errorAccessor = $settings->error_accessor;
+        $messageAccessor = $settings->error_message_accessor;
+
+        if($errorAccessor === null || $parsed === null) return;
         $accessor = new RecursiveAccessor('->');
 
         /* Not errors found */
-        if(! $accessor->isset($this->errorAccessor, $parsed)) return;
+        if(! $accessor->isset($errorAccessor, $parsed)) return;
 
         /* Try finding error objects from the response */
-        $exceptionData = $accessor->getNestedValue($this->errorAccessor, $parsed);
+        $exceptionData = $accessor->getNestedValue($errorAccessor, $parsed);
 
         /* Try finding messages from within error objects */
-        if($this->messageAccessor !== null) {
-            $exceptionData = array_map(function($error) use ($accessor) {
-                return $accessor->getNestedValue($this->messageAccessor, $error);
+        if($messageAccessor !== null) {
+            $exceptionData = array_map(function($error) use ($accessor, $messageAccessor) {
+                return $accessor->getNestedValue($messageAccessor, $error);
             }, $exceptionData);
         }
 

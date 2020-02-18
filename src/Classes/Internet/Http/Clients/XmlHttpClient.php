@@ -7,7 +7,7 @@ use Nonetallt\Helpers\Internet\Http\Responses\Processors\XmlResponseParser;
 
 class XmlHttpClient extends HttpClient
 {
-    public function getClientSettings() : array
+    protected function overrideRequestSettings() : array
     {
         return [
             'response_parser' => new XmlResponseParser()

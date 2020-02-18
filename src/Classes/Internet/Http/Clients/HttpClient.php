@@ -76,7 +76,7 @@ class HttpClient
         $exception = null;
 
         try {
-            $request->getSettings()->setAll($this->getClientSettings());
+            $request->getSettings()->setAll($this->overrideRequestSettings());
             $response = $this->guzzle->request($request->getMethod(), $request->getUrl(), $this->getRequestOptions($request));
         } 
         catch(RequestException $e) {
@@ -97,6 +97,7 @@ class HttpClient
         /* Map requests to promises */
         $guzzleRequests = $requests->map(function($request) {
             return function() use ($request) {
+                $request->getSettings()->setAll($this->overrideRequestSettings());
                 return $this->guzzle->requestAsync($request->getMethod(), $request->getUrl(), $this->getRequestOptions($request));
             };
         });
@@ -151,7 +152,11 @@ class HttpClient
         return $requestOptions;
     }
 
-    public function getClientSettings() : array
+    /***
+     * Define a key value pair array of request settings to override
+     *
+     */
+    protected function overrideRequestSettings() : array
     {
         return [];
     }

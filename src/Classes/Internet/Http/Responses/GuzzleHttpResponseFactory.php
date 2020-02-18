@@ -8,15 +8,14 @@ use GuzzleHttp\Exception\RequestException;
 use Nonetallt\Helpers\Internet\Http\Requests\HttpRequest;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponse;
 use Nonetallt\Helpers\Internet\Http\Common\HttpHeaderCollection;
+use Nonetallt\Helpers\Internet\Http\Common\HttpHeader;
 use Nonetallt\Helpers\Internet\Http\Statuses\HttpStatusRepository;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestConnectionException;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestServerException;
-use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestResponseException;
 use Nonetallt\Helpers\Internet\Http\Responses\HttpResponseBody;
 use Nonetallt\Helpers\Internet\Http\Responses\Processors\CreateResponseExceptions;
-use Nonetallt\Helpers\Generic\Exceptions\ParsingException;
 use Nonetallt\Helpers\Internet\Http\Exceptions\HttpRequestExceptionCollection;
-use Nonetallt\Helpers\Internet\Http\Common\HttpHeader;
+use Nonetallt\Helpers\Generic\Exceptions\ParsingException;
 
 class GuzzleHttpResponseFactory
 {
@@ -33,16 +32,10 @@ class GuzzleHttpResponseFactory
 
         $response = $this->createResponseClass($request, $guzzleResponse);
         $response->getExceptions()->pushAll($this->createConnectionExceptions($request, $exception)); 
-        $response->getExceptions()->pushAll($this->createResponseExceptions($request, $response));
+        $proc = new CreateResponseExceptions();
+        $response = $proc->process($response);
 
         return $response;
-    }
-
-    private function createResponseExceptions(HttpRequest $request, HttpResponse $response) : HttpRequestExceptionCollection
-    {
-        $settings = $request->getSettings();
-        $proc = new CreateResponseExceptions($settings->error_accessor, $settings->error_message_accessor, $settings->response_exception_factory);
-        return $proc->createExceptions($response);
     }
 
     private function createResponseClass(HttpRequest $request, ?Response $guzzleResponse) : HttpResponse

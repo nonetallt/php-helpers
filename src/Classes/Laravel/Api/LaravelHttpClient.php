@@ -10,7 +10,7 @@ class LaravelHttpClient extends HttpClient
 {
     private $exceptionFactory;
 
-    public function getClientSettings() : array
+    protected function overrideRequestSettings() : array
     {
         return [
             'error_accessor' => 'errors',

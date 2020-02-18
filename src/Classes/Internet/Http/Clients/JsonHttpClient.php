@@ -6,7 +6,7 @@ use Nonetallt\Helpers\Internet\Http\Responses\Processors\JsonResponseParser;
 
 class JsonHttpClient extends HttpClient
 {
-    public function getClientSettings() : array
+    protected function overrideRequestSettings() : array
     {
         return [
             'response_parser' => new JsonResponseParser()
