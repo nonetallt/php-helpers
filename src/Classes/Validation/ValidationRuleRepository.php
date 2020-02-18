@@ -8,18 +8,7 @@ class ValidationRuleRepository extends ReflectionClassRepository
 {
     CONST COLLECTION_TYPE = ValidationRule::class;
 
-    private static $instance;
-
-    public static function getInstance()
-    {
-        if(static::$instance === null) {
-            static::$instance = new self();
-        }
-
-        return static::$instance;
-    }
-
-    private function __construct()
+    public function __construct()
     {
         parent::__construct();
 

@@ -7,6 +7,7 @@ use Nonetallt\Helpers\Validation\ValidationRuleCollection;
 use Nonetallt\Helpers\Validation\Results\ValidationResult;
 use Nonetallt\Helpers\Describe\DescribeObject;
 use Nonetallt\Helpers\Generic\MissingValue;
+use Nonetallt\Helpers\Validation\ValidationRuleRepository;
 
 class Validator
 {
@@ -14,15 +15,11 @@ class Validator
     private $ruleStrings;
     private $valueValidators;
 
-    public function __construct(array $rules)
+    public function __construct(array $rules, ValidationRuleFactory $factory = null)
     {
-        $ruleDelimiter      = '|';
-        $ruleParamDelimiter = ':';
-        $paramDelimiter     = ',';
-
         $this->valueValidators = new ValueValidatorCollection();
+        $this->factory = $factory ?? new ValidationRuleFactory();
         $this->setRuleStrings($rules);
-        $this->factory = new ValidationRuleFactory($ruleDelimiter, $ruleParamDelimiter, $paramDelimiter);
     }
 
     public function setRuleStrings(array $rules)

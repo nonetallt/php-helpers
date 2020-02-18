@@ -8,24 +8,18 @@ use Nonetallt\Helpers\Validation\ValidationRuleRepository;
 
 class ValidationRuleFactory
 {
-    private $ruleDelimiter;
-    private $ruleParamDelimiter;
-    private $paramDelimiter;
-    private $reverseNotation;
-    private $validatorClasses;
+    private $settings;
+    private $ruleRepository;
 
-    public function __construct(string $ruleDelimiter = '|', string $ruleParamDelimiter = ':', string $paramDelimiter = ',')
+    public function __construct(ValidationRuleRepository $repo = null, ValidationRuleParsingSettings $settings = null)
     {
-        $this->ruleDelimiter  = $ruleDelimiter;
-        $this->ruleParamDelimiter  = $ruleParamDelimiter;
-        $this->paramDelimiter  = $paramDelimiter;
-        $this->validatorClasses = ValidationRuleRepository::getInstance();
-        $this->reverseNotation = '!';
+        $this->ruleRepository = $repo ?? new ValidationRuleRepository();
+        $this->settings = $settings ?? new ValidationRuleParsingSettings();
     }
 
     public function getRuleRepository() : ValidationRuleRepository
     {
-        return $this->validatorClasses;
+        return $this->ruleRepository;
     }
 
     /**
@@ -42,7 +36,7 @@ class ValidationRuleFactory
         }
 
         /* Create rule from each delimited rule string */
-        foreach(explode($this->ruleDelimiter, $ruleList) as $ruleString) {
+        foreach(explode($this->settings->rule_delimiter, $ruleList) as $ruleString) {
              $rules->push($this->makeRuleFromString($ruleString));
         }
 
@@ -55,12 +49,12 @@ class ValidationRuleFactory
      */
     public function makeRuleFromString(string $ruleString) : ValidationRule
     {
-        $parts = explode($this->ruleParamDelimiter, $ruleString);
+        $parts = explode($this->settings->rule_parameter_delimiter, $ruleString);
         $ruleName = strtolower($parts[0]);
         $parameters = [];
 
         if(isset($parts[1])) {
-            $parameters = explode($this->paramDelimiter, $parts[1]);
+            $parameters = explode($this->settings->parameter_delimiter, $parts[1]);
         }
 
         return $this->makeRule($ruleName, $parameters);
@@ -74,12 +68,12 @@ class ValidationRuleFactory
     {
         $isReversed = false;
 
-        if(starts_with($ruleName, $this->reverseNotation)) {
-            $ruleName = trim(substr($ruleName, strlen($this->reverseNotation)));
+        if(starts_with($ruleName, $this->settings->reverse_notation)) {
+            $ruleName = trim(substr($ruleName, strlen($this->settings->reverse_notation)));
             $isReversed = true;
         }
 
-        $reflection = $this->validatorClasses[$ruleName] ?? null;
+        $reflection = $this->ruleRepository[$ruleName] ?? null;
 
         if($reflection === null) {
             throw $this->ruleNotFound($ruleName);
@@ -92,7 +86,7 @@ class ValidationRuleFactory
 
     public function ruleNotFound(string $name) : RuleNotFoundException
     {
-        $classes = $this->validatorClasses;
+        $classes = $this->ruleRepository;
         sort($classes);
         $valid = PHP_EOL . implode(PHP_EOL, $classes);
         $msg = "Rule '$name' not found in list of valid rules: $valid";

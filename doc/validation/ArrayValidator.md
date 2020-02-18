@@ -65,16 +65,8 @@ $result = $validator->validate('string', $key);
 
 ### Using validation results
 
-```php
-// Get validation exception messages
-$messages = $result->getExceptions()->getMessages();
+See [ValidationResult documentation]('./ValidationResult.md')
 
-// Check if validation passed
-$result->passed();
-
-// Check if validation failed
-$result->failed();
-```
 
 ### Validating array items using nested schemas
 
