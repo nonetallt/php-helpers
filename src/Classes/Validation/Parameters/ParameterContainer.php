@@ -2,7 +2,7 @@
 
 namespace Nonetallt\Helpers\Validation\Parameters;
 
-class ParameterContainer implements \ArrayAccess
+class ParameterContainer implements \ArrayAccess ,\IteratorAggregate
 {
     private $data;
 
@@ -61,5 +61,13 @@ class ParameterContainer implements \ArrayAccess
     public function offsetUnset($offset)
     {
         unset($this->data[$offset]);
+    }
+
+    /**
+     * implement IteratorAggregate
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->data);
     }
 }
