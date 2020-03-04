@@ -4,7 +4,7 @@
     "keywords": ["helpers"],
     "type": "library",
     "require": {
-        "php": "^7.2",
+        "php": "^7.3",
         "guzzlehttp/guzzle": "^6.3",
         "jakeasmith/http_build_url": "^1",
         "psr/http-message": "^1.0",
