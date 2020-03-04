@@ -2,6 +2,8 @@
 * ValidatorInterface validate($value, string $name, ValidationSettings $settings) : ValidationResult; implement for all validators
 * Closure based validation for ValidationSettings
 * Make sure that HttpRequestSetting response processors can be added by user
+* Refactor most of http request settings to processor classes since processors are the ones using those settings
+* Implement more of guzzlehttp request options as settings
 * Document http classes
 
 
