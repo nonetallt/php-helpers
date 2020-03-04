@@ -5,6 +5,7 @@ namespace Test\Unit\Validation\Rules;
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Validation\Validator;
 use Nonetallt\Helpers\Validation\ValidationRuleFactory;
+use Nonetallt\Helpers\Describe\DescribeObject;
 
 abstract class ValidationRuleTest extends TestCase
 {
@@ -40,13 +41,15 @@ abstract class ValidationRuleTest extends TestCase
         if(empty($fail)) throw new \Exception("$id must set some failing expectations");
 
         foreach($fail as $key => $value) {
-            $this->assertTrue($this->rule->validate($value, $key)->failed());
+            $result = $this->rule->validate($value, $key)->failed();
+            $value = ( new DescribeObject($value) )->describeAsString();
+            $message = "Failed asserting that {$this->rule->getName()} fails for value $value";
+            $this->assertTrue($result, $message);
         }
     }
 
     public function testValidationShouldSucceedForGivenValues()
     {
-        /* echo $this->ruleName() . PHP_EOL; */
         $expectations = $this->expectations();
         $pass = $expectations['pass'] ?? [];
 
@@ -55,7 +58,11 @@ abstract class ValidationRuleTest extends TestCase
         if(empty($pass)) throw new \Exception("$id must set some succesful expectations");
 
         foreach($pass as $key => $value) {
-            $this->assertTrue($this->rule->validate($value, $key)->passed());
+            $result = $this->rule->validate($value, $key)->passed();
+            $value = ( new DescribeObject($value) )->describeAsString();
+            $message = "Failed asserting that {$this->rule->getName()} passes for value $value";
+            $this->assertTrue($result, $message);
+
         }
     }
 }
