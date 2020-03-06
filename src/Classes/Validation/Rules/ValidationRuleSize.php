@@ -33,7 +33,7 @@ class ValidationRuleSize extends ValidationRule
         }
 
         $size = $this->parameters->size;
-        $passes =  $valueSize === $size;
+        $passes =  $valueSize == $size;
 
         return $this->createResult($this, $passes, "Value $name must have size of $size");
     }
