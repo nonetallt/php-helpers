@@ -3,6 +3,7 @@
 namespace Nonetallt\Helpers\Validation\Parameters\Conversion;
 
 use Nonetallt\Helpers\Describe\DescribeObject;
+use Nonetallt\Helpers\Strings\Str;
 
 abstract class ParameterTypeConverter
 {
@@ -19,7 +20,7 @@ abstract class ParameterTypeConverter
     protected function fail($value)
     {
         $ref = new \ReflectionClass($this);
-        $expected = strtolower(str_before($ref->getShortName(), 'ParameterTypeConverter'));
+        $expected = strtolower(Str::before($ref->getShortName(), 'ParameterTypeConverter'));
 
         $desc = new DescribeObject($value);
         $given = $desc->describeAsString();

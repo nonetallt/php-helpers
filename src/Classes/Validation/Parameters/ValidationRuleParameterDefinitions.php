@@ -25,7 +25,6 @@ class ValidationRuleParameterDefinitions
      */
     public function mapValues(array $values)
     {
-        $converter = new ParameterConversionFactory();
         $errors = [];
         $mapped = [];
 
@@ -37,7 +36,7 @@ class ValidationRuleParameterDefinitions
 
             /* Try converting parameter value to the correct type */
             try {
-                $result = $converter->convertToType($value, $type);
+                $result = ParameterConversionFactory::convertToType($value, $type);
                 $value = $result->getValue();
             }
             catch(ParameterTypeConversionException $e) {
