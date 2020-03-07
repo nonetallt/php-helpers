@@ -36,9 +36,7 @@ class DescribeObject
     public function describeAsString(bool $pretty = true)
     {
         $repo = $this->getStringDescriptionRepository();
-        $repo->setPretty($pretty);
-
-        return $repo->getDescription($this->object);
+        return $repo->getDescription($this->object, $pretty);
 
         throw new \Exception("Cannot describe {$this->describeType()} as string, value is not string convertable");
     }

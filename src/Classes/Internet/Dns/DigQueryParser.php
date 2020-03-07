@@ -2,6 +2,8 @@
 
 namespace Nonetallt\Helpers\Internet\Dns;
 
+use Nonetallt\Helpers\Strings\Str;
+
 class DigQueryParser
 {
     private $query;
@@ -26,7 +28,7 @@ class DigQueryParser
 
         foreach($this->lines() as $line) {
             if(trim($line) === '') $record = false;
-            if(starts_with($line, ';; ANSWER SECTION:')) {
+            if(Str::startsWith($line, ';; ANSWER SECTION:')) {
                 $record = true;
                 continue;
             }
@@ -48,7 +50,7 @@ class DigQueryParser
     public function getFlags()
     {
         foreach($this->lines() as $line) {
-            if(! starts_with($line, ';; flags:')) continue;
+            if(! Str::startsWith($line, ';; flags:')) continue;
             return $this->parseFlags($line);
         }
 

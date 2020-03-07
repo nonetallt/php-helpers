@@ -3,6 +3,7 @@
 namespace Nonetallt\Helpers\Templating;
 
 use Nonetallt\Helpers\Templating\Exceptions\TemplatingException;
+use Nonetallt\Helpers\Strings\Str;
 
 class PlaceholderFormat
 {
@@ -53,8 +54,8 @@ class PlaceholderFormat
 
     public function trimPlaceholderString(string $subject)
     {
-        str_splice($subject, 0, strlen($this->getStart()));
-        str_splice($subject, strlen($subject) - strlen($this->getStart()));
+        Str::splice($subject, 0, strlen($this->getStart()));
+        Str::splice($subject, strlen($subject) - strlen($this->getStart()));
         return $subject;
     }
 

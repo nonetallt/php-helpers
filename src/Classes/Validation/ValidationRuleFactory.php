@@ -5,6 +5,7 @@ namespace Nonetallt\Helpers\Validation;
 use Nonetallt\Helpers\Filesystem\Traits\FindsReflectionClasses;
 use Nonetallt\Helpers\Validation\Exceptions\RuleNotFoundException;
 use Nonetallt\Helpers\Validation\ValidationRuleRepository;
+use Nonetallt\Helpers\Strings\Str;
 
 class ValidationRuleFactory
 {
@@ -68,7 +69,7 @@ class ValidationRuleFactory
     {
         $isReversed = false;
 
-        if(starts_with($ruleName, $this->settings->reverse_notation)) {
+        if(Str::startsWith($ruleName, $this->settings->reverse_notation)) {
             $ruleName = trim(substr($ruleName, strlen($this->settings->reverse_notation)));
             $isReversed = true;
         }

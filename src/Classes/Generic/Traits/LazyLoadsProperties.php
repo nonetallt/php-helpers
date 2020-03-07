@@ -2,6 +2,8 @@
 
 namespace Nonetallt\Helpers\Generic\Traits;
 
+use Nonetallt\Helpers\Strings\Str;
+
 /**
  * Trait for lazy loading properties.
  *
@@ -84,7 +86,7 @@ trait LazyLoadsProperties
      */
     public function __call(string $method, $parameters)
     {
-        if(starts_with($method, 'get')) {
+        if(Str::startsWith($method, 'get')) {
             $prop = substr($method, strlen('get'));
             return $this->lazyLoadProperty($prop);
         }

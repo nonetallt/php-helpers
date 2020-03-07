@@ -2,6 +2,8 @@
 
 namespace Nonetallt\Helpers\Filesystem\Traits;
 
+use Nonetallt\Helpers\Strings\Str;
+
 trait FindsFiles
 {
     protected function findFiles(string $dir)
@@ -13,10 +15,10 @@ trait FindsFiles
     protected function findFilesWithExtension(string $dir, string $extension)
     {
         /* Prepend missing dot */
-        if(! starts_with($extension, '.')) $extension = ".$extension";
+        if(! Str::startsWith($extension, '.')) $extension = ".$extension";
 
         return array_filter($this->findFiles($dir), function($file) use($extension){
-            return ends_with($file, $extension);
+            return Str::endsWith($file, $extension);
         });
     }
 

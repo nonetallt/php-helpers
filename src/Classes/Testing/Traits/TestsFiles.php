@@ -2,6 +2,8 @@
 
 namespace Nonetallt\Helpers\Testing\Traits;
 
+use Nonetallt\Helpers\Strings\Str;
+
 trait TestsFiles
 {
     private $basePath;
@@ -41,7 +43,7 @@ trait TestsFiles
 
     public function appendToPath(string $path, ?string $append) : string
     {
-        if($append !== null && ! starts_with($append, '/')) $append = "/$append";
+        if($append !== null && ! Str::startsWith($append, '/')) $append = "/$append";
         return $path . $append;
     }
 

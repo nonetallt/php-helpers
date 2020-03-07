@@ -2,6 +2,8 @@
 
 namespace Nonetallt\Helpers\Filesystem\Reflections;
 
+use Nonetallt\Helpers\Strings\Str;
+
 /**
  * A class for accessing methods of a certain class using simplified key to
  * method mapping defined by user
@@ -45,8 +47,8 @@ class ReflectionMethodFactory extends ReflectionMethodRepository
         }
 
         /* Skip methods that are missing either prefix or suffix */
-        if(! starts_with($method->getName(), $this->handlerMethodPrefix) || 
-            ! ends_with($method->getName(), $this->handlerMethodSuffix)) {
+        if(! Str::startsWith($method->getName(), $this->handlerMethodPrefix) || 
+            ! Str::endsWith($method->getName(), $this->handlerMethodSuffix)) {
             return false;
         }
 

@@ -4,53 +4,54 @@ namespace Test\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Templating\PlaceholderFormat;
+use Nonetallt\Helpers\Strings\Str;
 
 class IsStrConvertableTest extends TestCase
 {
     public function testStringIsConvertable()
     {
-        $this->assertTrue(is_str_convertable('asd'));
+        $this->assertTrue(Str::isConvertable('asd'));
     }
 
     public function testIntegerIsConvertable()
     {
-        $this->assertTrue(is_str_convertable(1));
+        $this->assertTrue(Str::isConvertable(1));
     }
 
     public function testFloatIsConvertable()
     {
-        $this->assertTrue(is_str_convertable(1.1));
+        $this->assertTrue(Str::isConvertable(1.1));
     }
 
     public function testNullIsConvertable()
     {
-        $this->assertTrue(is_str_convertable(null));
+        $this->assertTrue(Str::isConvertable(null));
     }
 
     public function testTrueIsConvertable()
     {
-        $this->assertTrue(is_str_convertable(true));
+        $this->assertTrue(Str::isConvertable(true));
     }
 
     public function testFalseIsConvertable()
     {
-        $this->assertTrue(is_str_convertable(false));
+        $this->assertTrue(Str::isConvertable(false));
     }
 
     public function testObjectWithToStringIsConvertable()
     {
         $obj = new PlaceholderFormat('{{$}}');
-        $this->assertTrue(is_str_convertable($obj));
+        $this->assertTrue(Str::isConvertable($obj));
     }
 
     public function testArrayIsNotConvertable()
     {
-        $this->assertFalse(is_str_convertable([]));
+        $this->assertFalse(Str::isConvertable([]));
     }
 
     public function testObjectWithoutToStringIsNotConvertable()
     {
-        $this->assertFalse(is_str_convertable($this));
+        $this->assertFalse(Str::isConvertable($this));
     }
 }
 

@@ -51,7 +51,7 @@ class Str
      */
     public static function removeSuffix(string $subject, string $suffix) : string
     {
-        if(ends_with($subject, $suffix)) {
+        if(static::endsWith($subject, $suffix)) {
             $len = strlen($subject) - strlen($suffix);
             $subject = substr($subject, 0, $len);
         }
@@ -169,4 +169,43 @@ class Str
     {
         return strpos($subject, $another) !== false;
     }
+
+    /**
+     * Get the difference between two strings
+     *
+     */
+    public static function diff(string $subject, string $another) : array
+    {
+        $diff = [];
+
+        for($n = 0; $n < strlen($subject); $n++) {
+            $s1 = substr($subject, $n, 1);
+            $s2 = substr($another, $n, 1);
+
+            if($s1 !== $s2) $diff[$n] = "'$s1' !== '$s2'";
+        }
+
+        return $diff;
+    }
+
+    /**
+     * Check if the given value can be cast to string
+     *
+     */
+    public static function isConvertable($value) : bool
+    {
+        return is_null($value) || 
+            is_scalar($value) || 
+            (is_object($value) && method_exists($value, '__toString'));
+    }
+
+    /**
+     * Describe a value as string
+     *
+     */
+    /* public function describe($value, bool $pretty = true) : string */
+    /* { */
+    /*     $repo = $this->getStringDescriptionRepository(); */
+    /*     return $repo->getDescription($value, $pretty); */
+    /* } */
 }

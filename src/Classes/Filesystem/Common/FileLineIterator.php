@@ -2,6 +2,8 @@
 
 namespace Nonetallt\Helpers\Filesystem\Common;
 
+use Nonetallt\Helpers\Strings\Str;
+
 class FileLineIterator implements \Iterator
 {
     private $iteratorPosition;
@@ -42,7 +44,7 @@ class FileLineIterator implements \Iterator
             if(! $readBlank && trim($line) === '') continue;
 
             /* Strip line ending if option is in use */
-            if($stripLineEndings && ends_with($line, PHP_EOL)) {
+            if($stripLineEndings && Str::endsWith($line, PHP_EOL)) {
                 $line = substr($line, 0, strlen($line) - strlen(PHP_EOL));
             }
 

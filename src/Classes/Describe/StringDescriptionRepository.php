@@ -4,36 +4,30 @@ namespace Nonetallt\Helpers\Describe;
 
 use Nonetallt\Helpers\Filesystem\Traits\FindsReflectionClasses;
 use Jawira\CaseConverter\Convert;
+use Nonetallt\Helpers\Strings\Str;
 
 class StringDescriptionRepository
 {
     use FindsReflectionClasses;
 
     private $mapping;
-    private $pretty;
 
     public function __construct()
     {
         $refs = $this->findReflectionClasses(__DIR__, __NAMESPACE__, StringDescription::class);
         $this->mapping = [];
-        $this->pretty = false;
 
         foreach($refs as $ref) {
             $class = $ref->getShortName();
             $converter = new Convert($class);
             $alias = $converter->fromPascal()->toSnake();
-            $alias = str_before($alias, '_');
+            $alias = Str::before($alias, '_');
              
             $this->mapping[$alias] = $ref->name;
         }
     }
 
-    public function setPretty(bool $pretty)
-    {
-        $this->pretty = $pretty;
-    }
-
-    public function getDescription($value)
+    public function getDescription($value, bool $pretty = false)
     {
         $type = strtolower(gettype($value));
 
@@ -46,6 +40,6 @@ class StringDescriptionRepository
 
         $desc = $this->mapping[$type];
 
-        return $this->pretty ? $desc::prettyDescription($value, $this) : $desc::description($value, $this);
+        return $pretty ? $desc::prettyDescription($value, $this) : $desc::description($value, $this);
     }
 }

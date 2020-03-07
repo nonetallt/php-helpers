@@ -2,6 +2,8 @@
 
 namespace Nonetallt\Helpers\Filesystem\Traits;
 
+use Nonetallt\Helpers\Strings\Str;
+
 trait FindsReflectionClasses
 {
     use FindsFiles;
@@ -11,7 +13,7 @@ trait FindsReflectionClasses
         $classes = [];
 
         /* Append namespace separator if missing */
-        if(! ends_with($namespace, '\\')) $namespace .= '\\';
+        if(! Str::endsWith($namespace, '\\')) $namespace .= '\\';
 
         foreach($this->findFilesWithExtension($dir, '.php') as $file) {
             

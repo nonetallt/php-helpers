@@ -7,6 +7,7 @@ use Nonetallt\Helpers\Filesystem\Exceptions\FileNotFoundException;
 use Nonetallt\Helpers\Filesystem\Exceptions\TargetNotFileException;
 use Nonetallt\Helpers\Filesystem\Permissions\FilePermissions;
 use Nonetallt\Helpers\Generic\Traits\LazyLoadsProperties;
+use Nonetallt\Helpers\Strings\Str;
 
 class File
 {
@@ -32,7 +33,7 @@ class File
         if($extension === null) return $ext !== '';
 
         /* Remove leading dots for comparison */
-        while(starts_with($extension, '.')) {
+        while(Str::startsWith($extension, '.')) {
             $extension = substr($extension, 1);
         }
 

@@ -31,7 +31,6 @@
             "Nonetallt\\Helpers\\": "src/Classes/"
         },
         "files": [
-            "src/strings.php",
             "src/generic.php",
             "src/arrays.php"
         ]

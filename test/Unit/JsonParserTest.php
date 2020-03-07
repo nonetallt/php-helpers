@@ -6,18 +6,19 @@ use PHPUnit\Framework\TestCase;
 use Nonetallt\Helpers\Arrays\TypedArray;
 use Nonetallt\Helpers\Filesystem\Json\JsonParser;
 use Nonetallt\Helpers\Filesystem\Json\Exceptions\JsonParsingException;
+use Nonetallt\Helpers\Strings\Str;
 
 class JsonParserTest extends TestCase
 {
     private function outputPath(string $append = '') : string 
     {
-        if(! starts_with($append, '/')) $append = "/$append";
+        if(! Str::startsWith($append, '/')) $append = "/$append";
         return dirname(__DIR__)."/input$append";
     }
 
     private function inputPath(string $append = '') : string
     {
-        if(! starts_with($append, '/')) $append = "/$append";
+        if(! Str::startsWith($append, '/')) $append = "/$append";
         return dirname(__DIR__)."/output$append";
     }
 
