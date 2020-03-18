@@ -2,6 +2,11 @@
     * do not use reflection repo
     * move functionality to Strr or new Describe:: class
 
+
+* ReflectionClassRepository
+    * Separate collection from repository class into property
+    * Method to manually add mapping into repo ValidationRuleRepository::add(string $alias, ValidationRule $rule)
+
 * ArrayValidator should be able to use user provided ValidationFactory
 * ValidatorInterface validate($value, string $name, ValidationSettings $settings) : ValidationResult; implement for all validators
 * Closure based validation for ValidationSettings
