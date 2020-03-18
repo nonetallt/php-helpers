@@ -48,6 +48,10 @@ abstract class ValidationRule
         $this->parameters = new ParameterContainer($parameters);
     }
 
+    /**
+     * TODO remove first parameter and use "this" instead
+     *
+     */
     protected function createResult(ValidationRule $rule, bool $success, string $message, bool $continue = true)
     {
         if($this->isReversed) {
