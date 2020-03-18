@@ -123,4 +123,24 @@ class StrTest extends TestCase
     {
         $this->assertFalse(Str::contains('foobarbaz', 'fooo'));
     }
+
+    public function testRandomReturnsStringOfSpecifiedLength()
+    {
+        $this->assertEquals(50, strlen(Str::random(50, 'abc')));
+    }
+
+    public function testRandomContainsOnlySpecifiedCharacters()
+    {
+        $chars = 'abcdefghijklmnopqrstuvwxyz';
+        $str = Str::random(30, $chars);
+
+        foreach(str_split($str) as $char) {
+            $this->assertTrue(strpos($chars, $char) !== false);
+        }
+    }
+
+    public function testRandomReturnsSequenceOfSingleCharacterIfCharactersContainOnly1Character()
+    {
+        $this->assertEquals('55555', Str::random(5, '5'));
+    }
 }

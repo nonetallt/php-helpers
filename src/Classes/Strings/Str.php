@@ -208,4 +208,35 @@ class Str
     /*     $repo = $this->getStringDescriptionRepository(); */
     /*     return $repo->getDescription($value, $pretty); */
     /* } */
+
+    /**
+     * Generates a cryptographically secure random string
+     *
+     */
+    public static function random(int $length, $characters) : string
+    {
+        if($length < 1) {
+            $msg = 'length must be at least 1';
+            throw new \InvalidArgumentException($msg);
+        }
+
+        if(is_string($characters)) {
+            $characters = str_split($characters);
+        }
+
+        if(! is_array($characters)) {
+            $msg = "characters must be either a string or an array";
+            throw new \InvalidArgumentException($msg);
+        }
+
+        /* Last index */
+        $max = count($characters) -1;
+        $result = '';
+
+        while(strlen($result) < $length) {
+            $result .= $characters[random_int(0, $max)];
+        }
+
+        return $result;
+    }
 }
