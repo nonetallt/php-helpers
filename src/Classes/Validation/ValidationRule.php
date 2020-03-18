@@ -14,7 +14,6 @@ abstract class ValidationRule
 {
     use Arrayable, LazyLoadsProperties;
 
-    private $name;
     protected $parameters;
     protected $isReversed;
 
@@ -90,7 +89,7 @@ abstract class ValidationRule
     public function toArray() : array
     {
         return [
-            'name' => $this->name,
+            'name' => $this->getName(),
             'parameters' => $this->parameters->toArray(),
             'is_reversed' => $this->isReversed
         ];
