@@ -3,7 +3,7 @@
 namespace Test\Unit\Language;
 
 use PHPUnit\Framework\TestCase;
-use Nonetallt\Helpers\Strings\Language\English;
+use Nonetallt\Helpers\Strings\Languages\English;
 
 class EnglishTest extends TestCase
 {

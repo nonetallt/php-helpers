@@ -1,8 +1,8 @@
 <?php
 
-namespace Nonetallt\Helpers\Strings\Language;
+namespace Nonetallt\Helpers\Strings\Languages;
 
-class English
+class English extends Language
 {
     CONST ALPHABET = [
         'a',

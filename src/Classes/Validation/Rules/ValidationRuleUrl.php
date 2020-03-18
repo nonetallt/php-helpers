@@ -5,7 +5,7 @@ namespace Nonetallt\Helpers\Validation\Rules;
 use Nonetallt\Helpers\Validation\ValidationRule;
 use Nonetallt\Helpers\Validation\Results\ValidationRuleResult;
 use Nonetallt\Helpers\Strings\Str;
-use Nonetallt\Helpers\Strings\Language\English;
+use Nonetallt\Helpers\Strings\Languages\English;
 
 class ValidationRuleUrl extends ValidationRule
 {

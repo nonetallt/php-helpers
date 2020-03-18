@@ -2,8 +2,11 @@
 
 namespace Nonetallt\Helpers\Strings;
 
+use Nonetallt\Helpers\Strings\Languages\English;
+
 class Str
 {
+    CONST NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     /**
      * Check if string starts with one of the given starts
      *
@@ -213,11 +216,15 @@ class Str
      * Generates a cryptographically secure random string
      *
      */
-    public static function random(int $length, $characters) : string
+    public static function random(int $length, $characters = null) : string
     {
         if($length < 1) {
             $msg = 'length must be at least 1';
             throw new \InvalidArgumentException($msg);
+        }
+
+        if($characters === null) {
+            $characters = static::alphanumeric(true, English::class);
         }
 
         if(is_string($characters)) {
@@ -238,5 +245,23 @@ class Str
         }
 
         return $result;
+    }
+
+    /**
+     * Get an array containing alphanumeric characters
+     *
+     */
+    public static function alphanumeric(bool $includeUpper = true, string $language) : array
+    {
+        return array_merge($language::alphabet($includeUpper), static::numbers());
+    }
+
+    /**
+     * Get all numeric characters
+     *
+     */
+    public static function numbers() : array
+    {
+        return static::NUMBERS;
     }
 }

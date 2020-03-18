@@ -143,4 +143,9 @@ class StrTest extends TestCase
     {
         $this->assertEquals('55555', Str::random(5, '5'));
     }
+
+    public function testRandomWorksWithoutSecondArg()
+    {
+        $this->assertEquals(10, strlen(Str::random(10)));
+    }
 }
