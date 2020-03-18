@@ -23,6 +23,7 @@
 * validate parameters in reflection factory / method mapping
 
 # Validation
+* remove validation rule "createResult" redundant first parameter
 
 # Describe
 * Describe string, describesCharacters method that lists all characters example: a, space, tab
