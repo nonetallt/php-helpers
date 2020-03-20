@@ -87,9 +87,10 @@ class ValidationRuleFactory
 
     public function ruleNotFound(string $name) : RuleNotFoundException
     {
-        $classes = $this->ruleRepository;
-        sort($classes);
-        $valid = PHP_EOL . implode(PHP_EOL, $classes);
+        $ruleNames = $this->ruleRepository->getAliases();
+        sort($ruleNames);
+
+        $valid = PHP_EOL . implode(PHP_EOL, $ruleNames);
         $msg = "Rule '$name' not found in list of valid rules: $valid";
         return new RuleNotFoundException($msg);
     }
