@@ -20,19 +20,19 @@ class EnglishTest extends TestCase
     public function testListWordsWithOneItem()
     {
         $expected = 'a foo';
-        $this->assertEquals($expected, English::listWords('foo'));
+        $this->assertEquals($expected, English::listWords([ 'foo' ]));
     }
 
     public function testListWordsWithTwoItems()
     {
         $expected = 'a foo and bar';
-        $this->assertEquals($expected, English::listWords('foo', 'bar'));
+        $this->assertEquals($expected, English::listWords([ 'foo', 'bar' ]));
     }
 
     public function testListWordsWithThreeItems()
     {
         $expected = 'a foo, bar and baz';
-        $this->assertEquals($expected, English::listWords('foo', 'bar', 'baz'));
+        $this->assertEquals($expected, English::listWords([ 'foo', 'bar', 'baz' ]));
     }
 
     public function testListWordsWithFiveItems()
@@ -47,6 +47,21 @@ class EnglishTest extends TestCase
             'pineapple'
         ];
 
-        $this->assertEquals($expected, English::listWords(...$fruits));
+        $this->assertEquals($expected, English::listWords($fruits));
+    }
+
+    public function testListWordsJoinWordCanBeChanged()
+    {
+        $expected = 'an apple, orange, banana, kiwi or pineapple';
+
+        $fruits = [
+            'apple',
+            'orange',
+            'banana',
+            'kiwi',
+            'pineapple'
+        ];
+
+        $this->assertEquals($expected, English::listWords($fruits, 'or'));
     }
 }

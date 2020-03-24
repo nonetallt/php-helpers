@@ -37,7 +37,7 @@ class English extends Language
      * Describe a list of items
      *
      */
-    public static function listWords(string ...$items) : string
+    public static function listWords(array $items, string $join = 'and') : string
     {
         $result = '';
 
@@ -54,7 +54,7 @@ class English extends Language
 
             if($pos + 2 === count($items)) {
                 /* Add 'and' after item if the next item is the last one*/ 
-                $result .= ' and ';
+                $result .= " $join ";
             }
             else if($pos + 1 < count($items)) {
                 /* Add comma after item */

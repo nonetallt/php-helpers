@@ -47,7 +47,7 @@ class ValidationRuleUrl extends ValidationRule
         $msg = "Value $name must be a valid url";
 
         if(count($flagNames) > 0) {
-            $items = English::listWords(...$flagNames);
+            $items = English::listWords($flagNames);
             $msg .= " with $items";
         }
 
