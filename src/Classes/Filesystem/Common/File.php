@@ -9,7 +9,7 @@ use Nonetallt\Helpers\Filesystem\Permissions\FilePermissions;
 use Nonetallt\Helpers\Generic\Traits\LazyLoadsProperties;
 use Nonetallt\Helpers\Strings\Str;
 
-class File
+class File implements \IteratorAggregate
 {
     use LazyLoadsProperties;
 
@@ -127,5 +127,10 @@ class File
     public function getPath() : string
     {
         return $this->path;
+    }
+
+    public function getIterator() : \Traversable
+    {
+        return new FileLineIterator($this);
     }
 }
