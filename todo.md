@@ -1,3 +1,6 @@
+* use multibyte safe mb underscore prefixed functions for all string processing
+  except files using bytes
+
 * Describe object should be refactored
     * do not use reflection repo
     * move functionality to Strr or new Describe:: class
@@ -24,6 +27,7 @@
 
 # Validation
 * remove validation rule "createResult" redundant first parameter
+* validation rule url https parameter
 
 # Describe
 * Describe string, describesCharacters method that lists all characters example: a, space, tab
@@ -33,6 +37,13 @@
 
 # Collection
 * refactor methods to return collection instance instead of array. Test with subclasses
+
+# Json
+* require ext-json in composer
+
+# Str
+* use mb_string for everything
+* require ex-tmbstring in composer
 
 # Laravel
 * SetsAttributesTrait

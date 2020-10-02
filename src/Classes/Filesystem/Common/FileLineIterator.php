@@ -6,20 +6,24 @@ use Nonetallt\Helpers\Strings\Str;
 
 class FileLineIterator implements \Iterator
 {
-    private $iteratorPosition;
     private $file;
     private $stream;
+    private $iteratorPosition;
+    private $pointerPosition;
 
     public function __construct(File $file)
     {
-        $this->iteratorPosition = 0;
         $this->file = $file;
+        $this->iteratorPosition = 0;
+        $this->pointerPosition = 0;
     }
 
     public function __destruct()
     {
         /* Close stream if open */
-        if(is_resource($this->stream)) fclose($this->stream); 
+        if(is_resource($this->stream)) {
+            fclose($this->stream); 
+        }
     }
 
     /**
@@ -114,7 +118,10 @@ class FileLineIterator implements \Iterator
 
     public function current()
     {
-        return fgets($this->getStream());
+        $line = new FileLine($this->file, $this->iteratorPosition + 1, $this->pointerPosition);
+        $line->setContent(fgets($this->getStream()));
+
+        return $line;
     }
 
     public function key()
@@ -130,12 +137,20 @@ class FileLineIterator implements \Iterator
     public function rewind()
     {
         $this->iteratorPosition = 0;
+        $this->pointerPosition = 0;
         $this->stream = null;
     }
 
     public function valid() : bool
     {
         /* Feof check reads always one empty line at the end of the file */
-        return ftell($this->getStream()) < $this->file->getSize();
+        $this->pointerPosition = ftell($this->getStream());
+
+        return $this->pointerPosition < $this->file->getSize();
+    }
+
+    public function getFile() : File
+    {
+        return $this->file;
     }
 }

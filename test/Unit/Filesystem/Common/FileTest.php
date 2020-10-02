@@ -134,4 +134,15 @@ class FileTest extends TestCase
         $this->expectException(FileNotFoundException::class);
         $this->file->getSize();
     }
+
+    public function testFileImplementsIteratorAggregate()
+    {
+        $this->assertTrue(in_array(\IteratorAggregate::class, class_implements($this->file)));
+    }
+
+    public function testGetContetGetsFileContent()
+    {
+        $input = new File($this->getTestInputPath('test.json'));
+        $this->assertEquals('["foobar"]', $input->getContent());
+    }
 }

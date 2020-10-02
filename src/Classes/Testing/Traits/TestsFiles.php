@@ -11,15 +11,18 @@ trait TestsFiles
     /**
      * @before
      */
-    protected function initializeForPhpunit()
+    protected function cleanOutput()
     {
-        /* $this->cleanOutput(); */
-    }
+        $exclude = [
+            '.', 
+            '..',
+            '.gitignore',
+            '.keep'
+        ];
 
-    protected function cleanOutput(string $folder)
-    {
-        /* $folder = new Directory($folder); */
-        /* $folder->removeRecursive(); */
+        foreach(array_diff(scandir($this->getTestOutputPath()), $exclude) as $filename) {
+            unlink($this->getTestOutputPath($filename));
+        }
     }
 
     /**
@@ -43,7 +46,10 @@ trait TestsFiles
 
     public function appendToPath(string $path, ?string $append) : string
     {
-        if($append !== null && ! Str::startsWith($append, '/')) $append = "/$append";
+        if($append !== null && ! Str::startsWith($append, DIRECTORY_SEPARATOR)) {
+            $append = DIRECTORY_SEPARATOR . $append;
+        } 
+
         return $path . $append;
     }
 

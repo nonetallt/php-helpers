@@ -11,6 +11,12 @@ class HttpQuery
         $this->parameters = $parameters;
     }
 
+    public static function fromUrl(string $url) : self
+    {
+        $query = parse_url($url)['query'] ?? '';
+        return static::fromString($query);
+    }
+
     public static function fromString(string $value) : self
     {
         $params = [];
@@ -58,8 +64,18 @@ class HttpQuery
         return $this->parameters;
     }
 
-    public function add(array $data)
+    public function addParameter(array $data)
     {
         $this->parameters += $data;
+    }
+
+    public function getParameter(string $key)
+    {
+        return $this->parameters[$key] ?? null;
+    }
+
+    public function hasParameter(string $key) : bool
+    {
+        return isset($this->parameters[$key]);
     }
 }

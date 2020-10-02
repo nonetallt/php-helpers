@@ -8,6 +8,7 @@ use Nonetallt\Helpers\Filesystem\Exceptions\TargetNotFileException;
 use Nonetallt\Helpers\Filesystem\Permissions\FilePermissions;
 use Nonetallt\Helpers\Generic\Traits\LazyLoadsProperties;
 use Nonetallt\Helpers\Strings\Str;
+use Nonetallt\Helpers\Strings\Languages\English;
 
 class File implements \IteratorAggregate
 {
@@ -18,6 +19,18 @@ class File implements \IteratorAggregate
     public function __construct(string $path)
     {
         $this->setPath($path);
+    }
+
+    /**
+     * Create a new temporary file
+     *
+     */
+    public static function temp() : self
+    {
+        $tmp = tmpfile();
+        $meta = stream_get_meta_data($tmp);
+
+        return new self($meta['uri']);
     }
 
     public function exists() : bool
@@ -129,8 +142,85 @@ class File implements \IteratorAggregate
         return $this->path;
     }
 
+    public function dirname() : string
+    {
+        return dirname($this->getPath());
+    }
+
+    public function getContent() : string
+    {
+        return file_get_contents($this->getPath());
+    }   
+
     public function getIterator() : \Traversable
     {
         return new FileLineIterator($this);
+    }
+
+    public function getFile() : File
+    {
+        return $this->file;
+    }
+
+    /**
+     * string|FileLineIterator|File $content
+     *
+     *
+     */
+    public function write($content)
+    {
+        if(is_string($content)) {
+            file_put_contents($this->getPath(), $content);
+            return;
+        }
+
+        if(is_a($content, File::class)) {
+            $this->writeLines($content->getLines());
+            return;
+        }
+
+        if(is_a($content, FileLineInterator::class)) {
+            $this->writeLines($content);
+            return;
+        }
+        dd(is_a($content, FileLineInterator::class));
+
+        $types = ['string', File::class, FileLineInterator::class];
+        $msg = 'Content must be ' . English::listWords($types, 'or');
+        throw new \InvalidArgumentException($msg);
+    }
+
+    public function writeLines(FileLineIterator $lines)
+    {
+        $stream = $this->openStream('w');
+        foreach($lines as $line) {
+            fwrite($stream, $line->getContent());
+        }
+        fclose($stream);
+    }
+
+    public function copy(string $destination) : self
+    {
+        $stream = fopen($destination, 'w');
+
+        foreach($this->getLines() as $line) {
+            fwrite($stream, $line->getContent());
+        }
+
+        fclose($stream);
+
+        return new self($destination);
+    }
+
+    public function move(string $destination)
+    {
+        $this->copy($destination);
+        unlink($this->getPath());
+        $this->setPath($destination);
+    }
+
+    public function rename(string $name)
+    {
+        $this->move($this->dirname() . DIRECTORY_SEPARATOR . $name);
     }
 }
